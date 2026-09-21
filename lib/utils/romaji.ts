@@ -57,7 +57,8 @@ function toHiragana(input: string) {
   return out;
 }
 
-export function kanaToRomaji(input: string): string {
+/** Full reading for sentences and clinical instruction lines. */
+export function kanaToRomajiFull(input: string): string {
   const s = toHiragana(input.normalize('NFKC'));
   let out = '';
   let i = 0;
@@ -93,7 +94,12 @@ export function kanaToRomaji(input: string): string {
     if (/[A-Za-z0-9]/.test(ch)) out += ch.toLowerCase();
     i += 1;
   }
-  return out.replace(/[^a-z0-9]+/g, '').slice(0, 28);
+  return out.replace(/[^a-z0-9]+/g, '');
+}
+
+/** Short reading used for stable ids and compact slugs. */
+export function kanaToRomaji(input: string): string {
+  return kanaToRomajiFull(input).slice(0, 28);
 }
 
 /** Deterministic slug used for content IDs and URLs. */

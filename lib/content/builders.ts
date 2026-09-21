@@ -1,4 +1,4 @@
-import { createIdFactory, kanaToRomaji } from '@/lib/utils/romaji';
+import { createIdFactory, kanaToRomaji, kanaToRomajiFull } from '@/lib/utils/romaji';
 import type {
   ClinicalCase,
   ClinicalPhrase,
@@ -170,7 +170,7 @@ export function T(row: TermRow): MedicalTerm {
     id,
     japanese: row.ja,
     kana: row.kana,
-    romaji: kanaToRomaji(row.kana),
+    romaji: kanaToRomajiFull(row.kana),
     english: row.en,
     indonesian: row.idn,
     patientFriendly: row.pf,
@@ -243,7 +243,7 @@ export function P(row: PhraseRow): ClinicalPhrase {
     intent: row.intent,
     japanese: row.ja,
     kana: row.kana,
-    romaji: kanaToRomaji(row.kana),
+    romaji: kanaToRomajiFull(row.kana),
     english: row.en,
     indonesian: row.idn,
     register: row.reg,
@@ -261,7 +261,7 @@ export function P(row: PhraseRow): ClinicalPhrase {
 export type ClinicalLineRow = Omit<ClinicalLine, 'romaji'> & { kana: string };
 
 export function L(row: ClinicalLineRow): ClinicalLine {
-  return { ...row, romaji: kanaToRomaji(row.kana) };
+  return { ...row, romaji: kanaToRomajiFull(row.kana) };
 }
 
 export type MedicationRow = Omit<Medication, 'romaji' | 'whyPrescribed' | 'frequencyInstruction' | 'mealInstruction' | 'prnInstruction' | 'durationInstruction' | 'adverseEffectVocabulary' | 'allergyQuestion' | 'pregnancyWording' | 'reconciliationQuestions'> & {

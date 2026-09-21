@@ -13,7 +13,7 @@ import {
   findTermByJapanese,
   resolveTermRefs,
 } from '@/lib/content';
-import { kanaToRomaji } from '@/lib/utils/romaji';
+import { kanaToRomaji, kanaToRomajiFull } from '@/lib/utils/romaji';
 import { autoFuriganaTokens } from '@/components/japanese';
 import { buildFuriganaDictionary } from '@/lib/content/furigana';
 
@@ -220,5 +220,11 @@ describe('id generation', () => {
     expect(kanaToRomaji('きょうつう')).toBe('kyoutsuu');
     expect(kanaToRomaji('しんきんこうそく')).toBe('shinkinkousoku');
     expect(kanaToRomaji('あなふぃらきしー')).toBe('anafirakishii');
+  });
+
+  it('keeps sentence romaji complete while ids stay compact', () => {
+    const sentence = 'しょうじょうがかいぜんしても、しじされたきかんだけしようしてください。';
+    expect(kanaToRomajiFull(sentence).length).toBeGreaterThan(28);
+    expect(kanaToRomaji(sentence).length).toBe(28);
   });
 });
