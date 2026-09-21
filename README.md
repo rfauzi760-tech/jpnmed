@@ -99,6 +99,12 @@ To deploy: push to a Git repository and import it at vercel.com, or run `npx ver
 this folder. Framework preset is auto-detected as Next.js; build command `next build`,
 output is handled automatically. Node 20 or newer.
 
+## Medical reference implementation
+
+Medical content is Indonesian-first: Japanese → kana → romaji → Bahasa Indonesia, with English optional in Medical display settings. Terms preserve technical, patient-friendly, and patient-expression registers. `/medical/j-unit` provides a phone-first consultation flow, while medication and investigation pages are communication references rather than dosing or decision-support tools.
+
+RFSmed inventory counts are stored as a coverage target in `lib/content/rfsmed.ts`; the current mapped content is intentionally visible as incomplete. Optional `/api/medical/jisho?keyword=...` results are draft-only and are never promoted to verified medical Japanese automatically.
+
 ---
 
 ## High-level success criteria

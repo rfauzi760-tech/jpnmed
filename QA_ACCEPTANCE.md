@@ -25,6 +25,8 @@ Example test queries:
 - chest pain
 - nyeri dada
 
+Medical search also covers romaji, medication and investigation entries. Verify that `demam` returns fever-related clinical content and that Jisho results, when used, are visibly marked as draft.
+
 ---
 
 # 3. Vocabulary
@@ -92,6 +94,8 @@ Pass if:
 - register is visible,
 - kana can be shown,
 - phrase can be added to review.
+
+Medical phrase display order is Japanese, kana, romaji, Bahasa Indonesia, then optional English. J-Unit Mode must expose the encounter stages on a phone and preserve SRS actions.
 
 ---
 

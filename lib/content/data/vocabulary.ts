@@ -1,0 +1,625 @@
+import { V } from '../builders';
+import type { Vocabulary } from '../schema';
+
+/* ------------------------------------------------------------------
+   N2 core + N1 bridge vocabulary.
+
+   Selection follows CURRICULUM.md: abstract nouns, formal written
+   vocabulary, stance and evaluation terms, logical connectors,
+   workplace/news language, and science/health vocabulary. Items that
+   appear in clinical text carry `med: true`.
+------------------------------------------------------------------ */
+
+export const VOCABULARY: Vocabulary[] = [
+  /* ---- Abstract nouns: the backbone of N2 reading ---- */
+  V({
+    ja: '把握', kana: 'はあく', en: 'grasp; comprehension', idn: 'pemahaman; menangkap',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'formal-written'],
+    ex: ['現状を正確に把握する必要がある。', 'We need to accurately grasp the current situation.'],
+    coll: ['状況を把握する', '内容を把握する', '全体を把握する'],
+    defJa: '物事の内容や状態をはっきりと理解すること。',
+  }),
+  V({
+    ja: '傾向', kana: 'けいこう', en: 'tendency; trend', idn: 'kecenderungan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'news-language'],
+    ex: ['若い世代ほど運動量が減る傾向がある。', 'The younger the generation, the greater the tendency for physical activity to decrease.'],
+    coll: ['〜する傾向がある', '傾向が強まる', '上昇傾向'],
+  }),
+  V({
+    ja: '影響', kana: 'えいきょう', en: 'influence; effect', idn: 'pengaruh; dampak',
+    jlpt: 'N3', tags: ['core', 'abstract-noun', 'cause-effect'],
+    ex: ['睡眠不足は判断力に影響を与える。', 'Lack of sleep affects judgement.'],
+    coll: ['影響を与える', '影響を受ける', '悪影響を及ぼす'],
+  }),
+  V({
+    ja: '要因', kana: 'よういん', en: 'factor; cause', idn: 'faktor; penyebab',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'cause-effect', 'health'], med: true,
+    ex: ['生活習慣が最大の要因と考えられている。', 'Lifestyle habits are considered the largest contributing factor.'],
+    syn: ['原因', '要素'],
+  }),
+  V({
+    ja: '事情', kana: 'じじょう', en: 'circumstances; situation', idn: 'keadaan; situasi',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'workplace'],
+    ex: ['家庭の事情で転勤を断った。', 'He declined the transfer due to family circumstances.'],
+    coll: ['事情を説明する', '事情がある'],
+  }),
+  V({
+    ja: '認識', kana: 'にんしき', en: 'recognition; awareness; understanding', idn: 'kesadaran; pemahaman',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'formal-written'],
+    ex: ['問題の深刻さが十分に認識されていない。', 'The seriousness of the problem is not sufficiently recognised.'],
+    coll: ['認識が甘い', '認識を共有する', '共通認識'],
+  }),
+  V({
+    ja: '意義', kana: 'いぎ', en: 'significance; meaning; value', idn: 'makna; signifikansi',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'academic'],
+    ex: ['この研究には臨床的な意義がある。', 'This research has clinical significance.'],
+    syn: ['意味', '価値'],
+  }),
+  V({
+    ja: '課題', kana: 'かだい', en: 'task; issue; assignment', idn: 'tugas; persoalan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'workplace'],
+    ex: ['人手不足への対応が今後の課題だ。', 'Responding to the staff shortage is the issue for the future.'],
+    coll: ['課題を解決する', '課題が残る', '今後の課題'],
+  }),
+  V({
+    ja: '対応', kana: 'たいおう', en: 'response; handling; correspondence', idn: 'penanganan; tanggapan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'workplace', 'medical'], med: true,
+    ex: ['救急外来では急患の対応を優先する。', 'In the emergency department, handling urgent patients takes priority.'],
+    coll: ['対応する', '対応が遅れる', '適切な対応'],
+  }),
+  V({
+    ja: '措置', kana: 'そち', en: 'measure; step', idn: 'tindakan; langkah',
+    jlpt: 'N1', tags: ['n1-bridge', 'abstract-noun', 'formal-written'],
+    ex: ['感染拡大を防ぐ措置が取られた。', 'Measures were taken to prevent the spread of infection.'],
+    syn: ['手段', '対策'],
+  }),
+  V({
+    ja: '制度', kana: 'せいど', en: 'system; institution', idn: 'sistem; lembaga',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'society'],
+    ex: ['医療保険制度は国によって異なる。', 'Health insurance systems differ from country to country.'],
+    coll: ['制度を導入する', '制度が変わる'],
+  }),
+  V({
+    ja: '仕組み', kana: 'しくみ', en: 'mechanism; structure; system', idn: 'mekanisme; susunan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'science'],
+    ex: ['発熱の仕組みを図で説明した。', 'I explained the mechanism of fever with a diagram.'],
+    syn: ['構造', '機構'],
+  }),
+  V({
+    ja: '概念', kana: 'がいねん', en: 'concept; notion', idn: 'konsep',
+    jlpt: 'N1', tags: ['n1-bridge', 'abstract-noun', 'academic'],
+    ex: ['この概念は初学者には理解しにくい。', 'This concept is hard for beginners to understand.'],
+  }),
+  V({
+    ja: '前提', kana: 'ぜんてい', en: 'premise; precondition; assumption', idn: 'premis; prasyarat',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'academic'],
+    ex: ['同意が得られていることを前提に進める。', 'We proceed on the premise that consent has been obtained.'],
+    coll: ['〜を前提とする', '前提が崩れる'],
+  }),
+  V({
+    ja: '要素', kana: 'ようそ', en: 'element; factor; component', idn: 'unsur; elemen',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'science'],
+    ex: ['睡眠・食事・運動の三つが重要な要素だ。', 'Sleep, diet and exercise are the three key elements.'],
+    syn: ['成分', '要因'],
+  }),
+  V({
+    ja: '基準', kana: 'きじゅん', en: 'standard; criterion; basis', idn: 'standar; patokan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'formal-written', 'medical'], med: true,
+    ex: ['入院の基準を満たしているか確認する。', 'Check whether the criteria for admission are met.'],
+    coll: ['基準を満たす', '判断の基準'],
+  }),
+  V({
+    ja: '範囲', kana: 'はんい', en: 'range; scope; extent', idn: 'cakupan; rentang',
+    jlpt: 'N3', tags: ['core', 'abstract-noun'],
+    ex: ['痛みの範囲は肩から腕にかけて広がっている。', 'The area of pain extends from the shoulder down the arm.'],
+    coll: ['範囲内', '範囲を超える'],
+  }),
+  V({
+    ja: '過程', kana: 'かてい', en: 'process; course; stage', idn: 'proses; tahapan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'academic'],
+    ex: ['回復の過程で合併症が生じることがある。', 'Complications can arise during the process of recovery.'],
+    syn: ['プロセス', '経過'],
+  }),
+  V({
+    ja: '背景', kana: 'はいけい', en: 'background; circumstances behind', idn: 'latar belakang',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'society'],
+    ex: ['この政策の背景には高齢化がある。', 'Behind this policy lies population ageing.'],
+    coll: ['背景にある', '社会的背景'],
+  }),
+  V({
+    ja: '動向', kana: 'どうこう', en: 'trend; movements; developments', idn: 'tren; perkembangan',
+    jlpt: 'N1', tags: ['n1-bridge', 'abstract-noun', 'news-language'],
+    ex: ['感染症の動向を毎週監視している。', 'We monitor the trend of infectious diseases weekly.'],
+  }),
+
+  /* ---- Evaluation and stance ---- */
+  V({
+    ja: '妥当', kana: 'だとう', en: 'valid; reasonable; appropriate', idn: 'layak; wajar',
+    jlpt: 'N1', tags: ['n1-bridge', 'evaluation', 'formal-written'],
+    ex: ['その判断は妥当とは言えない。', 'That judgement cannot be called reasonable.'],
+    coll: ['妥当な判断', '妥当性を検討する'],
+  }),
+  V({
+    ja: '適切', kana: 'てきせつ', en: 'appropriate; suitable', idn: 'tepat; sesuai',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'medical'], med: true,
+    ex: ['適切な抗菌薬を選択する必要がある。', 'It is necessary to select an appropriate antibiotic.'],
+    coll: ['適切な対応', '適切に処理する'],
+  }),
+  V({
+    ja: '不可欠', kana: 'ふかけつ', en: 'indispensable; essential', idn: 'sangat diperlukan',
+    jlpt: 'N1', tags: ['n1-bridge', 'evaluation', 'formal-written'],
+    ex: ['正確な問診は診断に不可欠である。', 'Accurate history taking is indispensable for diagnosis.'],
+    syn: ['欠かせない', '必要不可欠'],
+    med: true,
+  }),
+  V({
+    ja: '深刻', kana: 'しんこく', en: 'serious; grave; acute', idn: 'serius; parah',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'news-language', 'health'], med: true,
+    ex: ['貧血が予想以上に深刻だった。', 'The anaemia was more serious than expected.'],
+    coll: ['深刻な問題', '事態が深刻になる'],
+  }),
+  V({
+    ja: '顕著', kana: 'けんちょ', en: 'remarkable; marked; noticeable', idn: 'mencolok; nyata',
+    jlpt: 'N1', tags: ['n1-bridge', 'evaluation', 'academic'],
+    ex: ['改善効果は高齢者で特に顕著だった。', 'The improvement was especially marked in elderly patients.'],
+    syn: ['著しい', '目立った'],
+    med: true,
+  }),
+  V({
+    ja: '曖昧', kana: 'あいまい', en: 'ambiguous; vague', idn: 'ambigu; tidak jelas',
+    jlpt: 'N2', tags: ['core', 'evaluation'],
+    ex: ['曖昧な表現は誤解を招きやすい。', 'Vague expressions easily cause misunderstanding.'],
+    coll: ['曖昧な返事', '曖昧にする'],
+  }),
+  V({
+    ja: '矛盾', kana: 'むじゅん', en: 'contradiction; inconsistency', idn: 'kontradiksi',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'academic'],
+    ex: ['検査結果と症状の間に矛盾がある。', 'There is a contradiction between the test results and the symptoms.'],
+    coll: ['矛盾が生じる', '矛盾を指摘する'],
+    med: true,
+  }),
+  V({
+    ja: '客観的', kana: 'きゃっかんてき', en: 'objective', idn: 'objektif',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'academic'],
+    ex: ['客観的なデータに基づいて判断すべきだ。', 'Decisions should be based on objective data.'],
+    ant: ['主観的'],
+  }),
+  V({
+    ja: '主観的', kana: 'しゅかんてき', en: 'subjective', idn: 'subjektif',
+    jlpt: 'N2', tags: ['core', 'evaluation'],
+    ex: ['痛みの強さは主観的な指標である。', 'Pain intensity is a subjective measure.'],
+    ant: ['客観的'],
+    med: true,
+  }),
+  V({
+    ja: '積極的', kana: 'せっきょくてき', en: 'positive; proactive; active', idn: 'proaktif; aktif',
+    jlpt: 'N2', tags: ['core', 'stance'],
+    ex: ['早期から積極的にリハビリを行う。', 'We actively start rehabilitation from an early stage.'],
+    ant: ['消極的'],
+    med: true,
+  }),
+  V({
+    ja: '消極的', kana: 'しょうきょくてき', en: 'passive; hesitant; negative', idn: 'pasif; ragu',
+    jlpt: 'N2', tags: ['core', 'stance'],
+    ex: ['手術には消極的な姿勢を示した。', 'The patient showed a hesitant attitude toward surgery.'],
+    ant: ['積極的'],
+  }),
+  V({
+    ja: '慎重', kana: 'しんちょう', en: 'cautious; careful; prudent', idn: 'hati-hati; berhati-hati',
+    jlpt: 'N2', tags: ['core', 'stance', 'medical'], med: true,
+    ex: ['腎機能が低下しているので慎重に投与する。', 'Because renal function is impaired, administer cautiously.'],
+    coll: ['慎重に検討する', '慎重な判断'],
+  }),
+  V({
+    ja: '柔軟', kana: 'じゅうなん', en: 'flexible; adaptable', idn: 'fleksibel; lentur',
+    jlpt: 'N2', tags: ['core', 'stance', 'workplace'],
+    ex: ['状況に応じて柔軟に対応したい。', 'We would like to respond flexibly according to the situation.'],
+    coll: ['柔軟な対応', '柔軟に考える'],
+  }),
+  V({
+    ja: '一貫', kana: 'いっかん', en: 'consistent; coherent', idn: 'konsisten',
+    jlpt: 'N1', tags: ['n1-bridge', 'evaluation', 'formal-written'],
+    ex: ['彼の説明は最初から一貫していた。', 'His explanation was consistent from the start.'],
+    coll: ['一貫した方針', '一貫性がある'],
+  }),
+  V({
+    ja: '画期的', kana: 'かっきてき', en: 'groundbreaking; epoch-making', idn: 'revolusioner; terobosan',
+    jlpt: 'N1', tags: ['n1-bridge', 'evaluation', 'science'],
+    ex: ['その薬は治療の転換点となる画期的なものだった。', 'That drug was a groundbreaking one that marked a turning point in treatment.'],
+    med: true,
+  }),
+
+  /* ---- Logical connectors and trap words ---- */
+  V({
+    ja: 'したがって', kana: 'したがって', en: 'therefore; consequently', idn: 'oleh karena itu',
+    jlpt: 'N2', tags: ['connective', 'formal-written', 'cause-effect'],
+    ex: ['発熱がある。したがって、まず感染症を疑う。', 'There is a fever. Therefore, infection is suspected first.'],
+    pos: ['conjunction'],
+  }),
+  V({
+    ja: 'ゆえに', kana: 'ゆえに', en: 'hence; therefore', idn: 'maka dari itu',
+    jlpt: 'N1', tags: ['n1-bridge', 'connective', 'formal-written'],
+    ex: ['根拠が乏しい。ゆえに結論は保留すべきだ。', 'The evidence is weak. Hence, the conclusion should be withheld.'],
+    pos: ['conjunction'],
+  }),
+  V({
+    ja: 'もっとも', kana: 'もっとも', en: 'although; that said (concessive)', idn: 'meskipun demikian',
+    jlpt: 'N1', tags: ['n1-bridge', 'connective', 'trap-word', 'formal-written'],
+    ex: ['全員が参加した。もっとも、全員が賛成したわけではない。', 'Everyone attended. That said, not everyone agreed.'],
+    pos: ['conjunction'],
+    note: 'Easily confused with 最も (most). In reading, a concessive もっとも signals a partial retraction.',
+  }),
+  V({
+    ja: 'ただし', kana: 'ただし', en: 'however; provided that', idn: 'namun; dengan syarat',
+    jlpt: 'N2', tags: ['connective', 'formal-written', 'trap-word'],
+    ex: ['当日受診可能です。ただし、予約が必要です。', 'You can be seen the same day. However, an appointment is required.'],
+    pos: ['conjunction'],
+  }),
+  V({
+    ja: 'むしろ', kana: 'むしろ', en: 'rather; instead', idn: 'justru; sebaliknya',
+    jlpt: 'N2', tags: ['core', 'adverb', 'connective'],
+    ex: ['安静より、むしろ軽い運動が勧められる。', 'Rather than rest, light exercise is recommended.'],
+    pos: ['adverb'],
+  }),
+  V({
+    ja: 'かえって', kana: 'かえって', en: 'on the contrary; all the more', idn: 'malah sebaliknya',
+    jlpt: 'N2', tags: ['core', 'adverb', 'trap-word'],
+    ex: ['強く押すと、かえって痛みが増す。', 'Pressing hard makes the pain worse instead.'],
+    pos: ['adverb'],
+    note: 'Often the pivot of a contrast question: the result is the opposite of expectation.',
+  }),
+  V({
+    ja: 'あえて', kana: 'あえて', en: 'deliberately; dare to', idn: 'dengan sengaja',
+    jlpt: 'N2', tags: ['core', 'adverb', 'stance'],
+    ex: ['あえて検査を省略したわけではない。', 'It is not that we deliberately omitted the test.'],
+    pos: ['adverb'],
+  }),
+  V({
+    ja: 'まして', kana: 'まして', en: 'much less; let alone', idn: 'terlebih lagi; apalagi',
+    jlpt: 'N1', tags: ['n1-bridge', 'adverb', 'trap-word'],
+    ex: ['専門医でも難しい。まして私には無理だ。', 'Even a specialist finds it difficult. Much less me.'],
+    pos: ['adverb'],
+  }),
+  V({
+    ja: '必ずしも', kana: 'かならずしも', en: 'not necessarily', idn: 'belum tentu',
+    jlpt: 'N2', tags: ['core', 'adverb', 'trap-word', 'negation'],
+    ex: ['検査値が正常だからといって、必ずしも安心できない。', 'Even if the laboratory values are normal, one cannot necessarily be reassured.'],
+    pos: ['adverb'],
+    note: 'Requires a negative predicate. Answers that ignore the negation are typical distractors.',
+  }),
+  V({
+    ja: '一概に', kana: 'いちがいに', en: 'categorically; unconditionally', idn: 'secara umum; begitu saja',
+    jlpt: 'N1', tags: ['n1-bridge', 'adverb', 'negation'],
+    ex: ['一概に手術が良いとは言えない。', 'One cannot categorically say surgery is better.'],
+    pos: ['adverb'],
+    coll: ['一概に言えない', '一概には言えない'],
+  }),
+  V({
+    ja: '果たして', kana: 'はたして', en: 'really; as expected', idn: 'apakah benar; ternyata',
+    jlpt: 'N1', tags: ['n1-bridge', 'adverb', 'stance'],
+    ex: ['果たしてその方針で患者のためになるのか。', 'Will that approach really benefit the patient?'],
+    pos: ['adverb'],
+  }),
+  V({
+    ja: 'いわば', kana: 'いわば', en: 'so to speak; as it were', idn: 'bisa dibilang',
+    jlpt: 'N2', tags: ['core', 'adverb', 'formal-written'],
+    ex: ['胃カメラは、いわば体の中の写真を撮る検査だ。', 'Gastroscopy is, so to speak, a test that photographs the inside of the body.'],
+    pos: ['adverb'],
+    med: true,
+  }),
+  V({
+    ja: 'いずれにせよ', kana: 'いずれにせよ', en: 'in any case; either way', idn: 'bagaimanapun juga',
+    jlpt: 'N2', tags: ['core', 'connective', 'formal-written'],
+    ex: ['いずれにせよ、一度は外来で評価する必要がある。', 'In any case, evaluation in the outpatient clinic is necessary at least once.'],
+    pos: ['adverb'],
+  }),
+  V({
+    ja: 'とりわけ', kana: 'とりわけ', en: 'especially; above all', idn: 'terutama; khususnya',
+    jlpt: 'N2', tags: ['core', 'adverb', 'news-language'],
+    ex: ['高齢者では、とりわけ脱水に注意が必要だ。', 'In elderly patients, attention to dehydration is especially necessary.'],
+    pos: ['adverb'],
+    syn: ['特に'],
+  }),
+  V({
+    ja: 'おのずと', kana: 'おのずと', en: 'naturally; of itself', idn: 'dengan sendirinya',
+    jlpt: 'N1', tags: ['n1-bridge', 'adverb', 'formal-written'],
+    ex: ['経験を積めば、おのずと見えてくるものがある。', 'As you gain experience, some things become visible of themselves.'],
+    pos: ['adverb'],
+  }),
+
+  /* ---- Workplace, news, society ---- */
+  V({
+    ja: '実施', kana: 'じっし', en: 'implementation; carrying out', idn: 'pelaksanaan',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'workplace', 'health'], med: true,
+    ex: ['来月から検診を実施します。', 'We will carry out screening examinations from next month.'],
+    coll: ['実施する', '実施予定'],
+  }),
+  V({
+    ja: '導入', kana: 'どうにゅう', en: 'introduction; adoption; installation', idn: 'penerapan; pemasangan',
+    jlpt: 'N2', tags: ['core', 'workplace', 'science'],
+    ex: ['電子カルテを導入して業務が変わった。', 'Work changed after we introduced electronic medical records.'],
+    coll: ['導入する', '導入を検討する'],
+  }),
+  V({
+    ja: '見直す', kana: 'みなおす', en: 'to review; to reconsider; to revise', idn: 'meninjau ulang',
+    jlpt: 'N2', tags: ['core', 'workplace'],
+    ex: ['治療方針をいったん見直す必要がある。', 'We need to review the treatment plan for the moment.'],
+    med: true,
+  }),
+  V({
+    ja: '促進', kana: 'そくしん', en: 'promotion; facilitation', idn: 'mendorong; mempercepat',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'health'], med: true,
+    ex: ['胃腸の動きを促進する薬を処方した。', 'I prescribed a drug that promotes gastrointestinal movement.'],
+    syn: ['促す'],
+  }),
+  V({
+    ja: '抑制', kana: 'よくせい', en: 'suppression; inhibition; restraint', idn: 'penekanan; penghambatan',
+    jlpt: 'N1', tags: ['n1-bridge', 'academic', 'medical'], med: true,
+    ex: ['炎症を抑制する作用がある。', 'It has an action that suppresses inflammation.'],
+    syn: ['抑える'],
+  }),
+  V({
+    ja: '緩和', kana: 'かんわ', en: 'relaxation; easing; relief', idn: 'peredaan; pelonggaran',
+    jlpt: 'N2', tags: ['core', 'health', 'formal-written'], med: true,
+    ex: ['痛みの緩和を優先して対応した。', 'We prioritised pain relief in our management.'],
+    coll: ['症状を緩和する', '緩和ケア'],
+  }),
+  V({
+    ja: '拡大', kana: 'かくだい', en: 'expansion; enlargement', idn: 'perluasan',
+    jlpt: 'N2', tags: ['core', 'news-language', 'health'], med: true,
+    ex: ['心臓の拡大が疑われる所見です。', 'These findings suggest cardiac enlargement.'],
+    ant: ['縮小'],
+  }),
+  V({
+    ja: '縮小', kana: 'しゅくしょう', en: 'reduction; shrinking', idn: 'pengurangan; penyusutan',
+    jlpt: 'N2', tags: ['core', 'news-language', 'health'], med: true,
+    ex: ['腫瘍は治療後に縮小した。', 'The tumour shrank after treatment.'],
+    ant: ['拡大'],
+  }),
+  V({
+    ja: '維持', kana: 'いじ', en: 'maintenance; preservation', idn: 'pemeliharaan',
+    jlpt: 'N2', tags: ['core', 'health', 'formal-written'], med: true,
+    ex: ['血圧を正常に維持することが目標です。', 'The goal is to maintain blood pressure at a normal level.'],
+    coll: ['維持する', '現状維持'],
+  }),
+  V({
+    ja: '確保', kana: 'かくほ', en: 'securing; ensuring; reserving', idn: 'menjamin; mendapatkan',
+    jlpt: 'N2', tags: ['core', 'workplace', 'formal-written'],
+    ex: ['静脈路を確保して点滴を開始する。', 'Secure intravenous access and start the drip.'],
+    med: true,
+  }),
+  V({
+    ja: '充実', kana: 'じゅうじつ', en: 'enrichment; fulfilment; improvement', idn: 'pengayaan; peningkatan',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'workplace'],
+    ex: ['救急体制の充実が求められている。', 'Improvement of the emergency care system is called for.'],
+  }),
+  V({
+    ja: '配慮', kana: 'はいりょ', en: 'consideration; concern; care', idn: 'pertimbangan; perhatian',
+    jlpt: 'N2', tags: ['core', 'stance', 'formal-written'],
+    ex: ['患者のプライバシーに配慮する。', 'We are considerate of patient privacy.'],
+    coll: ['配慮する', '配慮が足りない'],
+    med: true,
+  }),
+  V({
+    ja: '貢献', kana: 'こうけん', en: 'contribution', idn: 'kontribusi',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'society'],
+    ex: ['この研究は地域医療に貢献するだろう。', 'This research will contribute to community healthcare.'],
+  }),
+  V({
+    ja: '普及', kana: 'ふきゅう', en: 'spread; popularisation; diffusion', idn: 'penyebaran; maraknya penggunaan',
+    jlpt: 'N2', tags: ['core', 'society', 'science'],
+    ex: ['在宅医療の普及が進んでいる。', 'The spread of home healthcare is progressing.'],
+    coll: ['普及する', '普及率'],
+  }),
+  V({
+    ja: '応用', kana: 'おうよう', en: 'application; practical use', idn: 'penerapan; aplikasi',
+    jlpt: 'N2', tags: ['core', 'academic', 'science'],
+    ex: ['この知見は臨床にも応用できる。', 'This knowledge can also be applied clinically.'],
+    med: true,
+  }),
+
+  /* ---- Science, health and evidence ---- */
+  V({
+    ja: '検証', kana: 'けんしょう', en: 'verification; examination; validation', idn: 'verifikasi; pengujian',
+    jlpt: 'N2', tags: ['core', 'academic', 'science'], med: true,
+    ex: ['仮説を検証するための試験が計画された。', 'A trial was planned to verify the hypothesis.'],
+  }),
+  V({
+    ja: '推定', kana: 'すいてい', en: 'estimation; presumption', idn: 'perkiraan; estimasi',
+    jlpt: 'N2', tags: ['core', 'academic', 'science'], med: true,
+    ex: ['発症からの経過時間は3時間と推定される。', 'The time since onset is estimated at three hours.'],
+    coll: ['推定される', '推定値'],
+  }),
+  V({
+    ja: '分析', kana: 'ぶんせき', en: 'analysis', idn: 'analisis',
+    jlpt: 'N2', tags: ['core', 'academic', 'science'], med: true,
+    ex: ['血液を分析して原因を調べます。', 'We will analyse the blood to investigate the cause.'],
+    coll: ['分析する', 'データ分析'],
+  }),
+  V({
+    ja: '検討', kana: 'けんとう', en: 'examination; consideration; review', idn: 'kajian; pertimbangan',
+    jlpt: 'N2', tags: ['core', 'workplace', 'formal-written'], med: true,
+    ex: ['専門科への紹介も検討しましょう。', 'Let us also consider referral to a specialist department.'],
+    coll: ['検討する', '再検討', '検討中'],
+  }),
+  V({
+    ja: '因果関係', kana: 'いんがかんけい', en: 'causal relationship', idn: 'hubungan sebab-akibat',
+    jlpt: 'N1', tags: ['n1-bridge', 'academic', 'cause-effect', 'science'], med: true,
+    ex: ['因果関係があるとは断定できない。', 'It cannot be concluded that there is a causal relationship.'],
+    note: 'Reading questions about medical or scientific texts often turn on the difference between correlation and causation.',
+  }),
+  V({
+    ja: '相関', kana: 'そうかん', en: 'correlation', idn: 'korelasi',
+    jlpt: 'N1', tags: ['n1-bridge', 'academic', 'science'], med: true,
+    ex: ['睡眠時間と肥満には相関が見られる。', 'A correlation is seen between sleep duration and obesity.'],
+    coll: ['相関関係', '相関がある'],
+  }),
+  V({
+    ja: '有効性', kana: 'ゆうこうせい', en: 'efficacy; effectiveness', idn: 'kemanjuran; efektivitas',
+    jlpt: 'N2', tags: ['core', 'academic', 'medical'], med: true,
+    ex: ['この治療の有効性はまだ証明されていない。', 'The efficacy of this treatment has not yet been proven.'],
+  }),
+  V({
+    ja: '副作用', kana: 'ふくさよう', en: 'side effect; adverse reaction', idn: 'efek samping',
+    jlpt: 'N2', tags: ['core', 'health', 'medical'], med: true,
+    ex: ['眠気や吐き気などの副作用が出ることがあります。', 'Side effects such as drowsiness or nausea may occur.'],
+    coll: ['副作用が出る', '副作用を説明する'],
+  }),
+  V({
+    ja: '疫学', kana: 'えきがく', en: 'epidemiology', idn: 'epidemiologi',
+    jlpt: 'N1', tags: ['n1-bridge', 'academic', 'medical', 'science'], med: true,
+    ex: ['疫学的なデータでは発症率が横ばいである。', 'Epidemiological data show that the incidence rate is level.'],
+  }),
+  V({
+    ja: '発症', kana: 'はっしょう', en: 'onset (of disease); development', idn: 'timbulnya penyakit',
+    jlpt: 'N2', tags: ['core', 'health', 'medical'], med: true,
+    ex: ['症状の発症から24時間以内に治療を開始すべきだ。', 'Treatment should begin within 24 hours of symptom onset.'],
+    coll: ['発症する', '発症リスク'],
+  }),
+  V({
+    ja: '予後', kana: 'よご', en: 'prognosis; outcome', idn: 'prognosis',
+    jlpt: 'N1', tags: ['n1-bridge', 'health', 'medical'], med: true,
+    ex: ['早期治療で予後は改善する。', 'Prognosis improves with early treatment.'],
+    coll: ['予後が良い', '予後不良'],
+  }),
+  V({
+    ja: '経過', kana: 'けいか', en: 'course; progress; elapsed time', idn: 'perjalanan; perkembangan',
+    jlpt: 'N2', tags: ['core', 'health', 'medical'], med: true,
+    ex: ['症状の経過を詳しく教えてください。', 'Please tell me the course of your symptoms in detail.'],
+    coll: ['経過を観察する', '経過が良い'],
+  }),
+  V({
+    ja: '適応', kana: 'てきおう', en: 'indication; suitability; adaptation', idn: 'indikasi; adaptasi',
+    jlpt: 'N2', tags: ['core', 'health', 'medical', 'academic'], med: true,
+    ex: ['この治療の適応があるか確認する。', 'Check whether there is an indication for this treatment.'],
+    note: 'In clinical writing 適応 = medical indication; in general usage = adaptation.',
+  }),
+  V({
+    ja: '耐性', kana: 'たいせい', en: 'resistance; tolerance', idn: 'resistensi; toleransi',
+    jlpt: 'N2', tags: ['core', 'health', 'medical'], med: true,
+    ex: ['抗菌薬に対する耐性菌が増えている。', 'Resistant bacteria against antibiotics are increasing.'],
+  }),
+  V({
+    ja: '発現', kana: 'はつげん', en: 'manifestation; onset (of an effect)', idn: 'timbulnya; munculnya',
+    jlpt: 'N1', tags: ['n1-bridge', 'health', 'medical', 'formal-written'], med: true,
+    ex: ['投与後30分以内に発現することが多い。', 'It often manifests within 30 minutes after administration.'],
+  }),
+
+  /* ---- High-frequency formal verbs and reading trap items ---- */
+  V({
+    ja: '一方的', kana: 'いっぽうてき', en: 'one-sided; unilateral', idn: 'sepihak',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'society'],
+    ex: ['一方的に説明を終えるのは避けるべきだ。', 'Finishing with a one-sided explanation should be avoided.'],
+    med: true,
+  }),
+  V({
+    ja: '取り組む', kana: 'とりくむ', en: 'to work on; to grapple with', idn: 'berupaya; menangani',
+    jlpt: 'N2', tags: ['core', 'workplace'],
+    ex: ['病院全体で感染対策に取り組んでいる。', 'The whole hospital is working on infection control.'],
+    coll: ['課題に取り組む'],
+  }),
+  V({
+    ja: '見込む', kana: 'みこむ', en: 'to anticipate; to expect; to foresee', idn: 'memperkirakan',
+    jlpt: 'N2', tags: ['core', 'evaluation', 'workplace'],
+    ex: ['数日の入院が必要と見込まれます。', 'A few days of hospitalisation are anticipated.'],
+    med: true,
+  }),
+  V({
+    ja: '伴う', kana: 'ともなう', en: 'to accompany; to be accompanied by', idn: 'menyertai; disertai',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'cause-effect'], med: true,
+    ex: ['発熱を伴う咳が見られる。', 'A cough accompanied by fever is observed.'],
+    coll: ['〜を伴う', '〜に伴って'],
+  }),
+  V({
+    ja: '至る', kana: 'いたる', en: 'to reach; to arrive at (a conclusion)', idn: 'mencapai; sampai pada',
+    jlpt: 'N2', tags: ['core', 'formal-written'],
+    ex: ['検討の結果、中止するという結論に至った。', 'After consideration, we arrived at the conclusion to discontinue.'],
+    coll: ['〜に至る', '結論に至る'],
+  }),
+  V({
+    ja: '関わる', kana: 'かかわる', en: 'to be involved; to relate to', idn: 'berkaitan; terlibat',
+    jlpt: 'N3', tags: ['core', 'workplace'],
+    ex: ['命に関わる状態ではありません。', 'It is not a condition that threatens life.'],
+    med: true,
+  }),
+  V({
+    ja: '求める', kana: 'もとめる', en: 'to seek; to demand; to require', idn: 'menuntut; mencari',
+    jlpt: 'N2', tags: ['core', 'formal-written'],
+    ex: ['患者はより詳しい説明を求めた。', 'The patient asked for a more detailed explanation.'],
+  }),
+  V({
+    ja: '促す', kana: 'うながす', en: 'to urge; to prompt; to encourage', idn: 'mendorong; mengimbau',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'health'], med: true,
+    ex: ['水分摂取を促してください。', 'Please encourage fluid intake.'],
+    syn: ['勧める'],
+  }),
+  V({
+    ja: '踏まえる', kana: 'ふまえる', en: 'to be based on; to take into account', idn: 'berdasarkan; memperhitungkan',
+    jlpt: 'N1', tags: ['n1-bridge', 'formal-written', 'academic'],
+    ex: ['検査結果を踏まえて方針を決める。', 'We decide the plan based on the test results.'],
+    coll: ['〜を踏まえて'],
+    med: true,
+  }),
+  V({
+    ja: '損なう', kana: 'そこなう', en: 'to harm; to impair; to damage', idn: 'merusak; mengganggu',
+    jlpt: 'N1', tags: ['n1-bridge', 'formal-written', 'health'], med: true,
+    ex: ['脱水は腎機能を損なうおそれがある。', 'Dehydration may impair renal function.'],
+  }),
+  V({
+    ja: '妨げる', kana: 'さまたげる', en: 'to hinder; to obstruct', idn: 'menghalangi',
+    jlpt: 'N2', tags: ['core', 'formal-written'], med: true,
+    ex: ['睡眠不足は回復を妨げる。', 'Lack of sleep hinders recovery.'],
+    syn: ['邪魔する'],
+  }),
+  V({
+    ja: '補う', kana: 'おぎなう', en: 'to supplement; to compensate for', idn: 'melengkapi; menutupi',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'health'], med: true,
+    ex: ['不足した電解質を補うため点滴を行う。', 'We give an infusion to supplement the deficient electrolytes.'],
+  }),
+  V({
+    ja: '訴える', kana: 'うったえる', en: 'to complain of (a symptom); to appeal', idn: 'mengeluh (gejala); menyerukan',
+    jlpt: 'N2', tags: ['core', 'health', 'medical'], med: true,
+    ex: ['患者は強い腰痛を訴えている。', 'The patient complains of severe lower back pain.'],
+    coll: ['痛みを訴える', '症状を訴える'],
+    note: 'In clinical records 訴える always means "to present with / complain of".',
+  }),
+  V({
+    ja: '懸念', kana: 'けねん', en: 'concern; worry; apprehension', idn: 'kekhawatiran',
+    jlpt: 'N2', tags: ['core', 'formal-written', 'news-language'], med: true,
+    ex: ['再出血の懸念がある。', 'There is concern about rebleeding.'],
+    coll: ['懸念される', '懸念が残る'],
+  }),
+  V({
+    ja: '余地', kana: 'よち', en: 'room; margin; scope', idn: 'ruang; peluang',
+    jlpt: 'N1', tags: ['n1-bridge', 'formal-written', 'evaluation'], med: true,
+    ex: ['改善の余地は十分にある。', 'There is ample room for improvement.'],
+    coll: ['余地がない', '検討の余地'],
+  }),
+  V({
+    ja: '動機', kana: 'どうき', en: 'motive; motivation', idn: 'motif; dorongan',
+    jlpt: 'N2', tags: ['core', 'abstract-noun', 'psychology'],
+    ex: ['受診の動機は人によって異なる。', 'The motive for seeking care differs from person to person.'],
+  }),
+  V({
+    ja: '逸脱', kana: 'いつだつ', en: 'deviation; departure (from)', idn: 'penyimpangan',
+    jlpt: 'N1', tags: ['n1-bridge', 'formal-written', 'academic'],
+    ex: ['ガイドラインからの逸脱は記録に残す。', 'Deviations from the guideline are recorded in the notes.'],
+  }),
+  V({
+    ja: '無視', kana: 'むし', en: 'ignoring; disregard', idn: 'mengabaikan',
+    jlpt: 'N2', tags: ['core', 'evaluation'],
+    ex: ['この症状を無視するのは危険です。', 'It is dangerous to ignore this symptom.'],
+    med: true,
+  }),
+  V({
+    ja: '位置づける', kana: 'いちづける', en: 'to position; to place (in context)', idn: 'memposisikan',
+    jlpt: 'N1', tags: ['n1-bridge', 'formal-written', 'academic'],
+    ex: ['この段落は結論を補強する役割に位置づけられる。', 'This paragraph is positioned as reinforcing the conclusion.'],
+  }),
+  V({
+    ja: '推移', kana: 'すいい', en: 'transition; trend; course of change', idn: 'perkembangan; perubahan',
+    jlpt: 'N1', tags: ['n1-bridge', 'news-language', 'health'], med: true,
+    ex: ['体温の推移をグラフに記録する。', 'Record the trend of body temperature on a chart.'],
+    coll: ['推移を見守る', '推移する'],
+  }),
+];

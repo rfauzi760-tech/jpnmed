@@ -1,0 +1,500 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   J-Med Mastery — design tokens
+
+   Both themes are designed, not inverted. Light is warm paper for long
+   daytime reading; dark is deep neutral charcoal for night sessions.
+   Most of the interface stays neutral; the accent is used sparingly.
+------------------------------------------------------------------ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --background: #f7f6f3;
+  --foreground: #191a1c;
+  --surface: #ffffff;
+  --surface-secondary: #efede8;
+  --surface-inset: #f2f0ec;
+
+  /* Lines */
+  --border: #e0ddd6;
+  --border-strong: #c9c5bc;
+
+  /* Text */
+  --muted: #6d6a64;
+  --muted-foreground: #57554f;
+
+  /* Accent (default: celadon teal) */
+  --primary: #0f5f57;
+  --primary-hover: #0b4d46;
+  --primary-foreground: #f4fbf9;
+  --primary-muted: #e2efec;
+
+  /* Semantic */
+  --success: #2c6f47;
+  --success-muted: #e3efe7;
+  --warning: #8a5a06;
+  --warning-muted: #f6edda;
+  --danger: #9d2a20;
+  --danger-muted: #f7e5e2;
+  --info: #1f567d;
+  --info-muted: #e3edf4;
+
+  /* Rating scale (SRS) */
+  --rating-again: #9d2a20;
+  --rating-hard: #8a5a06;
+  --rating-good: #0f5f57;
+  --rating-easy: #2c6f47;
+
+  /* Elevation: restrained, never decorative */
+  --shadow-panel: 0 1px 2px rgb(24 22 18 / 0.05), 0 1px 1px rgb(24 22 18 / 0.03);
+  --shadow-overlay: 0 12px 32px -12px rgb(24 22 18 / 0.28), 0 2px 6px rgb(24 22 18 / 0.06);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-dialog: 14px;
+
+  /* Reading surface, user adjustable at runtime */
+  --reading-size: 18px;
+  --reading-leading: 1.95;
+  --reading-width: 34rem;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #14161a;
+  --foreground: #e7e6e2;
+  --surface: #1b1e23;
+  --surface-secondary: #23262c;
+  --surface-inset: #1f2228;
+
+  --border: #30343b;
+  --border-strong: #454a53;
+
+  --muted: #8f939c;
+  --muted-foreground: #a9adb5;
+
+  --primary: #57b3a6;
+  --primary-hover: #6cc2b5;
+  --primary-foreground: #0d2422;
+  --primary-muted: #1e3634;
+
+  --success: #74c194;
+  --success-muted: #1c3026;
+  --warning: #d3a45c;
+  --warning-muted: #332818;
+  --danger: #dd8a80;
+  --danger-muted: #3a2422;
+  --info: #7fb2d8;
+  --info-muted: #1d2b36;
+
+  --rating-again: #d1766c;
+  --rating-hard: #c69a58;
+  --rating-good: #57b3a6;
+  --rating-easy: #74c194;
+
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-overlay: 0 16px 40px -14px rgb(0 0 0 / 0.65), 0 2px 8px rgb(0 0 0 / 0.35);
+}
+
+/* Accent presets — all restrained, all usable for long sessions. */
+[data-accent='ai'] {
+  --primary: #2b4a8b;
+  --primary-hover: #223c72;
+  --primary-foreground: #f2f5fb;
+  --primary-muted: #e3e9f5;
+  --rating-good: #2b4a8b;
+}
+.dark[data-accent='ai'] {
+  --primary: #8aa7e0;
+  --primary-hover: #9db6e8;
+  --primary-foreground: #111a2e;
+  --primary-muted: #212b41;
+  --rating-good: #8aa7e0;
+}
+
+[data-accent='shu'] {
+  --primary: #a33a28;
+  --primary-hover: #8c3021;
+  --primary-foreground: #fdf4f2;
+  --primary-muted: #f5e4e0;
+  --rating-good: #a33a28;
+}
+.dark[data-accent='shu'] {
+  --primary: #dd8f7c;
+  --primary-hover: #e7a190;
+  --primary-foreground: #2c140d;
+  --primary-muted: #3a241f;
+  --rating-good: #dd8f7c;
+}
+
+[data-accent='sumi'] {
+  --primary: #3f4348;
+  --primary-hover: #33373b;
+  --primary-foreground: #f7f7f6;
+  --primary-muted: #e8e8e6;
+  --rating-good: #3f4348;
+}
+.dark[data-accent='sumi'] {
+  --primary: #b9bec6;
+  --primary-hover: #c8ccd3;
+  --primary-foreground: #1c1f23;
+  --primary-muted: #2c3036;
+  --rating-good: #b9bec6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-inset: var(--surface-inset);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-muted: var(--primary-muted);
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-danger: var(--danger);
+  --color-danger-muted: var(--danger-muted);
+  --color-info: var(--info);
+  --color-info-muted: var(--info-muted);
+  --color-rating-again: var(--rating-again);
+  --color-rating-hard: var(--rating-hard);
+  --color-rating-good: var(--rating-good);
+  --color-rating-easy: var(--rating-easy);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-dialog: var(--radius-dialog);
+
+  --shadow-panel: var(--shadow-panel);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --font-sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans',
+    'Yu Gothic', 'Meiryo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS PMincho',
+    Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.5;
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.6;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Japanese body text: never break inside a run of kana/kanji awkwardly. */
+  :lang(ja) {
+    line-break: strict;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-feature-settings: 'palt' 1;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--primary-muted);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  input,
+  textarea,
+  button,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border: 3px solid var(--background);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Section heading used across modules: quiet, ruled, not a card. */
+  .section-rule {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .meta-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* Dense reference table, used by the vocabulary and dictionary modules. */
+  .data-table {
+    width: 100%;
+    font-size: 0.875rem;
+  }
+  .data-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.375rem 0.75rem;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .data-table tbody td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    vertical-align: top;
+  }
+  .data-table tbody tr:hover {
+    background-color: var(--surface-secondary);
+  }
+  .data-table tbody tr[data-selected='true'] {
+    background-color: var(--primary-muted);
+  }
+
+  /* Furigana */
+  ruby {
+    ruby-align: center;
+  }
+  ruby rt {
+    font-size: 0.5em;
+    font-weight: 400;
+    color: var(--muted-foreground);
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+  [data-furigana='hidden'] ruby rt {
+    visibility: hidden;
+  }
+  [data-furigana='hover'] ruby rt {
+    opacity: 0;
+    transition: opacity 120ms linear;
+  }
+  [data-furigana='hover'] ruby:hover rt {
+    opacity: 1;
+  }
+
+  /* Reading passage typography */
+  .passage {
+    font-size: var(--reading-size);
+    line-height: var(--reading-leading);
+    max-width: var(--reading-width);
+  }
+  .passage p {
+    margin-bottom: calc(var(--reading-size) * 0.85);
+    text-indent: 0;
+  }
+  .passage p:last-child {
+    margin-bottom: 0;
+  }
+  .passage[data-type='serif'] {
+    font-family: var(--font-serif);
+  }
+
+  /* Logical connectors and evidence highlighting inside passages */
+  .mark-connector {
+    border-bottom: 1.5px solid var(--info);
+    background: color-mix(in srgb, var(--info) 8%, transparent);
+  }
+  .mark-evidence {
+    background: color-mix(in srgb, var(--warning) 26%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--warning) 45%, transparent);
+    border-radius: 2px;
+  }
+  .mark-unknown {
+    background: color-mix(in srgb, var(--danger) 20%, transparent);
+    border-bottom: 1px dotted var(--danger);
+  }
+  .mark-highlight {
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
+    border-radius: 2px;
+  }
+
+  .word-tap {
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .word-tap:hover {
+    background: color-mix(in srgb, var(--primary) 16%, transparent);
+  }
+
+  .prose-note {
+    font-size: 0.875rem;
+    line-height: 1.75;
+  }
+  .prose-note h1,
+  .prose-note h2,
+  .prose-note h3 {
+    font-weight: 600;
+    margin-top: 1.25em;
+    margin-bottom: 0.4em;
+  }
+  .prose-note h1 {
+    font-size: 1.25rem;
+  }
+  .prose-note h2 {
+    font-size: 1.0625rem;
+  }
+  .prose-note h3 {
+    font-size: 0.9375rem;
+  }
+  .prose-note p {
+    margin-bottom: 0.75em;
+  }
+  .prose-note ul,
+  .prose-note ol {
+    margin: 0.5em 0 0.75em 1.25em;
+  }
+  .prose-note ul {
+    list-style: disc;
+  }
+  .prose-note ol {
+    list-style: decimal;
+  }
+  .prose-note li {
+    margin-bottom: 0.25em;
+  }
+  .prose-note code {
+    font-family: var(--font-mono);
+    font-size: 0.8125em;
+    background: var(--surface-secondary);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+  .prose-note blockquote {
+    border-left: 2px solid var(--border-strong);
+    padding-left: 0.75em;
+    color: var(--muted-foreground);
+  }
+  .prose-note a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .animate-pop {
+    animation: pop 120ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .animate-rise {
+    animation: rise 160ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  .animate-fade {
+    animation: fade 140ms ease-out;
+  }
+  .scroll-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
