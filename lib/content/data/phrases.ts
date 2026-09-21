@@ -1,5 +1,6 @@
 import { P } from '../builders';
 import type { ClinicalPhrase } from '../schema';
+import { PHRASES_EXPANSION_ROWS } from './clinicalPhraseExpansion';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook, organised by encounter flow.
@@ -427,4 +428,5 @@ export const PHRASES: ClinicalPhrase[] = [
   P({ intent: 'Announce emergency start of treatment', stage: 'emergency', reg: 'formal',
     ja: '緊急で治療を開始します。', kana: 'きんきゅうでちりょうをかいしします。',
     en: 'We are starting emergency treatment.', idn: 'Kami memulai penanganan darurat.' }),
+  ...PHRASES_EXPANSION_ROWS.map(P),
 ];

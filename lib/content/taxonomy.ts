@@ -23,6 +23,7 @@ export const PHRASE_STAGES: { id: PhraseStage; label: Label; group: 'opening' | 
   { id: 'treatment', label: { en: 'Treatment', ja: '治療', short: 'Treatment' }, group: 'explanation' },
   { id: 'consent', label: { en: 'Consent & risk', ja: '同意説明', short: 'Consent' }, group: 'explanation' },
   { id: 'admission', label: { en: 'Admission', ja: '入院', short: 'Admission' }, group: 'aftercare' },
+  { id: 'referral', label: { en: 'Referral', ja: '紹介', short: 'Referral' }, group: 'aftercare' },
   { id: 'discharge', label: { en: 'Discharge', ja: '退院', short: 'Discharge' }, group: 'aftercare' },
   { id: 'follow-up', label: { en: 'Follow-up', ja: '再診', short: 'Follow-up' }, group: 'aftercare' },
   { id: 'safety-netting', label: { en: 'Safety-netting', ja: '注意事項', short: 'Safety-net' }, group: 'aftercare' },

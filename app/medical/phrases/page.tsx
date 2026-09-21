@@ -25,10 +25,15 @@ export default async function PhrasebookPage({
     english: phrase.english,
     indonesian: phrase.indonesian,
     register: phrase.register,
+    speaker: phrase.speaker,
     stage: phrase.stage,
+    clinicalContext: phrase.clinicalContext,
+    nuance: phrase.nuance,
     specialtyTags: phrase.specialtyTags,
     variants: phrase.variants,
+    alternativeExpressions: phrase.alternativeExpressions,
     relatedTermIds: phrase.relatedTermIds,
+    relatedDiseaseIds: phrase.relatedDiseaseIds,
     notes: phrase.notes,
   }));
 

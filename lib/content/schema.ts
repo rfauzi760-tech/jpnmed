@@ -292,6 +292,16 @@ export const medicalRegisterSupportSchema = z.object({
 
 export type MedicalRegisterSupport = z.infer<typeof medicalRegisterSupportSchema>;
 
+export const medicalTermExampleSchema = z.object({
+  japanese: z.string().min(1),
+  kana: z.string().min(1),
+  romaji: z.string().min(1),
+  indonesian: z.string().min(1),
+  english: z.string().min(1),
+});
+
+export type MedicalTermExample = z.infer<typeof medicalTermExampleSchema>;
+
 export const medicalTermSchema = z.object({
   id: z.string(),
   japanese: z.string().min(1),
@@ -310,6 +320,8 @@ export const medicalTermSchema = z.object({
   specialties: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
   definitionJa: z.string().optional(),
+  example: medicalTermExampleSchema.optional(),
+  usageNote: z.string().optional(),
   relatedIds: z.array(z.string()).default([]),
   /** Lay synonyms a patient may use, indexed by search. */
   alternativeNames: z.array(z.string()).default([]),
@@ -372,6 +384,7 @@ export const phraseStageSchema = z.enum([
   'treatment',
   'consent',
   'admission',
+  'referral',
   'discharge',
   'follow-up',
   'safety-netting',
@@ -387,12 +400,17 @@ export const clinicalPhraseSchema = z.object({
   english: z.string().min(1),
   indonesian: z.string().min(1),
   register: z.enum(['patient-friendly', 'polite', 'formal', 'staff']),
-  speaker: z.enum(['doctor', 'patient', 'family', 'staff']).default('doctor'),
+  speaker: z.enum(['doctor', 'nurse', 'patient', 'family', 'staff']).default('doctor'),
   stage: phraseStageSchema,
+  /** The real encounter setting, separate from the broad consultation stage. */
+  clinicalContext: z.string().min(1),
+  nuance: z.string().optional(),
   specialtyTags: z.array(z.string()).default([]),
   /** Alternatives at the same or another register for the same intent. */
   variants: z.array(z.string()).default([]),
+  alternativeExpressions: z.array(z.string()).default([]),
   relatedTermIds: z.array(z.string()).default([]),
+  relatedDiseaseIds: z.array(z.string()).default([]),
   notes: z.string().optional(),
   audioUrl: z.string().optional(),
   verificationStatus: verificationStatusSchema.default('reviewed'),

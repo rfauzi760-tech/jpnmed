@@ -30,10 +30,15 @@ export type PhraseRow = {
   english: string;
   indonesian: string;
   register: 'patient-friendly' | 'polite' | 'formal' | 'staff';
+  speaker: 'doctor' | 'nurse' | 'patient' | 'family' | 'staff';
   stage: string;
+  clinicalContext: string;
+  nuance?: string;
   specialtyTags: string[];
   variants: string[];
+  alternativeExpressions: string[];
   relatedTermIds: string[];
+  relatedDiseaseIds: string[];
   notes?: string;
 };
 
@@ -68,7 +73,7 @@ export function Phrasebook({
     return scoped.filter((row) => {
       if (register !== 'all' && row.register !== register) return false;
       if (!needle) return true;
-      return [row.japanese, row.kana ?? '', row.english, row.indonesian, row.intent, ...row.variants]
+      return [row.japanese, row.kana ?? '', row.english, row.indonesian, row.intent, row.clinicalContext, row.nuance ?? '', ...row.variants, ...row.alternativeExpressions]
         .join(' ')
         .toLowerCase()
         .includes(needle);
@@ -92,11 +97,11 @@ export function Phrasebook({
       <PageHeader
         eyebrow="Phrasebook · 診察表現"
         title="Clinical phrasebook"
-        description="Eighteen stages of a Japanese consultation, each with the natural polite form, a patient-friendly alternative and the formal register for written explanations."
+        description="Nineteen stages of a Japanese consultation, with natural clinician language, patient wording, speaker labels, context and register."
         meta={
           <>
             <span>{rows.length} phrases</span>
-            <span>18 stages</span>
+            <span>19 stages</span>
             <span>
               {stageInfo.label.en} · {stageTracked} in review
             </span>
@@ -244,6 +249,7 @@ export function Phrasebook({
                               {display.romaji === 'always' ? <p className="text-[11.5px] text-info">{phrase.romaji}</p> : display.romaji === 'hover' ? <p className="text-[11.5px] text-info opacity-0 transition-opacity group-hover:opacity-100">{phrase.romaji}</p> : null}
                               {display.indonesian ? <p className="mt-0.5 text-[12.5px] text-foreground">{phrase.indonesian}</p> : null}
                               {display.english ? <p className="text-[11.5px] text-muted">{phrase.english}</p> : null}
+                              <p className="mt-1 text-[10.5px] uppercase tracking-wide text-muted">{phrase.speaker} · {phrase.clinicalContext}</p>
                             </div>
                             <div className="flex shrink-0 flex-wrap items-center gap-1.5">
                               <Badge tone={phrase.register === 'patient-friendly' ? 'info' : phrase.register === 'formal' ? 'neutral' : 'outline'}>
@@ -266,6 +272,7 @@ export function Phrasebook({
                           ) : null}
 
                           {phrase.notes ? <p className="mt-1.5 text-[11.5px] text-muted">{phrase.notes}</p> : null}
+                          {phrase.nuance ? <p className="mt-1 text-[11.5px] text-muted-foreground">Nuance: {phrase.nuance}</p> : null}
 
                           <div className="mt-2 flex flex-wrap items-center gap-1.5">
                             <CopyButton text={phrase.japanese} />
@@ -289,7 +296,7 @@ export function Phrasebook({
             <Link href="/medical/quick" className="text-primary hover:underline">
               Quick clinical mode
             </Link>
-            <span>{rows.length} phrases across 18 stages</span>
+            <span>{rows.length} phrases across 19 stages</span>
             <span>Copy buttons copy the Japanese only.</span>
           </div>
         </div>

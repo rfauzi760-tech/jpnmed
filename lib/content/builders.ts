@@ -9,6 +9,7 @@ import type {
   Medication,
   JlptLevel,
   MedicalTerm,
+  MedicalTermExample,
   MedicalRegisterSupport,
   ReadingPassage,
   ReadingQuestion,
@@ -135,6 +136,8 @@ export type TermRow = {
   sp?: string[];
   tags?: string[];
   defJa?: string;
+  ex?: Omit<MedicalTermExample, 'romaji'>;
+  usage?: string;
   alt?: string[];
   rel?: string[];
   note?: string;
@@ -204,6 +207,10 @@ export function T(row: TermRow): MedicalTerm {
     specialties: row.sp ?? [],
     tags: row.tags ?? [],
     definitionJa: row.defJa,
+    example: row.ex
+      ? { ...row.ex, romaji: kanaToRomajiFull(row.ex.kana) }
+      : undefined,
+    usageNote: row.usage,
     relatedIds: row.rel ?? [],
     alternativeNames: row.alt ?? [],
     verificationStatus: row.v ?? 'reviewed',
@@ -231,9 +238,12 @@ export type PhraseRow = {
   reg: ClinicalPhrase['register'];
   speaker?: ClinicalPhrase['speaker'];
   stage: ClinicalPhrase['stage'];
+  context?: string;
+  nuance?: string;
   spec?: string[];
   var_?: string[];
   rel?: string[];
+  diseases?: string[];
   note?: string;
   v?: VerificationStatus;
   priority?: ClinicalPhrase['junitPriority'];
@@ -255,9 +265,13 @@ export function P(row: PhraseRow): ClinicalPhrase {
     register: row.reg,
     speaker: row.speaker ?? (row.reg === 'staff' ? 'staff' : 'doctor'),
     stage: row.stage,
+    clinicalContext: row.context ?? row.intent,
+    nuance: row.nuance,
     specialtyTags: row.spec ?? [],
     variants: row.var_ ?? [],
+    alternativeExpressions: row.var_ ?? [],
     relatedTermIds: row.rel ?? [],
+    relatedDiseaseIds: row.diseases ?? [],
     notes: row.note,
     verificationStatus: row.v ?? 'reviewed',
     junitPriority: row.priority ?? 'common',

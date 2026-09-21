@@ -60,6 +60,9 @@ export default function MedicalHubPage() {
             <LinkButton href="/medical/phrases" variant="secondary" size="md">
               Phrasebook
             </LinkButton>
+            <LinkButton href="/medical/patient-language" variant="secondary" size="md">
+              Patient language
+            </LinkButton>
           </>
         }
       />

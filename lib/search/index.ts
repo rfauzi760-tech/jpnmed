@@ -128,6 +128,12 @@ export function buildSearchIndex(): SearchDoc[] {
         term.patientExpressionSupport?.romaji ?? '',
         term.patientExpressionSupport?.indonesian ?? '',
         term.patientExpressionSupport?.english ?? '',
+        term.example?.japanese ?? '',
+        term.example?.kana ?? '',
+        term.example?.romaji ?? '',
+        term.example?.indonesian ?? '',
+        term.example?.english ?? '',
+        term.usageNote ?? '',
       ].join(' '),
       url: `/medical/terms/${encodeURIComponent(term.id)}`,
     });
@@ -142,9 +148,9 @@ export function buildSearchIndex(): SearchDoc[] {
       romaji: phrase.romaji,
       en: phrase.english,
       idn: phrase.indonesian,
-      context: trimmed(phrase.intent, 120),
+      context: trimmed(`${phrase.intent} · ${phrase.clinicalContext}`, 160),
       badge: phrase.stage,
-      hidden: [phrase.register, ...phrase.variants, ...phrase.specialtyTags, phrase.intent].join(' '),
+      hidden: [phrase.register, phrase.speaker, phrase.nuance ?? '', ...phrase.variants, ...phrase.alternativeExpressions, ...phrase.specialtyTags, ...phrase.relatedDiseaseIds, phrase.intent].join(' '),
       url: `/medical/phrases?stage=${phrase.stage}&p=${phrase.id}`,
     });
   }

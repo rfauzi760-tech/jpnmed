@@ -1,6 +1,7 @@
 import { T } from '../builders';
 import type { MedicalTerm } from '../schema';
 import { MEDICAL_TERMS_EXPANSION } from './medicalExpansion';
+import { MEDICAL_PATIENT_LANGUAGE } from './medicalPatientLanguage';
 
 /* ------------------------------------------------------------------
    Medical Japanese term database.
@@ -406,4 +407,4 @@ const MEDICAL_TERMS_CORE: MedicalTerm[] = [
     pe: '毎日リハビリを受けています' }),
 ];
 
-export const MEDICAL_TERMS: MedicalTerm[] = [...MEDICAL_TERMS_CORE, ...MEDICAL_TERMS_EXPANSION];
+export const MEDICAL_TERMS: MedicalTerm[] = [...MEDICAL_TERMS_CORE, ...MEDICAL_TERMS_EXPANSION, ...MEDICAL_PATIENT_LANGUAGE];

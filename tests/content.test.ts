@@ -128,6 +128,21 @@ describe('content quality rules', () => {
     for (const phrase of PHRASES) {
       expect(['patient-friendly', 'polite', 'formal', 'staff']).toContain(phrase.register);
       expect(phrase.kana, phrase.japanese).toBeTruthy();
+      expect(phrase.clinicalContext, phrase.japanese).toBeTruthy();
+      expect(['doctor', 'nurse', 'patient', 'family', 'staff']).toContain(phrase.speaker);
+    }
+  });
+
+  it('explains every dedicated patient-language expression', () => {
+    const patientLanguage = MEDICAL_TERMS.filter((term) => term.tags.includes('patient-language'));
+    expect(patientLanguage.length).toBeGreaterThanOrEqual(20);
+    for (const term of patientLanguage) {
+      expect(term.definitionJa, term.japanese).toBeTruthy();
+      expect(term.usageNote, term.japanese).toBeTruthy();
+      expect(term.example?.japanese, term.japanese).toBeTruthy();
+      expect(term.example?.kana, term.japanese).toBeTruthy();
+      expect(term.example?.romaji, term.japanese).toBeTruthy();
+      expect(term.example?.indonesian, term.japanese).toBeTruthy();
     }
   });
 
