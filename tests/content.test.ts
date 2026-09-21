@@ -60,6 +60,14 @@ describe('content integrity', () => {
 });
 
 describe('content quality rules', () => {
+  it('keeps one canonical entry per Japanese medical concept', () => {
+    const surfaces = MEDICAL_TERMS.map((term) => `${term.japanese}::${term.kana}`);
+    expect(new Set(surfaces).size).toBe(surfaces.length);
+    const esophagus = MEDICAL_TERMS.find((term) => term.japanese === '食道');
+    expect(esophagus?.english).toBe('esophagus');
+    expect(esophagus?.indonesian).toBe('kerongkongan');
+  });
+
   it('gives every vocabulary item a kana reading and a translation in both languages', () => {
     for (const word of VOCABULARY) {
       expect(word.kana, word.japanese).toBeTruthy();
