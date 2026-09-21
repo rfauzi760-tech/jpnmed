@@ -6,7 +6,7 @@ import { SafetyNote } from '@/components/ui/primitives';
 
 export const metadata: Metadata = {
   title: 'Clinical phrasebook',
-  description: 'Eighteen stages of a Japanese clinical encounter, with polite, patient-friendly and formal registers.',
+  description: 'Nineteen stages of a Japanese clinical encounter, with polite, patient-friendly and formal registers.',
 };
 
 export default async function PhrasebookPage({

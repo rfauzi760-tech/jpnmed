@@ -60,6 +60,9 @@ export default function MedicalHubPage() {
             <LinkButton href="/medical/phrases" variant="secondary" size="md">
               Phrasebook
             </LinkButton>
+            <LinkButton href="/medical/history" variant="secondary" size="md">
+              History modules
+            </LinkButton>
             <LinkButton href="/medical/patient-language" variant="secondary" size="md">
               Patient language
             </LinkButton>
@@ -86,6 +89,10 @@ export default function MedicalHubPage() {
           <div><div className="meta-label">Phrase coverage</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.phrases}</div></div>
           <div><div className="meta-label">Disease pages</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.diseases}</div></div>
           <div><div className="meta-label">Drug pages</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medications}</div></div>
+          <div><div className="meta-label">Definitions complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalDefinitionsComplete}/{CONTENT_STATS.terms}</div></div>
+          <div><div className="meta-label">Examples complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalExamplesComplete}/{CONTENT_STATS.terms}</div></div>
+          <div><div className="meta-label">Relations linked</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalRelationsComplete}/{CONTENT_STATS.terms}</div></div>
+          <div><div className="meta-label">Phrase language layers</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.phraseContextComplete}/{CONTENT_STATS.phrases}</div></div>
         </div>
       </section>
 
@@ -160,7 +167,7 @@ export default function MedicalHubPage() {
       <section className="mt-7">
         <SectionHeading
           title="The consultation, stage by stage"
-          hint="18 stages"
+          hint="19 stages"
           action={
             <Link href="/medical/phrases" className="text-[12px] text-primary hover:underline">
               Open the phrasebook

@@ -2,6 +2,9 @@ import { T } from '../builders';
 import type { MedicalTerm } from '../schema';
 import { MEDICAL_TERMS_EXPANSION } from './medicalExpansion';
 import { MEDICAL_PATIENT_LANGUAGE } from './medicalPatientLanguage';
+import { MEDICAL_LEXICON_EXPANSION } from './medicalLexiconExpansion';
+import { MEDICAL_RELATION_SUPPORT } from './medicalRelationSupport';
+import { MEDICAL_LEXICON_MEGA_EXPANSION } from './medicalLexiconMegaExpansion';
 
 /* ------------------------------------------------------------------
    Medical Japanese term database.
@@ -407,4 +410,11 @@ const MEDICAL_TERMS_CORE: MedicalTerm[] = [
     pe: '毎日リハビリを受けています' }),
 ];
 
-export const MEDICAL_TERMS: MedicalTerm[] = [...MEDICAL_TERMS_CORE, ...MEDICAL_TERMS_EXPANSION, ...MEDICAL_PATIENT_LANGUAGE];
+export const MEDICAL_TERMS: MedicalTerm[] = [
+  ...MEDICAL_TERMS_CORE,
+  ...MEDICAL_TERMS_EXPANSION,
+  ...MEDICAL_PATIENT_LANGUAGE,
+  ...MEDICAL_LEXICON_EXPANSION,
+  ...MEDICAL_RELATION_SUPPORT,
+  ...MEDICAL_LEXICON_MEGA_EXPANSION,
+];

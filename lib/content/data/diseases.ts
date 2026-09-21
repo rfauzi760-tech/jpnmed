@@ -1,5 +1,7 @@
 import { D } from '../builders';
 import type { Disease } from '../schema';
+import { DISEASES_EXPANSION } from './diseaseExpansion';
+import { DISEASES_MEGA_EXPANSION } from './diseaseMegaExpansion';
 
 /* ------------------------------------------------------------------
    Disease pages (MEDICAL_JAPANESE_SPEC §9, PRD §7.9).
@@ -15,7 +17,7 @@ import type { Disease } from '../schema';
    resolved against the term database at load time.
 ------------------------------------------------------------------ */
 
-export const DISEASES: Disease[] = [
+const DISEASES_CORE: Disease[] = [
   D({
     ja: '高血圧', kana: 'こうけつあつ', en: 'hypertension', idn: 'hipertensi',
     lay: '血圧が高いと言われた状態',
@@ -498,3 +500,12 @@ export const DISEASES: Disease[] = [
     ],
   }),
 ];
+
+const diseaseRows = [...DISEASES_CORE, ...DISEASES_EXPANSION, ...DISEASES_MEGA_EXPANSION];
+const seenDiseaseIds = new Set<string>();
+
+export const DISEASES: Disease[] = diseaseRows.filter((item) => {
+  if (seenDiseaseIds.has(item.id)) return false;
+  seenDiseaseIds.add(item.id);
+  return true;
+});

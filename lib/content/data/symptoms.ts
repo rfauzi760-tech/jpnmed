@@ -1,5 +1,7 @@
 import { S } from '../builders';
 import type { Symptom } from '../schema';
+import { SYMPTOMS_EXPANSION } from './symptomExpansion';
+import { SYMPTOMS_MEGA_EXPANSION } from './symptomMegaExpansion';
 
 /* ------------------------------------------------------------------
    Symptom pages.
@@ -10,7 +12,7 @@ import type { Symptom } from '../schema';
    questions when the patient is struggling to describe the sensation.
 ------------------------------------------------------------------ */
 
-export const SYMPTOMS: Symptom[] = [
+const SYMPTOMS_CORE: Symptom[] = [
   S({
     ja: '発熱', kana: 'はつねつ', en: 'fever', idn: 'demam',
     pe: ['熱があります。', '体がだるいです。', '寒気がします。', '昨夜から38度あります。'],
@@ -467,3 +469,12 @@ export const SYMPTOMS: Symptom[] = [
     terms: ['浮腫', '心不全', '腎臓'],
   }),
 ];
+
+const symptomRows = [...SYMPTOMS_CORE, ...SYMPTOMS_EXPANSION, ...SYMPTOMS_MEGA_EXPANSION];
+const seenSymptomIds = new Set<string>();
+
+export const SYMPTOMS: Symptom[] = symptomRows.filter((item) => {
+  if (seenSymptomIds.has(item.id)) return false;
+  seenSymptomIds.add(item.id);
+  return true;
+});

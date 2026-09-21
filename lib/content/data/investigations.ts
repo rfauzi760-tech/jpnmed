@@ -1,7 +1,8 @@
 import { I } from '../builders';
 import type { Investigation } from '../schema';
+import { INVESTIGATIONS_EXPANSION } from './investigationExpansion';
 
-export const INVESTIGATIONS: Investigation[] = [
+const INVESTIGATIONS_CORE: Investigation[] = [
   I({
     id: 'investigation-blood-test', japanese: '血液検査', kana: 'けつえきけんさ', indonesian: 'pemeriksaan darah', english: 'blood test', category: 'laboratory', specialties: ['internal-medicine', 'emergency-medicine'], relatedDiseases: [], relatedTerms: ['血液'],
     patientExplanation: { japanese: '血液を少し採って、体の状態を調べます。', kana: 'けつえきをすこしとって、からだのじょうたいをしらべます。', indonesian: 'Kami mengambil sedikit darah untuk memeriksa kondisi tubuh.', english: 'We will take a small amount of blood to check your condition.' },
@@ -21,3 +22,5 @@ export const INVESTIGATIONS: Investigation[] = [
     resultDiscussion: { japanese: '検査結果をもとに、治療方針をご相談します。', kana: 'けんさけっかをもとに、ちりょうほうしんをごそうだんします。', indonesian: 'Berdasarkan hasil, kami akan membahas rencana terapi.', english: 'We will discuss the treatment plan based on the result.' }, verificationStatus: 'reviewed', junitPriority: 'common',
   }),
 ];
+
+export const INVESTIGATIONS: Investigation[] = [...INVESTIGATIONS_CORE, ...INVESTIGATIONS_EXPANSION];

@@ -411,7 +411,7 @@ export function TodayDashboard({ cards }: { cards: CardStub[] }) {
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Encounter stages</dt>
-                <dd className="font-mono tabular-nums">{coverage.stagesCovered}/18</dd>
+                <dd className="font-mono tabular-nums">{coverage.stagesCovered}/19</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Cases completed</dt>

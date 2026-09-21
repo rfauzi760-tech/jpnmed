@@ -394,6 +394,16 @@ export const CONTENT_STATS = {
   medicalPatientRegisterLayers: MEDICAL_REGISTER_LAYERS.length,
   medicalPatientRegisterDraft: MEDICAL_REGISTER_LAYERS.filter((item) => item?.languageSupportStatus === 'draft').length,
   medicalPatientWordingComplete: MEDICAL_TERMS.filter((item) => Boolean(item.patientFriendlySupport || item.patientExpressionSupport)).length,
+  medicalDefinitionsComplete: MEDICAL_TERMS.filter((item) => Boolean(item.definitionJa)).length,
+  medicalExamplesComplete: MEDICAL_TERMS.filter((item) => Boolean(item.example)).length,
+  medicalRelationsComplete: MEDICAL_TERMS.filter((item) => item.relatedIds.length > 0).length,
+  medicalPatientLanguageTerms: MEDICAL_TERMS.filter((item) => item.tags.includes('patient-language')).length,
+  phraseRomajiComplete: PHRASES.filter((item) => Boolean(item.romaji)).length,
+  phraseContextComplete: PHRASES.filter((item) => Boolean(item.clinicalContext)).length,
+  phraseSpeakerCoverage: new Set(PHRASES.map((item) => item.speaker)).size,
+  diseaseDialogueCoverage: DISEASES.filter((item) => item.dialogue.length > 0).length,
+  medicationCounsellingCoverage: MEDICATIONS.filter((item) => item.whyPrescribed && item.allergyQuestion).length,
+  investigationLanguageCoverage: INVESTIGATIONS.filter((item) => item.patientExplanation && item.resultDiscussion).length,
   medicalPhraseCoverage: PHRASES.length,
   total:
     VOCABULARY.length +

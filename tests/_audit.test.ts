@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
 import {
-  DISEASES, MEDICAL_TERMS, SYMPTOMS, PHRASES, VOCABULARY, READINGS, CASES, GRAMMAR,
+  DISEASES, MEDICAL_TERMS, SYMPTOMS, PHRASES, VOCABULARY, READINGS, CASES, GRAMMAR, MEDICATIONS, INVESTIGATIONS,
 } from '@/lib/content';
 
 describe('content audit', () => {
@@ -73,6 +73,20 @@ describe('content audit', () => {
     console.log('by stage:', JSON.stringify(byStage));
     console.log('with variants:', pct(PHRASES.filter(p => p.variants.length > 0).length, PHRASES.length));
     console.log('with kana:', pct(PHRASES.filter(p => p.kana).length, PHRASES.length));
+    console.log('with romaji:', pct(PHRASES.filter(p => p.romaji).length, PHRASES.length));
+    console.log('with clinical context:', pct(PHRASES.filter(p => p.clinicalContext).length, PHRASES.length));
+    console.log('speaker coverage:', new Set(PHRASES.map(p => p.speaker)).size, 'speakers');
+
+    console.log('=== MEDICATIONS ===');
+    console.log('entries:', MEDICATIONS.length);
+    console.log('romaji:', pct(MEDICATIONS.filter(m => m.romaji).length, MEDICATIONS.length));
+    console.log('counselling:', pct(MEDICATIONS.filter(m => m.whyPrescribed && m.allergyQuestion && m.reconciliationQuestions.length > 0).length, MEDICATIONS.length));
+
+    console.log('=== INVESTIGATIONS ===');
+    console.log('entries:', INVESTIGATIONS.length);
+    console.log('romaji:', pct(INVESTIGATIONS.filter(i => i.romaji).length, INVESTIGATIONS.length));
+    console.log('patient explanation:', pct(INVESTIGATIONS.filter(i => i.patientExplanation).length, INVESTIGATIONS.length));
+    console.log('result discussion:', pct(INVESTIGATIONS.filter(i => i.resultDiscussion).length, INVESTIGATIONS.length));
 
     console.log('=== VOCABULARY ===');
     console.log('with kana:', pct(VOCABULARY.filter(v => v.kana).length, VOCABULARY.length));

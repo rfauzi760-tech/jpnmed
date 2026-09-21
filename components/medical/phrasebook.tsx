@@ -55,6 +55,7 @@ export function Phrasebook({
   const display = state.settings.medicalDisplay;
   const [stage, setStage] = useState(initialStage && PHRASE_STAGES.some((item) => item.id === initialStage) ? initialStage : 'greeting');
   const [register, setRegister] = useState<'all' | PhraseRow['register']>('all');
+  const [speaker, setSpeaker] = useState<'all' | PhraseRow['speaker']>('all');
   const [query, setQuery] = useState('');
   const [searchAllStages, setSearchAllStages] = useState(false);
   const deferred = useDeferredValue(query);
@@ -72,13 +73,14 @@ export function Phrasebook({
     const scoped = rows.filter((row) => (searchAllStages || !needle ? true : row.stage === stage));
     return scoped.filter((row) => {
       if (register !== 'all' && row.register !== register) return false;
+      if (speaker !== 'all' && row.speaker !== speaker) return false;
       if (!needle) return true;
       return [row.japanese, row.kana ?? '', row.english, row.indonesian, row.intent, row.clinicalContext, row.nuance ?? '', ...row.variants, ...row.alternativeExpressions]
         .join(' ')
         .toLowerCase()
         .includes(needle);
     });
-  }, [deferred, register, rows, searchAllStages, stage]);
+  }, [deferred, register, rows, searchAllStages, speaker, stage]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, PhraseRow[]>();
@@ -200,6 +202,21 @@ export function Phrasebook({
                   )}
                 >
                   {item === 'all' ? 'All registers' : REGISTER_LABELS[item].en}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5" aria-label="Filter by speaker">
+              {(['all', 'doctor', 'nurse', 'patient', 'family', 'staff'] as const).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setSpeaker(item)}
+                  className={cn(
+                    'rounded-[5px] border px-2 py-1 text-[11.5px] transition-colors',
+                    speaker === item ? 'border-border-strong bg-surface-secondary text-foreground' : 'border-border text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {item === 'all' ? 'All speakers' : item}
                 </button>
               ))}
             </div>

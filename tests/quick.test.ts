@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildQuickIndex, searchQuickIndex } from '@/lib/content/quick';
 import { DISEASES, MEDICAL_TERMS, PHRASES, SYMPTOMS } from '@/lib/content';
+import { PHRASE_STAGES } from '@/lib/content/taxonomy';
 
 const entries = buildQuickIndex();
 
@@ -11,7 +12,7 @@ describe('quick clinical index', () => {
     expect(kinds.get('symptom')).toBe(SYMPTOMS.length);
     expect(kinds.get('disease')).toBe(DISEASES.length);
     expect(kinds.get('term')).toBe(MEDICAL_TERMS.length);
-    expect(kinds.get('stage')).toBe(18);
+    expect(kinds.get('stage')).toBe(PHRASE_STAGES.length);
   });
 
   it('gives symptoms questions and patients wording', () => {

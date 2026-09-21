@@ -307,7 +307,7 @@ export function ProgressAnalytics({ totals }: { totals: ProgressTotals }) {
               </div>
               <div className="flex items-baseline justify-between gap-3 border-b border-border pb-1.5">
                 <dt className="text-muted-foreground">Encounter stages covered</dt>
-                <dd className="font-mono tabular-nums text-foreground">{derived.coverage.stagesCovered}/18</dd>
+                <dd className="font-mono tabular-nums text-foreground">{derived.coverage.stagesCovered}/19</dd>
               </div>
               <div className="flex items-baseline justify-between gap-3">
                 <dt className="text-muted-foreground">Case accuracy</dt>
@@ -438,10 +438,10 @@ function buildRecommendations(input: {
       tag: 'Notebook',
     });
   }
-  if (input.stagesCovered < 18) {
+  if (input.stagesCovered < 19) {
     items.push({
       title: 'Cover another encounter stage',
-      reason: `${18 - input.stagesCovered} of the eighteen stages have no phrases in the review queue yet.`,
+      reason: `${19 - input.stagesCovered} of the nineteen stages have no phrases in the review queue yet.`,
       href: '/medical/phrases',
       tag: 'Phrasebook',
       tone: 'primary',

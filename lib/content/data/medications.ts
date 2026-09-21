@@ -1,6 +1,7 @@
 import { M } from '../builders';
 import type { Medication } from '../schema';
 import { MEDICATIONS_EXPANSION } from './medicationExpansion';
+import { MEDICATIONS_EXPANSION_2 } from './medicationExpansion2';
 
 /** Starter generic-drug coverage; RFSmed remains the dosing reference. */
 const MEDICATIONS_CORE: Medication[] = [
@@ -42,4 +43,4 @@ const MEDICATIONS_CORE: Medication[] = [
   }),
 ];
 
-export const MEDICATIONS: Medication[] = [...MEDICATIONS_CORE, ...MEDICATIONS_EXPANSION];
+export const MEDICATIONS: Medication[] = [...MEDICATIONS_CORE, ...MEDICATIONS_EXPANSION, ...MEDICATIONS_EXPANSION_2];

@@ -3,8 +3,10 @@ import {
   CASES,
   CONTENT_STATS,
   DISEASES,
+  INVESTIGATIONS,
   GRAMMAR,
   MEDICAL_TERMS,
+  MEDICATIONS,
   PHRASES,
   READINGS,
   SYMPTOMS,
@@ -26,6 +28,15 @@ describe('seed content volume', () => {
     expect(CONTENT_STATS.phrases).toBeGreaterThanOrEqual(100);
     expect(CONTENT_STATS.diseases).toBeGreaterThanOrEqual(20);
     expect(CONTENT_STATS.cases).toBeGreaterThanOrEqual(10);
+  });
+
+  it('keeps the expanded medical corpus above its current coverage milestone', () => {
+    expect(CONTENT_STATS.terms).toBeGreaterThanOrEqual(650);
+    expect(CONTENT_STATS.phrases).toBeGreaterThanOrEqual(650);
+    expect(CONTENT_STATS.diseases).toBeGreaterThanOrEqual(150);
+    expect(CONTENT_STATS.symptoms).toBeGreaterThanOrEqual(80);
+    expect(MEDICATIONS.length).toBeGreaterThanOrEqual(40);
+    expect(INVESTIGATIONS.length).toBeGreaterThanOrEqual(30);
   });
 });
 
