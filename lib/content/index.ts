@@ -364,6 +364,15 @@ export function collectionById(id: string) {
 
 /* ------------------------------- Statistics -------------------------------- */
 
+const MEDICAL_PRIMARY_ENTRIES = [
+  ...MEDICAL_TERMS,
+  ...SYMPTOMS,
+  ...DISEASES,
+  ...MEDICATIONS.map((item) => ({ ...item, indonesian: item.indonesianGeneric })),
+  ...INVESTIGATIONS,
+];
+const MEDICAL_REGISTER_LAYERS = MEDICAL_TERMS.flatMap((term) => [term.patientFriendlySupport, term.patientExpressionSupport]).filter(Boolean);
+
 export const CONTENT_STATS = {
   vocabulary: VOCABULARY.length,
   grammar: GRAMMAR.length,
@@ -377,13 +386,15 @@ export const CONTENT_STATS = {
   medications: MEDICATIONS.length,
   investigations: INVESTIGATIONS.length,
   rfsmedInventory: RFSMED_INVENTORY.total,
-  medicalRomajiComplete:
-    MEDICAL_TERMS.filter((item) => Boolean(item.romaji)).length +
-    SYMPTOMS.filter((item) => Boolean(item.romaji)).length +
-    DISEASES.filter((item) => Boolean(item.romaji)).length +
-    PHRASES.filter((item) => Boolean(item.romaji)).length +
-    MEDICATIONS.filter((item) => Boolean(item.romaji)).length +
-    INVESTIGATIONS.filter((item) => Boolean(item.romaji)).length,
+  medicalConceptsMapped: MEDICAL_PRIMARY_ENTRIES.length,
+  medicalJapaneseVerified: MEDICAL_PRIMARY_ENTRIES.filter((item) => item.verificationStatus === 'verified').length,
+  medicalKanaComplete: MEDICAL_PRIMARY_ENTRIES.filter((item) => Boolean(item.kana)).length,
+  medicalRomajiComplete: MEDICAL_PRIMARY_ENTRIES.filter((item) => Boolean(item.romaji)).length + PHRASES.filter((item) => Boolean(item.romaji)).length,
+  medicalIndonesianComplete: MEDICAL_PRIMARY_ENTRIES.filter((item) => Boolean(item.indonesian)).length,
+  medicalPatientRegisterLayers: MEDICAL_REGISTER_LAYERS.length,
+  medicalPatientRegisterDraft: MEDICAL_REGISTER_LAYERS.filter((item) => item?.verificationStatus === 'draft').length,
+  medicalPatientWordingComplete: MEDICAL_TERMS.filter((item) => Boolean(item.patientFriendlySupport || item.patientExpressionSupport)).length,
+  medicalPhraseCoverage: PHRASES.length,
   total:
     VOCABULARY.length +
     GRAMMAR.length +

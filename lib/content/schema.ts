@@ -267,9 +267,27 @@ export const medicalCategorySchema = z.enum([
   'vital',
   'hospital',
   'document',
+  'medical-device',
+  'billing',
   'emergency',
   'allergy',
 ]);
+
+/**
+ * A complete language layer for Register B/C wording. This is deliberately
+ * separate from the technical term so patient language cannot lose its own
+ * reading, translations, or review state.
+ */
+export const medicalRegisterSupportSchema = z.object({
+  japanese: z.string().min(1),
+  kana: z.string().min(1),
+  romaji: z.string().min(1),
+  indonesian: z.string().min(1),
+  english: z.string().min(1),
+  verificationStatus: verificationStatusSchema.default('draft'),
+});
+
+export type MedicalRegisterSupport = z.infer<typeof medicalRegisterSupportSchema>;
 
 export const medicalTermSchema = z.object({
   id: z.string(),
@@ -280,8 +298,10 @@ export const medicalTermSchema = z.object({
   indonesian: z.string().min(1),
   /** Register B — plain-language wording a patient is more likely to follow. */
   patientFriendly: z.string().optional(),
+  patientFriendlySupport: medicalRegisterSupportSchema.optional(),
   /** Register C — how a patient tends to describe this themselves. */
   patientExpression: z.string().optional(),
+  patientExpressionSupport: medicalRegisterSupportSchema.optional(),
   register: z.literal('technical').default('technical'),
   category: medicalCategorySchema,
   specialties: z.array(z.string()).default([]),

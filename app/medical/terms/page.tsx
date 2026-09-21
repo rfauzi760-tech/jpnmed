@@ -25,6 +25,8 @@ export default async function MedicalTermsPage({
     indonesian: term.indonesian,
     patientFriendly: term.patientFriendly,
     patientExpression: term.patientExpression,
+    patientFriendlySupport: term.patientFriendlySupport,
+    patientExpressionSupport: term.patientExpressionSupport,
     category: term.category,
     specialties: term.specialties,
     tags: term.tags,

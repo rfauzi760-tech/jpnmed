@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils/cn';
 import { Badge, Button, EmptyState, Kbd, PageHeader, SafetyNote, SectionHeading } from '@/components/ui/primitives';
 import { CopyButton } from '@/components/ui/interactive';
 import { AddToReviewButton } from '@/components/study/review-controls';
+import { VerificationBadge } from '@/components/ui/primitives';
 
 /* ------------------------------------------------------------------
    Quick Clinical Mode.
@@ -320,9 +321,18 @@ export function QuickClinicalMode({ entries }: { entries: QuickEntry[] }) {
               {selected.panel.patientFriendly ? (
                 <section>
                   <SectionHeading title="Patient-friendly explanation" hint="in the patient's language" />
-                  <p lang="ja" className="mt-2 border-l-2 border-l-info pl-3 text-[15px] leading-loose text-foreground">
-                    {selected.panel.patientFriendly}
-                  </p>
+                  {selected.panel.patientFriendlySupport ? (
+                    <div className="mt-2 border-l-2 border-l-info pl-3">
+                      <p lang="ja" className="text-[15px] leading-loose text-foreground">{selected.panel.patientFriendlySupport.japanese}</p>
+                      <p lang="ja" className="text-[12px] leading-relaxed text-muted">{selected.panel.patientFriendlySupport.kana}</p>
+                      <p className="text-[12px] leading-relaxed text-info">{selected.panel.patientFriendlySupport.romaji}</p>
+                      <p className="mt-1 text-[13px] leading-relaxed text-foreground">{selected.panel.patientFriendlySupport.indonesian}</p>
+                      <p className="text-[12px] leading-relaxed text-muted-foreground">{selected.panel.patientFriendlySupport.english}</p>
+                      {selected.panel.patientFriendlySupport.verificationStatus === 'draft' ? <div className="mt-1"><VerificationBadge status="draft" /></div> : null}
+                    </div>
+                  ) : (
+                    <p lang="ja" className="mt-2 border-l-2 border-l-info pl-3 text-[15px] leading-loose text-foreground">{selected.panel.patientFriendly}</p>
+                  )}
                   <div className="mt-1.5">
                     <CopyButton text={selected.panel.patientFriendly} label="Copy explanation" />
                   </div>
@@ -358,9 +368,17 @@ export function QuickClinicalMode({ entries }: { entries: QuickEntry[] }) {
                 <section>
                   <SectionHeading title="What the patient may say" hint="be ready to parse this" />
                   <ul className="pt-1">
-                    {selected.panel.patientWording.map((line) => (
-                      <li key={line} lang="ja" className="border-b border-border/70 py-1.5 text-[14px] leading-relaxed text-muted-foreground">
-                        {line}
+                    {selected.panel.patientWording.map((line, index) => (
+                      <li key={line} className="border-b border-border/70 py-1.5 text-[14px] leading-relaxed text-muted-foreground">
+                        <span lang="ja" className="block">{line}</span>
+                        {selected.panel.patientWordingSupport?.[index] ? (
+                          <span className="block text-[11px]">
+                            <span lang="ja" className="block">{selected.panel.patientWordingSupport[index].kana}</span>
+                            <span className="block text-info">{selected.panel.patientWordingSupport[index].romaji}</span>
+                            <span className="block text-foreground">{selected.panel.patientWordingSupport[index].indonesian}</span>
+                            <span className="block text-muted">{selected.panel.patientWordingSupport[index].english}</span>
+                          </span>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

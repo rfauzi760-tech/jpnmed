@@ -9,6 +9,7 @@ import type {
   Medication,
   JlptLevel,
   MedicalTerm,
+  MedicalRegisterSupport,
   ReadingPassage,
   ReadingQuestion,
   Symptom,
@@ -16,6 +17,7 @@ import type {
   Vocabulary,
 } from './schema';
 import { CASE_OPENING_INDONESIAN, japaneseReadingFor } from './language-support';
+import { medicalRegisterReadingFor, MEDICAL_REGISTER_SUPPORT_STATUS } from './medical-register-support';
 import { readingIndonesianFor } from './reading-translations';
 
 /* ------------------------------------------------------------------
@@ -116,8 +118,18 @@ export type TermRow = {
   cat: MedicalTerm['category'];
   /** Register B: patient-friendly wording. */
   pf?: string;
+  pfKana?: string;
+  pfRomaji?: string;
+  pfIdn?: string;
+  pfEn?: string;
+  pfV?: VerificationStatus;
   /** Register C: typical patient expression. */
   pe?: string;
+  peKana?: string;
+  peRomaji?: string;
+  peIdn?: string;
+  peEn?: string;
+  peV?: VerificationStatus;
   sp?: string[];
   tags?: string[];
   defJa?: string;
@@ -126,6 +138,29 @@ export type TermRow = {
   note?: string;
   v?: VerificationStatus;
 };
+
+function medicalRegisterSupport(
+  japanese: string,
+  indonesian: string,
+  english: string,
+  overrides: {
+    kana?: string;
+    romaji?: string;
+    indonesian?: string;
+    english?: string;
+    verificationStatus?: VerificationStatus;
+  } = {},
+): MedicalRegisterSupport {
+  const generated = medicalRegisterReadingFor(japanese);
+  return {
+    japanese,
+    kana: overrides.kana ?? generated.kana,
+    romaji: overrides.romaji ?? generated.romaji,
+    indonesian: overrides.indonesian ?? indonesian,
+    english: overrides.english ?? english,
+    verificationStatus: overrides.verificationStatus ?? MEDICAL_REGISTER_SUPPORT_STATUS,
+  };
+}
 
 export function T(row: TermRow): MedicalTerm {
   const id = termId(row.kana, row.ja);
@@ -139,7 +174,25 @@ export function T(row: TermRow): MedicalTerm {
     english: row.en,
     indonesian: row.idn,
     patientFriendly: row.pf,
+    patientFriendlySupport: row.pf
+      ? medicalRegisterSupport(row.pf, row.idn, row.en, {
+          kana: row.pfKana,
+          romaji: row.pfRomaji,
+          indonesian: row.pfIdn,
+          english: row.pfEn,
+          verificationStatus: row.pfV,
+        })
+      : undefined,
     patientExpression: row.pe,
+    patientExpressionSupport: row.pe
+      ? medicalRegisterSupport(row.pe, row.idn, row.en, {
+          kana: row.peKana,
+          romaji: row.peRomaji,
+          indonesian: row.peIdn,
+          english: row.peEn,
+          verificationStatus: row.peV,
+        })
+      : undefined,
     register: 'technical',
     category: row.cat,
     specialties: row.sp ?? [],

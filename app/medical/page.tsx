@@ -27,6 +27,11 @@ export default function MedicalHubPage() {
 
   const emergencies = DISEASES.filter((disease) => disease.severity !== 'routine');
   const patientFriendlyCount = MEDICAL_TERMS.filter((term) => term.patientFriendly).length;
+  const patientExpressionCount = MEDICAL_TERMS.filter((term) => term.patientExpression).length;
+  const patientRegisterLayers = MEDICAL_TERMS.reduce(
+    (count, term) => count + Number(Boolean(term.patientFriendlySupport)) + Number(Boolean(term.patientExpressionSupport)),
+    0,
+  );
 
   return (
     <PageBody>
@@ -69,11 +74,12 @@ export default function MedicalHubPage() {
           <span className="text-[11px] text-muted">Target inventory: {CONTENT_STATS.rfsmedInventory.toLocaleString()}</span>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div><div className="meta-label">Mapped concepts</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.terms + CONTENT_STATS.symptoms + CONTENT_STATS.diseases + CONTENT_STATS.medications + CONTENT_STATS.investigations}</div></div>
-          <div><div className="meta-label">Kana complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.terms + CONTENT_STATS.symptoms + CONTENT_STATS.diseases + CONTENT_STATS.medications + CONTENT_STATS.investigations}</div></div>
+          <div><div className="meta-label">Mapped concepts</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalConceptsMapped}</div></div>
+          <div><div className="meta-label">Japanese verified</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalJapaneseVerified}</div></div>
+          <div><div className="meta-label">Kana complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalKanaComplete}</div></div>
           <div><div className="meta-label">Romaji complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalRomajiComplete}</div></div>
-          <div><div className="meta-label">Indonesian complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalRomajiComplete}</div></div>
-          <div><div className="meta-label">Patient wording</div><div className="mt-1 text-lg text-foreground">{patientFriendlyCount + SYMPTOMS.length}</div></div>
+          <div><div className="meta-label">Indonesian complete</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medicalIndonesianComplete}</div></div>
+          <div><div className="meta-label">Patient wording layers</div><div className="mt-1 text-lg text-foreground">{patientRegisterLayers + SYMPTOMS.length}</div></div>
           <div><div className="meta-label">Phrase coverage</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.phrases}</div></div>
           <div><div className="meta-label">Disease pages</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.diseases}</div></div>
           <div><div className="meta-label">Drug pages</div><div className="mt-1 text-lg text-foreground">{CONTENT_STATS.medications}</div></div>
@@ -113,8 +119,8 @@ export default function MedicalHubPage() {
           </div>
         </div>
         <p className="mt-3 text-[12px] text-muted">
-          {patientFriendlyCount} of {CONTENT_STATS.terms} terms currently carry a patient-friendly explanation; the rest are marked
-          with verification status on their own pages.
+          {patientFriendlyCount} terms have Register B and {patientExpressionCount} have Register C. Each populated layer now carries
+          Japanese, kana, romaji, Indonesian, English and its own verification status; generated readings remain visibly draft until reviewed.
         </p>
       </section>
 

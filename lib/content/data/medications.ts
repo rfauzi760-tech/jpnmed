@@ -1,8 +1,9 @@
 import { M } from '../builders';
 import type { Medication } from '../schema';
+import { MEDICATIONS_EXPANSION } from './medicationExpansion';
 
 /** Starter generic-drug coverage; RFSmed remains the dosing reference. */
-export const MEDICATIONS: Medication[] = [
+const MEDICATIONS_CORE: Medication[] = [
   M({
     id: 'medication-paracetamol', indonesianGeneric: 'parasetamol', english: 'paracetamol / acetaminophen', japanese: 'アセトアミノフェン', katakana: 'アセトアミノフェン', kana: 'あせとあみのふぇん', drugClassJapanese: '解熱鎮痛薬', dosageForms: ['tablet', 'syrup', 'suppository'], indicationTerms: ['発熱', '痛み', 'demam', 'nyeri'], aliases: ['カロナール', 'obat demam'],
     whyPrescribed: { japanese: '熱や痛みを和らげるためのお薬です。', kana: 'ねつやいたみをやわらげるためのおくすりです。', indonesian: 'Obat ini untuk meredakan demam atau nyeri.', english: 'This medicine is to relieve fever or pain.' },
@@ -40,3 +41,5 @@ export const MEDICATIONS: Medication[] = [
     relatedDiseases: ['高血圧'], relatedClasses: ['カルシウム拮抗薬'], verificationStatus: 'reviewed', junitPriority: 'common',
   }),
 ];
+
+export const MEDICATIONS: Medication[] = [...MEDICATIONS_CORE, ...MEDICATIONS_EXPANSION];

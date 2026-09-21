@@ -83,6 +83,18 @@ export const SPECIALTIES: { id: string; label: Label }[] = [
   { id: 'ophthalmology', label: { en: 'Ophthalmology', ja: '眼科' } },
   { id: 'urology', label: { en: 'Urology', ja: '泌尿器科' } },
   { id: 'psychiatry', label: { en: 'Psychiatry', ja: '精神科' } },
+  { id: 'hepatology', label: { en: 'Hepatology', ja: '肝臓内科' } },
+  { id: 'oncology', label: { en: 'Oncology', ja: '腫瘍内科' } },
+  { id: 'anesthesiology', label: { en: 'Anesthesiology', ja: '麻酔科' } },
+  { id: 'intensive-care', label: { en: 'Intensive care', ja: '集中治療科' } },
+  { id: 'geriatrics', label: { en: 'Geriatrics', ja: '老年内科' } },
+  { id: 'palliative-care', label: { en: 'Palliative care', ja: '緩和ケア科' } },
+  { id: 'neonatology', label: { en: 'Neonatology', ja: '新生児科' } },
+  { id: 'nutrition', label: { en: 'Clinical nutrition', ja: '栄養科' } },
+  { id: 'nursing', label: { en: 'Nursing', ja: '看護部' } },
+  { id: 'toxicology', label: { en: 'Toxicology', ja: '中毒学' } },
+  { id: 'pharmacy', label: { en: 'Pharmacy', ja: '薬剤部' } },
+  { id: 'radiology', label: { en: 'Radiology', ja: '放射線科' } },
 ];
 
 export const MISTAKE_LABELS: Record<MistakeCategory, Label> = {

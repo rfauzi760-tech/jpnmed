@@ -10,6 +10,7 @@ import { makeReviewKey } from '@/lib/store/types';
 import { cn } from '@/lib/utils/cn';
 import { Badge, Button, EmptyState, Input, PageHeader, Select, VerificationBadge } from '@/components/ui/primitives';
 import { AddToReviewButton } from '@/components/study/review-controls';
+import type { MedicalRegisterSupport } from '@/lib/content/schema';
 
 /* ------------------------------------------------------------------
    Medical dictionary.
@@ -28,6 +29,8 @@ export type TermRow = {
   indonesian: string;
   patientFriendly?: string;
   patientExpression?: string;
+  patientFriendlySupport?: MedicalRegisterSupport;
+  patientExpressionSupport?: MedicalRegisterSupport;
   category: string;
   specialties: string[];
   tags: string[];
@@ -234,10 +237,17 @@ export function TermBrowser({
                       {state.settings.medicalDisplay.english ? <span className="block text-[11.5px] text-muted">{row.english}</span> : null}
                     </td>
                     <td className="max-w-[260px] px-3 py-2">
-                      {row.patientFriendly ? (
-                        <span lang="ja" className="block text-[12.5px] leading-relaxed text-muted-foreground">
-                          {row.patientFriendly}
+                      {row.patientFriendlySupport ? (
+                        <span className="block">
+                          <span lang="ja" className="block text-[12.5px] leading-relaxed text-foreground">{row.patientFriendlySupport.japanese}</span>
+                          <span lang="ja" className="block text-[11px] leading-relaxed text-muted">{row.patientFriendlySupport.kana}</span>
+                          {state.settings.medicalDisplay.romaji !== 'off' ? <span className="block text-[10.5px] leading-relaxed text-info">{row.patientFriendlySupport.romaji}</span> : null}
+                          <span className="block text-[11.5px] leading-relaxed text-muted-foreground">{row.patientFriendlySupport.indonesian}</span>
+                          {state.settings.medicalDisplay.english ? <span className="block text-[10.5px] leading-relaxed text-muted">{row.patientFriendlySupport.english}</span> : null}
+                          {row.patientFriendlySupport.verificationStatus === 'draft' ? <span className="mt-1 block"><VerificationBadge status="draft" /></span> : null}
                         </span>
+                      ) : row.patientFriendly ? (
+                        <span lang="ja" className="block text-[12.5px] leading-relaxed text-muted-foreground">{row.patientFriendly}</span>
                       ) : (
                         <span className="text-[11.5px] text-muted">—</span>
                       )}

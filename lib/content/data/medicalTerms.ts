@@ -1,5 +1,6 @@
 import { T } from '../builders';
 import type { MedicalTerm } from '../schema';
+import { MEDICAL_TERMS_EXPANSION } from './medicalExpansion';
 
 /* ------------------------------------------------------------------
    Medical Japanese term database.
@@ -14,7 +15,7 @@ import type { MedicalTerm } from '../schema';
    missing translation.
 ------------------------------------------------------------------ */
 
-export const MEDICAL_TERMS: MedicalTerm[] = [
+const MEDICAL_TERMS_CORE: MedicalTerm[] = [
   /* ================= Vital signs ================= */
   T({ ja: '体温', kana: 'たいおん', en: 'body temperature', idn: 'suhu tubuh', cat: 'vital',
     pf: '体の熱', pe: '熱っぽい感じがします', sp: ['internal-medicine'], tags: ['core'],
@@ -404,3 +405,5 @@ export const MEDICAL_TERMS: MedicalTerm[] = [
     pf: '動きや話す力を取り戻すための訓練', sp: ['neurology', 'orthopedics'], tags: ['core'],
     pe: '毎日リハビリを受けています' }),
 ];
+
+export const MEDICAL_TERMS: MedicalTerm[] = [...MEDICAL_TERMS_CORE, ...MEDICAL_TERMS_EXPANSION];

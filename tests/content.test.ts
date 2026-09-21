@@ -78,6 +78,22 @@ describe('content quality rules', () => {
     }
   });
 
+  it('requires kana, romaji and translations for every patient register layer', () => {
+    for (const term of MEDICAL_TERMS) {
+      for (const support of [term.patientFriendlySupport, term.patientExpressionSupport]) {
+        if (!support) continue;
+        expect(support.japanese, term.japanese).toBeTruthy();
+        expect(support.kana, term.japanese).toBeTruthy();
+        expect(support.romaji, term.japanese).toBeTruthy();
+        expect(support.indonesian, term.japanese).toBeTruthy();
+        expect(support.english, term.japanese).toBeTruthy();
+        expect(['draft', 'reviewed', 'verified']).toContain(support.verificationStatus);
+      }
+      expect(Boolean(term.patientFriendly) === Boolean(term.patientFriendlySupport), term.japanese).toBe(true);
+      expect(Boolean(term.patientExpression) === Boolean(term.patientExpressionSupport), term.japanese).toBe(true);
+    }
+  });
+
   it('describes prognosis and treatment for every disease page', () => {
     for (const disease of DISEASES) {
       expect(disease.patientExplanation.length, disease.id).toBeGreaterThan(20);

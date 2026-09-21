@@ -119,6 +119,8 @@ export default async function MedicalTermPage({ params }: { params: Promise<{ id
                 romaji={term.romaji}
                 patientFriendly={term.patientFriendly}
                 patientExpression={term.patientExpression}
+                patientFriendlySupport={term.patientFriendlySupport}
+                patientExpressionSupport={term.patientExpressionSupport}
               />
             </div>
             {!term.patientFriendly && !term.patientExpression ? (

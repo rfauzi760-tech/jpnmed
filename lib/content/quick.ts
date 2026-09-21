@@ -6,6 +6,7 @@ import {
   resolveTermRefs,
 } from './index';
 import { PHRASE_STAGES, REGISTER_LABELS } from './taxonomy';
+import type { MedicalRegisterSupport } from './schema';
 
 /* ------------------------------------------------------------------
    Quick Clinical Mode index (PRD §9, UX_UI §9).
@@ -31,8 +32,10 @@ export type QuickEntry = {
   search: string;
   panel: {
     patientFriendly?: string;
+    patientFriendlySupport?: MedicalRegisterSupport;
     keyQuestions: string[];
     patientWording: string[];
+    patientWordingSupport?: MedicalRegisterSupport[];
     relatedSymptoms: QuickRef[];
     terms: QuickRef[];
     examination: string[];
@@ -175,15 +178,33 @@ export function buildQuickIndex(): QuickEntry[] {
       en: term.english,
       idn: term.indonesian,
       url: `/medical/terms/${encodeURIComponent(term.id)}`,
-      search: haversack(term.japanese, term.kana, term.english, term.indonesian, term.patientFriendly, ...term.alternativeNames),
+      search: haversack(
+        term.japanese,
+        term.kana,
+        term.english,
+        term.indonesian,
+        term.patientFriendly,
+        term.patientFriendlySupport?.kana,
+        term.patientFriendlySupport?.romaji,
+        term.patientFriendlySupport?.indonesian,
+        term.patientFriendlySupport?.english,
+        term.patientExpression,
+        term.patientExpressionSupport?.kana,
+        term.patientExpressionSupport?.romaji,
+        term.patientExpressionSupport?.indonesian,
+        term.patientExpressionSupport?.english,
+        ...term.alternativeNames,
+      ),
       panel: {
-        patientFriendly: term.patientFriendly,
+        patientFriendly: term.patientFriendlySupport?.japanese ?? term.patientFriendly,
+        patientFriendlySupport: term.patientFriendlySupport,
         keyQuestions: PHRASES.filter(
           (phrase) => phrase.relatedTermIds.includes(term.id) && ['hpi', 'chief-complaint', 'diagnosis'].includes(phrase.stage),
         )
           .slice(0, 5)
           .map((phrase) => phrase.japanese),
-        patientWording: [term.patientExpression].filter((value): value is string => Boolean(value)),
+        patientWording: [term.patientExpressionSupport?.japanese ?? term.patientExpression].filter((value): value is string => Boolean(value)),
+        patientWordingSupport: [term.patientExpressionSupport].filter((value): value is MedicalRegisterSupport => Boolean(value)),
         exchanges: [],
         relatedSymptoms: [],
         terms: termRefs(term.relatedIds).slice(0, 8),
