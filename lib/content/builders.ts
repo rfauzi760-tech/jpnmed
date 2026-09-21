@@ -15,6 +15,8 @@ import type {
   VerificationStatus,
   Vocabulary,
 } from './schema';
+import { CASE_OPENING_INDONESIAN, japaneseReadingFor } from './language-support';
+import { readingIndonesianFor } from './reading-translations';
 
 /* ------------------------------------------------------------------
    Authoring helpers.
@@ -428,6 +430,10 @@ export function R(row: ReadingRow): ReadingPassage {
     paragraphs: row.paragraphs.map((text, index) => ({
       index,
       text,
+      kana: japaneseReadingFor(text).kana,
+      romaji: japaneseReadingFor(text).romaji,
+      indonesian: readingIndonesianFor(row.id, index),
+      languageSupportStatus: 'draft' as const,
       role: row.roles[index] ?? 'supporting',
     })),
     questions: row.questions.map((q) => ({
@@ -447,6 +453,7 @@ export function R(row: ReadingRow): ReadingPassage {
       grammarRefs: q.grammarRefs ?? [],
     })),
     source: row.source,
+    languageSupportStatus: 'draft',
     verificationStatus: row.v ?? 'reviewed',
   };
 }
@@ -485,6 +492,7 @@ export type CaseRow = {
 };
 
 export function C(row: CaseRow): ClinicalCase {
+  const openingReading = japaneseReadingFor(row.opening);
   return {
     id: row.id,
     title: row.title,
@@ -502,10 +510,15 @@ export function C(row: CaseRow): ClinicalCase {
     chiefComplaint: row.complaint,
     hiddenDiagnosis: row.dx,
     openingPhrase: row.opening,
+    openingPhraseKana: openingReading.kana,
+    openingPhraseRomaji: openingReading.romaji,
+    openingPhraseIndonesian: CASE_OPENING_INDONESIAN[row.opening] ?? 'Terjemahan pembuka belum ditambahkan.',
+    languageSupportStatus: 'draft',
     requiredQuestions: row.questions.map((q) => ({
       id: q.id,
       topic: q.topic,
       acceptedPhrases: q.ask,
+      acceptedPhraseReadings: q.ask.map((japanese) => ({ japanese, ...japaneseReadingFor(japanese) })),
       why: q.why,
       weight: q.weight ?? 2,
       redFlag: q.redFlag ?? false,
@@ -514,6 +527,8 @@ export function C(row: CaseRow): ClinicalCase {
       id: line.id,
       topic: line.topic,
       japanese: line.ja,
+      kana: japaneseReadingFor(line.ja).kana,
+      romaji: japaneseReadingFor(line.ja).romaji,
       english: line.en,
       indonesian: line.idn,
     })),

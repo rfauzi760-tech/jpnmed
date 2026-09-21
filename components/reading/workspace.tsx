@@ -51,6 +51,7 @@ export type PassageMeta = {
   estimatedMinutes: number;
   difficulty: number;
   paragraphs: PassageParagraph[];
+  languageSupportStatus?: string;
   verificationStatus: string;
 };
 

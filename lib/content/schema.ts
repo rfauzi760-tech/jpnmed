@@ -196,6 +196,12 @@ export const readingQuestionSchema = z.object({
 export const readingParagraphSchema = z.object({
   index: z.number().int().min(0),
   text: z.string().min(1),
+  /** Full-sentence reading support; kept separate from furigana token data. */
+  kana: z.string().min(1),
+  romaji: z.string().min(1),
+  indonesian: z.string().min(1),
+  english: z.string().optional(),
+  languageSupportStatus: verificationStatusSchema.default('draft'),
   /** Structural role, surfaced during result analysis. */
   role: z.string(),
 });
@@ -233,6 +239,7 @@ export const readingPassageSchema = z.object({
   paragraphs: z.array(readingParagraphSchema).min(1),
   questions: z.array(readingQuestionSchema).min(1),
   source: sourceSchema.optional(),
+  languageSupportStatus: verificationStatusSchema.default('draft'),
   verificationStatus: verificationStatusSchema.default('reviewed'),
 });
 
@@ -479,6 +486,10 @@ export const clinicalCaseSchema = z.object({
   chiefComplaint: z.string(),
   hiddenDiagnosis: z.string(),
   openingPhrase: z.string(),
+  openingPhraseKana: z.string().min(1),
+  openingPhraseRomaji: z.string().min(1),
+  openingPhraseIndonesian: z.string().min(1),
+  languageSupportStatus: verificationStatusSchema.default('draft'),
   /** Questions that a safe clinician asks. weight = clinical importance. */
   requiredQuestions: z.array(
     z.object({
@@ -486,6 +497,7 @@ export const clinicalCaseSchema = z.object({
       topic: z.string(),
       /** How the learner can ask it (any of these counts as asked). */
       acceptedPhrases: z.array(z.string()).min(1),
+      acceptedPhraseReadings: z.array(z.object({ japanese: z.string(), kana: z.string(), romaji: z.string() })).default([]),
       why: z.string(),
       weight: z.number().min(1).max(3),
       redFlag: z.boolean().default(false),
@@ -497,6 +509,8 @@ export const clinicalCaseSchema = z.object({
       /** Question topic this line answers. */
       topic: z.string(),
       japanese: z.string(),
+      kana: z.string().min(1),
+      romaji: z.string().min(1),
       english: z.string(),
       indonesian: z.string(),
     }),

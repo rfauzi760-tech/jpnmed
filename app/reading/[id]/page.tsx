@@ -66,8 +66,14 @@ export default async function ReadingPassagePage({ params }: { params: Promise<{
     paragraphs: passage.paragraphs.map((paragraph) => ({
       index: paragraph.index,
       text: paragraph.text,
+      kana: paragraph.kana,
+      romaji: paragraph.romaji,
+      indonesian: paragraph.indonesian,
+      english: paragraph.english,
+      languageSupportStatus: paragraph.languageSupportStatus,
       role: paragraph.role,
     })),
+    languageSupportStatus: passage.languageSupportStatus,
     verificationStatus: passage.verificationStatus,
   };
 

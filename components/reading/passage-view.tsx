@@ -17,7 +17,16 @@ import { cn } from '@/lib/utils/cn';
    measure are CSS variables the learner controls from the toolbar.
 ------------------------------------------------------------------ */
 
-export type PassageParagraph = { index: number; text: string; role: string };
+export type PassageParagraph = {
+  index: number;
+  text: string;
+  kana: string;
+  romaji: string;
+  indonesian: string;
+  english?: string;
+  languageSupportStatus?: string;
+  role: string;
+};
 
 export type Token = {
   text: string;
@@ -167,47 +176,56 @@ export function PassageView({
           <span className="mt-[5px] w-5 shrink-0 select-none text-right font-mono text-[10.5px] text-muted">
             {paragraph.index + 1}
           </span>
-          <p
-            lang="ja"
-            data-furigana={furiganaMode}
-            data-type={serif ? 'serif' : 'sans'}
-            style={passageStyle}
-            className="passage min-w-0 flex-1 tracking-[0.01em] text-foreground"
-          >
-            {parts.map((part, partIndex) => (
-              <span key={partIndex} className={cn(part.evidence && 'mark-evidence')}>
-                {part.tokens.map((token, tokenIndex) => {
-                  if (!token.reading && !token.entry) return <Fragment key={tokenIndex}>{token.text}</Fragment>;
-                  const isMarked = marks.includes(token.text);
-                  const isSelected = selected === token.text;
-                  return (
-                    <span
-                      key={tokenIndex}
-                      role="button"
-                      tabIndex={-1}
-                      onClick={() => onSelect(token.text)}
-                      title={token.entry ? token.entry.en : token.reading}
-                      className={cn(
-                        'word-tap',
-                        isMarked && 'mark-highlight',
-                        isSelected && 'bg-primary-muted ring-1 ring-primary/40',
-                        token.connector && showConnectors && !isMarked && !isSelected && 'mark-connector',
-                      )}
-                    >
-                      {token.reading ? (
-                        <ruby>
-                          {token.text}
-                          <rt>{token.reading}</rt>
-                        </ruby>
-                      ) : (
-                        token.text
-                      )}
-                    </span>
-                  );
-                })}
-              </span>
-            ))}
-          </p>
+          <div className="min-w-0 flex-1">
+            <p
+              lang="ja"
+              data-furigana={furiganaMode}
+              data-type={serif ? 'serif' : 'sans'}
+              style={passageStyle}
+              className="passage tracking-[0.01em] text-foreground"
+            >
+              {parts.map((part, partIndex) => (
+                <span key={partIndex} className={cn(part.evidence && 'mark-evidence')}>
+                  {part.tokens.map((token, tokenIndex) => {
+                    if (!token.reading && !token.entry) return <Fragment key={tokenIndex}>{token.text}</Fragment>;
+                    const isMarked = marks.includes(token.text);
+                    const isSelected = selected === token.text;
+                    return (
+                      <span
+                        key={tokenIndex}
+                        role="button"
+                        tabIndex={-1}
+                        onClick={() => onSelect(token.text)}
+                        title={token.entry ? token.entry.en : token.reading}
+                        className={cn(
+                          'word-tap',
+                          isMarked && 'mark-highlight',
+                          isSelected && 'bg-primary-muted ring-1 ring-primary/40',
+                          token.connector && showConnectors && !isMarked && !isSelected && 'mark-connector',
+                        )}
+                      >
+                        {token.reading ? (
+                          <ruby>
+                            {token.text}
+                            <rt>{token.reading}</rt>
+                          </ruby>
+                        ) : (
+                          token.text
+                        )}
+                      </span>
+                    );
+                  })}
+                </span>
+              ))}
+            </p>
+            <div className="mt-2 space-y-1 border-l-2 border-info/35 pl-3 text-[12px] leading-relaxed">
+              <p lang="ja" className="text-muted-foreground">{paragraph.kana}</p>
+              <p className="font-mono tracking-wide text-info">{paragraph.romaji}</p>
+              <p className="text-foreground"><span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">ID</span>{paragraph.indonesian}</p>
+              {paragraph.english ? <p className="text-muted-foreground"><span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">EN</span>{paragraph.english}</p> : null}
+              {paragraph.languageSupportStatus === 'draft' ? <p className="text-[10.5px] text-warning">Reading support draft · verify before relying on it</p> : null}
+            </div>
+          </div>
           {showRoles ? (
             <span className="mt-[7px] hidden w-28 shrink-0 text-right text-[10.5px] leading-tight text-muted lg:block">
               {paragraph.role}

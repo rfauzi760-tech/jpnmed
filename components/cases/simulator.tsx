@@ -2,27 +2,26 @@
 
 import Link from 'next/link';
 import { useMemo, useRef, useState } from 'react';
-import { ArrowRight, Check, MessageSquare, RotateCcw, Send, TriangleAlert, X } from 'lucide-react';
+import { ArrowRight, Check, MessageSquare, RotateCcw, TriangleAlert, X } from 'lucide-react';
 import { useStudy } from '@/lib/store/provider';
 import { cn } from '@/lib/utils/cn';
 import { Badge, Button, Callout, EmptyState, LinkButton, PageHeader, SectionHeading } from '@/components/ui/primitives';
-import { SegmentedControl } from '@/components/ui/interactive';
 import { AddToReviewButton } from '@/components/study/review-controls';
 
 /* ------------------------------------------------------------------
    Clinical case simulator (PRD §10).
 
-   Three ways through the same consultation: guided (with model
-   phrasing), free response (you produce the Japanese), and multiple
-   choice (recognise the right question to ask next). Feedback lists
-   what you asked, what you missed, why it mattered, and the phrasing
-   habits that would cost you in a real room.
+   The consultation uses direct multiple-choice prompts so the learner can
+   move quickly through a realistic history. Feedback lists what was asked,
+   what was missed, why it mattered, and phrasing habits that would cost you
+   in a real room.
 ------------------------------------------------------------------ */
 
 export type CaseQuestion = {
   id: string;
   topic: string;
   acceptedPhrases: string[];
+  acceptedPhraseReadings: { japanese: string; kana: string; romaji: string }[];
   why: string;
   weight: number;
   redFlag: boolean;
@@ -39,8 +38,11 @@ export type CaseView = {
   chiefComplaint: string;
   hiddenDiagnosis: string;
   openingPhrase: string;
+  openingPhraseKana: string;
+  openingPhraseRomaji: string;
+  openingPhraseIndonesian: string;
   questions: CaseQuestion[];
-  patientLines: { id: string; topic: string; japanese: string; english: string; indonesian: string }[];
+  patientLines: { id: string; topic: string; japanese: string; kana: string; romaji: string; english: string; indonesian: string }[];
   examinationFindings: string;
   expectedInvestigations: string[];
   teachingPoints: string[];
@@ -48,68 +50,23 @@ export type CaseView = {
   voiceNote?: string;
 };
 
-type Mode = 'guided' | 'multiple-choice' | 'free-response';
-type Turn = { speaker: 'learner' | 'patient'; japanese: string; english?: string; note?: string };
-
-const FUNCTION_WORDS = new Set([
-  'は',
-  'が',
-  'を',
-  'に',
-  'の',
-  'で',
-  'と',
-  'も',
-  'か',
-  'です',
-  'ます',
-  'ました',
-  'ください',
-  'ですか',
-  'ますか',
-  'お',
-  'ご',
-  'この',
-  'その',
-  'こと',
-  'もの',
-]);
-
-function normalise(text: string) {
-  return text
-    .normalize('NFKC')
-    .replace(/[\s。、，．！？!?,.・…「」『』（）()]/g, '')
-    .toLowerCase();
-}
-
-/** Heuristic matching: exact containment, or a distinctive kana/kanji window. */
-function matchesPhrase(input: string, parts: string[], phrases: string[]) {
-  const haystack = normalise([input, ...parts].join(''));
-  const normalizedInput = normalise(input);
-  for (const phrase of phrases) {
-    const target = normalise(phrase);
-    if (haystack.includes(target)) return true;
-    if (normalizedInput.length < 4) continue;
-    for (let i = 0; i < target.length - 1; i += 1) {
-      const window = target.slice(i, i + 2);
-      if (window.length < 2 || FUNCTION_WORDS.has(window)) continue;
-      if (normalizedInput.includes(window)) return true;
-    }
-  }
-  return false;
-}
-
 const POLITE_ENDINGS = ['です', 'ます', 'ください', 'でしょうか', 'いただけ', 'ましょう', 'ませんか'];
+type Turn = {
+  speaker: 'learner' | 'patient';
+  japanese: string;
+  kana?: string;
+  romaji?: string;
+  indonesian?: string;
+  english?: string;
+  note?: string;
+};
 
 export function CaseSimulator({ item }: { item: CaseView }) {
   const { state, actions, ready } = useStudy();
-  const [mode, setMode] = useState<Mode>('guided');
+  const mode = 'multiple-choice' as const;
   const [stage, setStage] = useState<'brief' | 'consult' | 'results'>('brief');
   const [askedIds, setAskedIds] = useState<string[]>([]);
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [input, setInput] = useState('');
-  const [rejected, setRejected] = useState<string | null>(null);
-  const [revealedTopics, setRevealedTopics] = useState<string[]>([]);
   const [picked, setPicked] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState(false);
   const transcriptRef = useRef<HTMLDivElement>(null);
@@ -147,37 +104,31 @@ export function CaseSimulator({ item }: { item: CaseView }) {
 
   const patientLineFor = (topic: string) => item.patientLines.find((line) => line.topic === topic);
 
-  const askQuestion = (question: CaseQuestion, spoken: string, matched: boolean) => {
+  const askQuestion = (question: CaseQuestion, spoken: string) => {
     const line = patientLineFor(question.topic);
     setTurns((current) => [
       ...current,
       { speaker: 'learner', japanese: spoken },
-      ...(line ? [{ speaker: 'patient' as const, japanese: line.japanese, english: line.english }] : []),
+      ...(line
+        ? [{
+            speaker: 'patient' as const,
+            japanese: line.japanese,
+            kana: line.kana,
+            romaji: line.romaji,
+            english: line.english,
+            indonesian: line.indonesian,
+          }]
+        : []),
     ]);
     setAskedIds((current) => [...current, question.id]);
-    setRejected(matched ? null : null);
-    setInput('');
     setPicked(null);
     requestAnimationFrame(() => transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight }));
-  };
-
-  const submitFreeResponse = () => {
-    const value = input.trim();
-    if (value.length === 0) return;
-    const hit = unasked.find((question) => matchesPhrase(value, [], question.acceptedPhrases));
-    if (hit) {
-      askQuestion(hit, value, true);
-      return;
-    }
-    setRejected(value);
-    setTurns((current) => [...current, { speaker: 'learner', japanese: value, note: 'Not recognised as a planned question' }]);
-    setInput('');
   };
 
   const pickMultipleChoice = (question: CaseQuestion) => {
     setPicked(question.id);
     if (askedIds.includes(question.id)) return;
-    askQuestion(question, question.acceptedPhrases[0], true);
+    askQuestion(question, question.acceptedPhrases[0]);
   };
 
   const finish = () => {
@@ -201,9 +152,6 @@ export function CaseSimulator({ item }: { item: CaseView }) {
     setStage('brief');
     setAskedIds([]);
     setTurns([]);
-    setInput('');
-    setRejected(null);
-    setRevealedTopics([]);
     setPicked(null);
     setSavedNote(false);
   };
@@ -286,43 +234,17 @@ export function CaseSimulator({ item }: { item: CaseView }) {
 
             <section>
               <SectionHeading title="The patient speaks" hint="this is your starting point" />
-              <p lang="ja" className="mt-2 border-l-2 border-l-primary pl-3 text-[16px] leading-loose text-foreground">
-                {item.openingPhrase}
-              </p>
+              <div className="mt-2 border-l-2 border-l-primary pl-3">
+                <p lang="ja" className="text-[16px] leading-loose text-foreground">{item.openingPhrase}</p>
+                <p lang="ja" className="text-[12px] text-muted-foreground">{item.openingPhraseKana}</p>
+                <p className="font-mono text-[12px] tracking-wide text-info">{item.openingPhraseRomaji}</p>
+                <p className="mt-1 text-[13px] text-foreground"><span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">ID</span>{item.openingPhraseIndonesian}</p>
+                <p className="mt-1 text-[10.5px] text-warning">Reading support draft · verify before relying on it</p>
+              </div>
             </section>
 
             <section>
-              <SectionHeading title="Choose your mode" />
-              <div className="space-y-2 pt-3">
-                {(
-                  [
-                    ['guided', 'Guided', 'You see the topics to cover and can reveal model Japanese at any point.'],
-                    ['free-response', 'Free response', 'You type the Japanese yourself; nothing is suggested until the end.'],
-                    ['multiple-choice', 'Multiple choice', 'You choose which question to ask next from the case’s own question set.'],
-                  ] as [Mode, string, string][]
-                ).map(([value, label, description]) => (
-                  <label
-                    key={value}
-                    className={cn(
-                      'flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 transition-colors',
-                      mode === value ? 'border-primary bg-primary-muted/40' : 'border-border hover:bg-surface-secondary',
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name="mode"
-                      value={value}
-                      checked={mode === value}
-                      onChange={() => setMode(value)}
-                      className="mt-1 h-3.5 w-3.5"
-                    />
-                    <span>
-                      <span className="block text-[13.5px] text-foreground">{label}</span>
-                      <span className="block text-[12px] leading-relaxed text-muted-foreground">{description}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <SectionHeading title="Choose your next question" hint="multiple choice" />
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button variant="primary" size="md" onClick={() => setStage('consult')}>
                   Begin the consultation
@@ -435,6 +357,8 @@ export function CaseSimulator({ item }: { item: CaseView }) {
                           <p lang="ja" className="mt-1 text-[14px] leading-relaxed text-foreground">
                             {question.acceptedPhrases[0]}
                           </p>
+                          {question.acceptedPhraseReadings[0] ? <p lang="ja" className="text-[11.5px] text-muted-foreground">{question.acceptedPhraseReadings[0].kana}</p> : null}
+                          {question.acceptedPhraseReadings[0] ? <p className="font-mono text-[11.5px] text-info">{question.acceptedPhraseReadings[0].romaji}</p> : null}
                           <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{question.why}</p>
                         </div>
                       </div>
@@ -532,7 +456,6 @@ export function CaseSimulator({ item }: { item: CaseView }) {
 
   /* ----------------------------- Consultation ----------------------------- */
   const mcOptions = (() => {
-    if (mode !== 'multiple-choice') return [];
     const remaining = [...unasked];
     const alreadyAsked = [...asked].slice(-2);
     const pool = [...remaining.slice(0, 4), ...alreadyAsked.slice(0, 1)];
@@ -579,16 +502,13 @@ export function CaseSimulator({ item }: { item: CaseView }) {
           >
             <div className="border-l-2 border-l-primary pl-3">
               <div className="meta-label">Patient · opening</div>
-              <p lang="ja" className="text-[15.5px] leading-relaxed text-foreground">
-                {item.openingPhrase}
-              </p>
+              <p lang="ja" className="text-[15.5px] leading-relaxed text-foreground">{item.openingPhrase}</p>
+              <p lang="ja" className="text-[12px] text-muted-foreground">{item.openingPhraseKana}</p>
+              <p className="font-mono text-[11.5px] text-info">{item.openingPhraseRomaji}</p>
+              <p className="text-[12px] text-foreground"><span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">ID</span>{item.openingPhraseIndonesian}</p>
             </div>
             {turns.length === 0 ? (
-              <p className="text-[12.5px] text-muted">
-                {mode === 'multiple-choice'
-                  ? 'Pick the question you would ask next.'
-                  : 'Ask your first question in Japanese.'}
-              </p>
+              <p className="text-[12.5px] text-muted">Pick the question you would ask next.</p>
             ) : null}
             {turns.map((turn, index) => (
               <div
@@ -599,6 +519,9 @@ export function CaseSimulator({ item }: { item: CaseView }) {
                 <p lang="ja" className="text-[15px] leading-relaxed text-foreground">
                   {turn.japanese}
                 </p>
+                {turn.kana ? <p lang="ja" className="text-[11.5px] text-muted-foreground">{turn.kana}</p> : null}
+                {turn.romaji ? <p className="font-mono text-[11.5px] text-info">{turn.romaji}</p> : null}
+                {turn.indonesian ? <p className="text-[12px] text-foreground"><span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted">ID</span>{turn.indonesian}</p> : null}
                 {turn.english ? <p className="text-[12px] text-muted-foreground">{turn.english}</p> : null}
                 {turn.note ? <p className="text-[11.5px] text-warning">{turn.note}</p> : null}
               </div>
@@ -627,109 +550,15 @@ export function CaseSimulator({ item }: { item: CaseView }) {
                               : 'border-border hover:bg-surface-secondary',
                         )}
                       >
-                        <span lang="ja" className="block text-[14.5px] text-foreground">
-                          {question.acceptedPhrases[0]}
-                        </span>
+                        <span lang="ja" className="block text-[14.5px] text-foreground">{question.acceptedPhrases[0]}</span>
+                        {question.acceptedPhraseReadings[0] ? <span lang="ja" className="mt-0.5 block text-[11.5px] text-muted-foreground">{question.acceptedPhraseReadings[0].kana}</span> : null}
+                        {question.acceptedPhraseReadings[0] ? <span className="mt-0.5 block font-mono text-[11.5px] text-info">{question.acceptedPhraseReadings[0].romaji}</span> : null}
                         <span className="mt-0.5 block text-[11.5px] text-muted">
                           {question.topic}
                           {question.redFlag ? ' · red flag' : ''}
                           {wasAsked ? ' · already covered' : ''}
                         </span>
                       </button>
-                    </li>
-                  );
-                })}
-              </ul>
-              {rejected ? (
-                <p className="text-[11.5px] text-warning">That question has already been asked in this consultation.</p>
-              ) : null}
-            </div>
-          ) : (
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                submitFreeResponse();
-              }}
-              className="space-y-2"
-            >
-              <label className="meta-label block" htmlFor="case-input">
-                Ask your next question in Japanese
-              </label>
-              <div className="flex items-end gap-2">
-                <input
-                  id="case-input"
-                  lang="ja"
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder="例：胸の痛みはいつからですか。"
-                  className="h-10 min-w-0 flex-1 rounded-md border border-border bg-surface px-3 text-[15px] text-foreground placeholder:text-muted focus:border-border-strong focus:outline-none"
-                />
-                <Button type="submit" variant="primary" size="md" disabled={input.trim().length === 0}>
-                  <Send className="h-3.5 w-3.5" />
-                  Ask
-                </Button>
-              </div>
-              {rejected ? (
-                <div className="rounded-md border border-warning/40 bg-warning-muted/40 px-3 py-2 text-[12px] leading-relaxed text-muted-foreground">
-                  <p>That did not match any remaining question in the case. It may still have been a reasonable question — the trainer
-                  only recognises the phrasings it knows.</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    <span lang="ja" className="text-foreground">
-                      “{rejected}”
-                    </span>
-                    <button
-                      type="button"
-                      className="text-primary hover:underline"
-                      onClick={() => {
-                        const next = unasked[0];
-                        if (!next) return;
-                        askQuestion(next, rejected, false);
-                      }}
-                    >
-                      Count it against “{unasked[0]?.topic}”
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </form>
-          )}
-
-          {mode === 'guided' ? (
-            <div className="rounded-lg border border-border bg-surface p-3">
-              <div className="meta-label mb-2">Topics to cover — model phrasing available</div>
-              <ul className="divide-y divide-border">
-                {item.questions.map((question) => {
-                  const wasAsked = askedIds.includes(question.id);
-                  const revealed = revealedTopics.includes(question.id);
-                  return (
-                    <li key={question.id} className="flex flex-wrap items-center gap-2 py-1.5">
-                      <span className={cn('min-w-0 flex-1 text-[13px]', wasAsked ? 'text-muted line-through' : 'text-foreground')}>
-                        {question.topic}
-                        {question.redFlag ? <Badge tone="danger" className="ml-1.5">red flag</Badge> : null}
-                      </span>
-                      {revealed || wasAsked ? (
-                        <span lang="ja" className="w-full text-[13.5px] text-muted-foreground">
-                          {question.acceptedPhrases[0]}
-                        </span>
-                      ) : null}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={wasAsked}
-                        onClick={() => {
-                          setRevealedTopics((current) => [...current, question.id]);
-                        }}
-                      >
-                        Reveal
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        disabled={wasAsked}
-                        onClick={() => askQuestion(question, question.acceptedPhrases[0], true)}
-                      >
-                        I would ask this
-                      </Button>
                     </li>
                   );
                 })}
@@ -765,25 +594,6 @@ export function CaseSimulator({ item }: { item: CaseView }) {
           </section>
 
           <section>
-            <SectionHeading title="Mode" />
-            <div className="pt-3">
-              <SegmentedControl
-                ariaLabel="Mode"
-                value={mode}
-                onChange={(value) => setMode(value)}
-                options={[
-                  { value: 'guided', label: 'Guided' },
-                  { value: 'free-response', label: 'Free' },
-                  { value: 'multiple-choice', label: 'Choice' },
-                ]}
-              />
-            </div>
-            <p className="mt-2 text-[11.5px] leading-relaxed text-muted">
-              Changing mode mid-consultation keeps what you have already asked.
-            </p>
-          </section>
-
-          <section>
             <SectionHeading title="Chief complaint" />
             <p lang="ja" className="pt-3 text-[14px] leading-relaxed text-foreground">
               {item.chiefComplaint}
@@ -801,7 +611,6 @@ export function CaseSimulator({ item }: { item: CaseView }) {
                   .reverse()
                   .map((attempt) => (
                     <li key={attempt.id} className="flex items-center justify-between gap-2">
-                      <span>{attempt.mode}</span>
                       <span className="font-mono tabular-nums">
                         {attempt.score}/{attempt.maxScore}
                       </span>
