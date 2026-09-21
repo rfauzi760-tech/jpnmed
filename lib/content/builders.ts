@@ -123,6 +123,7 @@ export type TermRow = {
   pfIdn?: string;
   pfEn?: string;
   pfV?: VerificationStatus;
+  pfLanguageV?: VerificationStatus;
   /** Register C: typical patient expression. */
   pe?: string;
   peKana?: string;
@@ -130,6 +131,7 @@ export type TermRow = {
   peIdn?: string;
   peEn?: string;
   peV?: VerificationStatus;
+  peLanguageV?: VerificationStatus;
   sp?: string[];
   tags?: string[];
   defJa?: string;
@@ -149,6 +151,7 @@ function medicalRegisterSupport(
     indonesian?: string;
     english?: string;
     verificationStatus?: VerificationStatus;
+    languageSupportStatus?: VerificationStatus;
   } = {},
 ): MedicalRegisterSupport {
   const generated = medicalRegisterReadingFor(japanese);
@@ -158,7 +161,8 @@ function medicalRegisterSupport(
     romaji: overrides.romaji ?? generated.romaji,
     indonesian: overrides.indonesian ?? indonesian,
     english: overrides.english ?? english,
-    verificationStatus: overrides.verificationStatus ?? MEDICAL_REGISTER_SUPPORT_STATUS,
+    verificationStatus: overrides.verificationStatus ?? 'reviewed',
+    languageSupportStatus: overrides.languageSupportStatus ?? MEDICAL_REGISTER_SUPPORT_STATUS,
   };
 }
 
@@ -181,6 +185,7 @@ export function T(row: TermRow): MedicalTerm {
           indonesian: row.pfIdn,
           english: row.pfEn,
           verificationStatus: row.pfV,
+          languageSupportStatus: row.pfLanguageV,
         })
       : undefined,
     patientExpression: row.pe,
@@ -191,6 +196,7 @@ export function T(row: TermRow): MedicalTerm {
           indonesian: row.peIdn,
           english: row.peEn,
           verificationStatus: row.peV,
+          languageSupportStatus: row.peLanguageV,
         })
       : undefined,
     register: 'technical',

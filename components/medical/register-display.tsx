@@ -39,6 +39,7 @@ export function RegisterDisplay({
       <div className="flex items-center gap-2">
         <div className="meta-label">{label}</div>
         {support.verificationStatus === 'draft' ? <VerificationBadge status="draft" /> : null}
+        {support.languageSupportStatus === 'draft' ? <span className="text-[10px] text-warning">Reading/translation draft</span> : null}
       </div>
       <p lang="ja" className="mt-0.5 text-[15px] leading-relaxed text-foreground">{support.japanese}</p>
       <p lang="ja" className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{support.kana}</p>

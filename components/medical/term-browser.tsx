@@ -245,6 +245,7 @@ export function TermBrowser({
                           <span className="block text-[11.5px] leading-relaxed text-muted-foreground">{row.patientFriendlySupport.indonesian}</span>
                           {state.settings.medicalDisplay.english ? <span className="block text-[10.5px] leading-relaxed text-muted">{row.patientFriendlySupport.english}</span> : null}
                           {row.patientFriendlySupport.verificationStatus === 'draft' ? <span className="mt-1 block"><VerificationBadge status="draft" /></span> : null}
+                          {row.patientFriendlySupport.languageSupportStatus === 'draft' ? <span className="mt-1 block text-[10px] text-warning">Reading/translation draft</span> : null}
                         </span>
                       ) : row.patientFriendly ? (
                         <span lang="ja" className="block text-[12.5px] leading-relaxed text-muted-foreground">{row.patientFriendly}</span>

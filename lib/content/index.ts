@@ -392,7 +392,7 @@ export const CONTENT_STATS = {
   medicalRomajiComplete: MEDICAL_PRIMARY_ENTRIES.filter((item) => Boolean(item.romaji)).length + PHRASES.filter((item) => Boolean(item.romaji)).length,
   medicalIndonesianComplete: MEDICAL_PRIMARY_ENTRIES.filter((item) => Boolean(item.indonesian)).length,
   medicalPatientRegisterLayers: MEDICAL_REGISTER_LAYERS.length,
-  medicalPatientRegisterDraft: MEDICAL_REGISTER_LAYERS.filter((item) => item?.verificationStatus === 'draft').length,
+  medicalPatientRegisterDraft: MEDICAL_REGISTER_LAYERS.filter((item) => item?.languageSupportStatus === 'draft').length,
   medicalPatientWordingComplete: MEDICAL_TERMS.filter((item) => Boolean(item.patientFriendlySupport || item.patientExpressionSupport)).length,
   medicalPhraseCoverage: PHRASES.length,
   total:

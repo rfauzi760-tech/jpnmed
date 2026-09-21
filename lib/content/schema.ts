@@ -284,7 +284,10 @@ export const medicalRegisterSupportSchema = z.object({
   romaji: z.string().min(1),
   indonesian: z.string().min(1),
   english: z.string().min(1),
-  verificationStatus: verificationStatusSchema.default('draft'),
+  /** Verification of the authored Japanese wording itself. */
+  verificationStatus: verificationStatusSchema.default('reviewed'),
+  /** Verification of kana, romaji and translations, which may be generated. */
+  languageSupportStatus: verificationStatusSchema.default('draft'),
 });
 
 export type MedicalRegisterSupport = z.infer<typeof medicalRegisterSupportSchema>;

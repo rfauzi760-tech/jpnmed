@@ -87,7 +87,8 @@ describe('content quality rules', () => {
         expect(support.romaji, term.japanese).toBeTruthy();
         expect(support.indonesian, term.japanese).toBeTruthy();
         expect(support.english, term.japanese).toBeTruthy();
-        expect(['draft', 'reviewed', 'verified']).toContain(support.verificationStatus);
+        expect(support.verificationStatus).toBe('reviewed');
+        expect(['draft', 'reviewed', 'verified']).toContain(support.languageSupportStatus);
       }
       expect(Boolean(term.patientFriendly) === Boolean(term.patientFriendlySupport), term.japanese).toBe(true);
       expect(Boolean(term.patientExpression) === Boolean(term.patientExpressionSupport), term.japanese).toBe(true);
