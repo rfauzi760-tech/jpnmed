@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { DISEASES, getDisease, relatedForDisease, resolveTermRefs } from '@/lib/content';
+import { diseaseExaminationLines, diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
 import { specialtyLabel } from '@/lib/content/taxonomy';
 import { PageBody } from '@/components/shell/app-shell';
 import {
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/primitives';
 import { CopyButton } from '@/components/ui/interactive';
 import { RegisterBlock } from '@/components/japanese';
+import { MedicalLine } from '@/components/medical/medical-line';
 import { AddToReviewButton, BookmarkButton, NoteButton, ReviewStateLine } from '@/components/study/review-controls';
 import { makeReviewKey } from '@/lib/store/types';
 
@@ -73,6 +75,26 @@ function PhraseList({
   );
 }
 
+function ClinicalLineList({
+  title,
+  lines,
+  hint,
+}: {
+  title: string;
+  lines: import('@/lib/content/schema').ClinicalLine[];
+  hint?: string;
+}) {
+  if (lines.length === 0) return null;
+  return (
+    <section>
+      <SectionHeading title={title} hint={hint} />
+      <div className="grid gap-3 pt-2">
+        {lines.map((line, index) => <MedicalLine key={`${line.japanese}-${index}`} label="Japanese clinical line" line={line} />)}
+      </div>
+    </section>
+  );
+}
+
 export default async function DiseasePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const disease = getDisease(id);
@@ -81,6 +103,11 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
   const related = relatedForDisease(disease);
   const relatedTerms = resolveTermRefs(disease.relatedTerms);
   const relatedDiseases = DISEASES.filter((item) => disease.relatedDiseases.includes(item.japanese) || disease.relatedDiseases.includes(item.english));
+  const explanationLine = diseaseExplanationLine(disease);
+  const historyLines = diseaseHistoryLines(disease);
+  const examinationLines = diseaseExaminationLines(disease);
+  const investigationLines = diseaseInvestigationLines(disease);
+  const treatmentLines = diseaseTreatmentLines(disease);
 
   return (
     <PageBody>
@@ -146,7 +173,8 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
           <section id="explain" className="scroll-mt-24">
             <SectionHeading title="Patient-friendly explanation" hint="say this, not the term" />
             <div className="space-y-3 pt-3">
-              <RegisterBlock label="How to explain it · やさしい説明" text={disease.patientExplanation} tone="info" />
+              <MedicalLine label="How to explain it · やさしい説明" line={explanationLine} />
+              <RegisterBlock label="Clinical detail · 医療者向け" text={disease.patientExplanation} tone="neutral" />
               {disease.causeExplanation ? (
                 <RegisterBlock label="Why it happens · 原因" text={disease.causeExplanation} tone="neutral" />
               ) : null}
@@ -166,7 +194,7 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
 
           <section id="history" className="scroll-mt-24">
             <SectionHeading title="History" hint="questions, in the order they matter" />
-            <PhraseList title="Questions to ask" items={disease.historyQuestions} />
+            <ClinicalLineList title="Questions to ask" lines={historyLines} />
             {related.patients.length > 0 ? (
               <PhraseList
                 title="Wording the patient may use back"
@@ -178,22 +206,18 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
 
           <section id="examination" className="scroll-mt-24">
             <SectionHeading title="Physical examination" />
-            <PhraseList title="Examination phrasing" items={disease.examinationPhrases} />
+            <ClinicalLineList title="Examination phrasing" lines={examinationLines} />
           </section>
 
           <section id="investigations" className="scroll-mt-24">
             <SectionHeading title="Investigations" />
-            <PhraseList title="Tests and imaging to order" items={disease.investigations} />
-            <PhraseList
-              title="Explaining each test"
-              hint="what the patient actually needs to hear"
-              items={disease.investigationExplanations}
-            />
+            <ClinicalLineList title="Tests and imaging to order" lines={investigationLines} />
+            <ClinicalLineList title="Explaining each test" hint="what the patient actually needs to hear" lines={investigationLines.slice(0, 8)} />
           </section>
 
           <section id="treatment" className="scroll-mt-24">
             <SectionHeading title="Treatment" />
-            <PhraseList title="Treatment vocabulary" items={disease.treatmentPhrases} />
+            <ClinicalLineList title="Treatment vocabulary" lines={treatmentLines} />
             <PhraseList title="Admission and discharge wording" items={disease.admissionWording} />
           </section>
 
