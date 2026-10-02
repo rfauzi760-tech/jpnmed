@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { INVESTIGATIONS, MEDICAL_TERMS, MEDICATIONS, PHRASES, SYMPTOMS, DISEASES } from '@/lib/content';
 import { buildSearchIndex, searchDocs } from '@/lib/search';
-import { diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
+import { diseaseCauseLine, diseaseClinicalDetailLine, diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseKeySymptomLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
 
 describe('Indonesian-first medical reference', () => {
   it('requires romaji on every indexed medical concept and clinical phrase', () => {
@@ -19,6 +19,9 @@ describe('Indonesian-first medical reference', () => {
     for (const disease of DISEASES) {
       const lines = [
         diseaseExplanationLine(disease),
+        diseaseClinicalDetailLine(disease),
+        diseaseCauseLine(disease),
+        ...diseaseKeySymptomLines(disease),
         ...diseaseHistoryLines(disease),
         ...diseaseInvestigationLines(disease),
         ...diseaseTreatmentLines(disease),
@@ -34,5 +37,9 @@ describe('Indonesian-first medical reference', () => {
         expect(line.english, `${disease.japanese}: ${line.japanese}`).toBeTruthy();
       }
     }
+
+    const hypertension = DISEASES.find((disease) => disease.japanese === '高血圧');
+    expect(hypertension).toBeDefined();
+    expect(diseaseKeySymptomLines(hypertension!)).toHaveLength(hypertension!.keySymptoms.length);
   });
 });

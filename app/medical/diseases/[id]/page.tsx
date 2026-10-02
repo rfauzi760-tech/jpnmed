@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { DISEASES, getDisease, relatedForDisease, resolveTermRefs } from '@/lib/content';
-import { diseaseExaminationLines, diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
+import { diseaseCauseLine, diseaseClinicalDetailLine, diseaseExaminationLines, diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseKeySymptomLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
 import { specialtyLabel } from '@/lib/content/taxonomy';
 import { PageBody } from '@/components/shell/app-shell';
 import {
@@ -104,6 +104,9 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
   const relatedTerms = resolveTermRefs(disease.relatedTerms);
   const relatedDiseases = DISEASES.filter((item) => disease.relatedDiseases.includes(item.japanese) || disease.relatedDiseases.includes(item.english));
   const explanationLine = diseaseExplanationLine(disease);
+  const clinicalDetailLine = diseaseClinicalDetailLine(disease);
+  const causeLine = diseaseCauseLine(disease);
+  const keySymptomLines = diseaseKeySymptomLines(disease);
   const historyLines = diseaseHistoryLines(disease);
   const examinationLines = diseaseExaminationLines(disease);
   const investigationLines = diseaseInvestigationLines(disease);
@@ -174,9 +177,13 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
             <SectionHeading title="Patient-friendly explanation" hint="say this, not the term" />
             <div className="space-y-3 pt-3">
               <MedicalLine label="How to explain it · やさしい説明" line={explanationLine} />
-              <RegisterBlock label="Clinical detail · 医療者向け" text={disease.patientExplanation} tone="neutral" />
+              <MedicalLine label="Clinical detail · 医療者向け" line={clinicalDetailLine} />
+              <RegisterBlock label="Japanese clinical source · 原文" text={disease.patientExplanation} tone="neutral" />
               {disease.causeExplanation ? (
-                <RegisterBlock label="Why it happens · 原因" text={disease.causeExplanation} tone="neutral" />
+                <>
+                  <MedicalLine label="Why it happens · 原因" line={causeLine} />
+                  <RegisterBlock label="Japanese cause source · 原文" text={disease.causeExplanation} tone="neutral" />
+                </>
               ) : null}
               <div className="flex gap-2">
                 <CopyButton text={disease.patientExplanation} label="Copy explanation" />
@@ -185,11 +192,19 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
             <div className="mt-4">
               <FactGrid
                 items={[
-                  { label: 'Key symptoms', value: <span lang="ja">{disease.keySymptoms.join('、')}</span> },
+                  {
+                    label: 'Key symptoms',
+                    value: keySymptomLines.length > 0 ? (
+                      <div className="space-y-2">
+                        {keySymptomLines.map((line, index) => <MedicalLine key={`${line.japanese}-${index}`} label="Symptom" line={line} />)}
+                      </div>
+                    ) : <span lang="ja">{disease.keySymptoms.join('、')}</span>,
+                  },
                   { label: 'Specialty', value: disease.specialties.map(specialtyLabel).join(', ') },
                 ]}
               />
             </div>
+            <ClinicalLineList title="Key symptoms · 主な症状" lines={keySymptomLines} />
           </section>
 
           <section id="history" className="scroll-mt-24">
@@ -270,7 +285,14 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                 items={[
                   { label: 'Severity', value: disease.severity },
                   { label: 'Specialty', value: disease.specialties.map(specialtyLabel).join(', ') },
-                  { label: 'Key symptoms', value: <span lang="ja">{disease.keySymptoms.join('、')}</span> },
+                  {
+                    label: 'Key symptoms',
+                    value: keySymptomLines.length > 0 ? (
+                      <div className="space-y-2">
+                        {keySymptomLines.map((line, index) => <MedicalLine key={`${line.japanese}-${index}`} label="Symptom" line={line} />)}
+                      </div>
+                    ) : <span lang="ja">{disease.keySymptoms.join('、')}</span>,
+                  },
                   { label: 'Investigations', value: <span lang="ja">{disease.investigations.join('、') || '—'}</span> },
                 ]}
               />

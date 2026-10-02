@@ -1,8 +1,9 @@
-import type { ClinicalLine, ClinicalPhrase, Disease, Investigation, MedicalTerm } from './schema';
+import type { ClinicalLine, ClinicalPhrase, Disease, Investigation, MedicalTerm, Symptom } from './schema';
 import { kanaToRomajiFull } from '@/lib/utils/romaji';
 import { INVESTIGATIONS } from './data/investigations';
 import { MEDICAL_TERMS } from './data/medicalTerms';
 import { PHRASES } from './data/phrases';
+import { SYMPTOMS } from './data/symptoms';
 
 /**
  * Disease pages historically stored checklist items as Japanese-only strings.
@@ -54,6 +55,26 @@ function lineFromTerm(term: MedicalTerm): ClinicalLine {
   };
 }
 
+function lineFromSymptom(symptom: Symptom): ClinicalLine {
+  return {
+    japanese: symptom.japanese,
+    kana: symptom.kana,
+    romaji: symptom.romaji,
+    indonesian: symptom.indonesian,
+    english: symptom.english,
+  };
+}
+
+function lineFromSupport(support: { japanese: string; kana: string; romaji: string; indonesian: string; english: string }): ClinicalLine {
+  return {
+    japanese: support.japanese,
+    kana: support.kana,
+    romaji: support.romaji,
+    indonesian: support.indonesian,
+    english: support.english,
+  };
+}
+
 function lineFromInvestigation(investigation: Investigation): ClinicalLine {
   return {
     japanese: investigation.japanese,
@@ -99,6 +120,107 @@ export function diseaseExplanationLine(disease: Disease): ClinicalLine {
     indonesian: `Ini adalah penyakit ${disease.indonesian}.`,
     english: `This is ${disease.english}.`,
   };
+}
+
+/**
+ * The disease rows pre-date ClinicalLine and keep their long source text as
+ * Japanese-only strings. Keep that source text intact, but expose a complete
+ * language line beside it so the page never forces the learner to guess the
+ * reading or translation.
+ */
+const CURATED_DETAIL_LINES: Record<string, ClinicalLine> = {
+  高血圧: {
+    japanese: '血圧が高い状態が続くと、心臓や脳、腎臓の血管に負担がかかります。今は症状がなくても、長い間には脳梗塞や心不全の原因になるため、治療を続けることが大切です。',
+    kana: 'けつあつがたかいじょうたいがつづくと、しんぞうやのう、じんぞうのけっかんにふたんがかかります。いまはしょうじょうがなくても、ながいあいだにはのうこうそくやしんふぜんのげんいんになるため、ちりょうをつづけることがたいせつです。',
+    romaji: kanaToRomajiFull('けつあつがたかいじょうたいがつづくと、しんぞうやのう、じんぞうのけっかんにふたんがかかります。いまはしょうじょうがなくても、ながいあいだにはのうこうそくやしんふぜんのげんいんになるため、ちりょうをつづけることがたいせつです。'),
+    indonesian: 'Jika tekanan darah tinggi terus berlangsung, pembuluh darah jantung, otak, dan ginjal akan terbebani. Meskipun saat ini tidak bergejala, dalam jangka panjang kondisi ini dapat menyebabkan stroke iskemik atau gagal jantung, sehingga penting untuk melanjutkan pengobatan.',
+    english: 'When high blood pressure persists, it puts stress on the blood vessels of the heart, brain, and kidneys. Even without symptoms now, it can cause cerebral infarction or heart failure over time, so continuing treatment is important.',
+  },
+};
+
+const CURATED_CAUSE_LINES: Record<string, ClinicalLine> = {
+  高血圧: {
+    japanese: '原因がはっきりしないものが多いですが、塩分の取りすぎ、飲酒、肥満、ストレス、遺伝などが関係します。',
+    kana: 'げんいんがはっきりしないものがおおいですが、えんぶんのとりすぎ、いんしゅ、ひまん、すとれす、いでんなどがかんけいします。',
+    romaji: kanaToRomajiFull('げんいんがはっきりしないものがおおいですが、えんぶんのとりすぎ、いんしゅ、ひまん、すとれす、いでんなどがかんけいします。'),
+    indonesian: 'Penyebabnya sering kali tidak jelas, tetapi konsumsi garam berlebihan, alkohol, obesitas, stres, dan faktor keturunan dapat berperan.',
+    english: 'The cause is often unclear, but excess salt, alcohol, obesity, stress, and genetics may contribute.',
+  },
+};
+
+const KEY_SYMPTOM_LINES: Record<string, ClinicalLine> = {
+  多くは無症状: {
+    japanese: '多くは無症状',
+    kana: 'おおくはむしょうじょう',
+    romaji: kanaToRomajiFull('おおくはむしょうじょう'),
+    indonesian: 'sering kali tanpa gejala',
+    english: 'often asymptomatic',
+  },
+  無症状も多い: {
+    japanese: '無症状も多い',
+    kana: 'むしょうじょうもおおい',
+    romaji: kanaToRomajiFull('むしょうじょうもおおい'),
+    indonesian: 'sering kali tanpa gejala',
+    english: 'often asymptomatic',
+  },
+  無症状: {
+    japanese: '無症状',
+    kana: 'むしょうじょう',
+    romaji: kanaToRomajiFull('むしょうじょう'),
+    indonesian: 'tanpa gejala',
+    english: 'asymptomatic',
+  },
+};
+
+export function diseaseClinicalDetailLine(disease: Disease): ClinicalLine {
+  const curated = CURATED_DETAIL_LINES[disease.japanese];
+  if (curated) return curated;
+
+  const term = MEDICAL_TERMS.find((item) => item.japanese === disease.japanese);
+  if (term?.patientFriendlySupport) return lineFromSupport(term.patientFriendlySupport);
+
+  return diseaseExplanationLine(disease);
+}
+
+export function diseaseCauseLine(disease: Disease): ClinicalLine {
+  const curated = CURATED_CAUSE_LINES[disease.japanese];
+  if (curated) return curated;
+
+  const kana = `${disease.kana}のげんいんはひとつとはかぎりません。`;
+  return {
+    japanese: `${disease.japanese}の原因は一つとは限りません。`,
+    kana,
+    romaji: kanaToRomajiFull(kana),
+    indonesian: `Penyebab ${disease.indonesian} tidak selalu hanya satu.`,
+    english: `There may be more than one cause of ${disease.english}.`,
+  };
+}
+
+export function diseaseKeySymptomLines(disease: Disease) {
+  const lines = disease.keySymptoms.flatMap((key) => {
+    const curated = KEY_SYMPTOM_LINES[key];
+    if (curated) return [curated];
+
+    const term = MEDICAL_TERMS
+      .filter((item) => key.includes(item.japanese) || item.japanese.includes(key))
+      .sort((a, b) => b.japanese.length - a.japanese.length)[0];
+    if (term) return [lineFromTerm(term)];
+
+    const symptom = SYMPTOMS
+      .filter((item) => key.includes(item.japanese) || item.japanese.includes(key))
+      .sort((a, b) => b.japanese.length - a.japanese.length)[0]
+      ?? SYMPTOMS.find((item) => [
+        ...item.patientExpressions,
+        ...item.descriptors,
+        ...item.severityPhrases,
+        ...item.timingPhrases,
+        ...item.associatedQuestions,
+        ...item.redFlags,
+      ].some((text) => text.includes(key) || key.includes(text)));
+    return symptom ? [lineFromSymptom(symptom)] : [];
+  });
+
+  return unique(lines, disease.keySymptoms.length);
 }
 
 export function diseaseHistoryLines(disease: Disease) {

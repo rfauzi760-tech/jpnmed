@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DISEASES, diseasesBySpecialty } from '@/lib/content';
+import { diseaseClinicalDetailLine } from '@/lib/content/disease-language';
 import { SPECIALTIES, specialtyLabel } from '@/lib/content/taxonomy';
 import { PageBody } from '@/components/shell/app-shell';
+import { MedicalLine } from '@/components/medical/medical-line';
 import { Badge, EmptyState, Input, LinkButton, PageHeader, SafetyNote, SectionHeading } from '@/components/ui/primitives';
 
 export const metadata: Metadata = {
@@ -134,9 +136,9 @@ export default async function DiseasesPage({
                   </span>
                 </Link>
               </div>
-              <p lang="ja" className="min-w-[240px] flex-[2] text-[12.5px] leading-relaxed text-muted-foreground">
-                {disease.patientExplanation}
-              </p>
+              <div className="min-w-[240px] flex-[2]">
+                <MedicalLine label="Clinical detail · 医療者向け" line={diseaseClinicalDetailLine(disease)} />
+              </div>
               <div className="flex shrink-0 flex-wrap items-center gap-1.5">
                 <Badge tone={SEVERITY_TONE[disease.severity]}>{disease.severity}</Badge>
                 <Badge tone="neutral">{specialtyLabel(disease.specialties[0])}</Badge>
