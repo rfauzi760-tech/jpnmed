@@ -70,7 +70,7 @@ export function Phrasebook({
 
   const visible = useMemo(() => {
     const needle = deferred.trim().toLowerCase();
-    const scoped = rows.filter((row) => (searchAllStages || !needle ? true : row.stage === stage));
+    const scoped = rows.filter((row) => searchAllStages || row.stage === stage);
     return scoped.filter((row) => {
       if (register !== 'all' && row.register !== register) return false;
       if (speaker !== 'all' && row.speaker !== speaker) return false;
