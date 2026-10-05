@@ -345,6 +345,28 @@ export const symptomSchema = z.object({
   /** Patient expressions from the checklist: what they actually say. */
   patientExpressions: z.array(z.string()).min(1),
   doctorQuestions: z.array(z.string()).min(1),
+  /** Complaint-specific history, with language support for every utterance. */
+  historyTaking: z.array(z.object({
+    id: z.string(),
+    focusIndonesian: z.string().min(1),
+    focusEnglish: z.string().min(1),
+    clinicalReasonIndonesian: z.string().min(1),
+    clinicalReasonEnglish: z.string().min(1),
+    question: z.object({
+      japanese: z.string().min(1),
+      kana: z.string().min(1),
+      romaji: z.string().min(1),
+      indonesian: z.string().min(1),
+      english: z.string().min(1),
+    }),
+    patientAnswers: z.array(z.object({
+      japanese: z.string().min(1),
+      kana: z.string().min(1),
+      romaji: z.string().min(1),
+      indonesian: z.string().min(1),
+      english: z.string().min(1),
+    })).default([]),
+  })).default([]),
   descriptors: z.array(z.string()).default([]),
   severityPhrases: z.array(z.string()).default([]),
   timingPhrases: z.array(z.string()).default([]),
@@ -368,6 +390,7 @@ export const symptomSchema = z.object({
 
 export type Symptom = z.infer<typeof symptomSchema>;
 export type SymptomExchange = Symptom['exchanges'][number];
+export type SymptomHistoryPrompt = Symptom['historyTaking'][number];
 
 export const phraseStageSchema = z.enum([
   'greeting',
@@ -496,7 +519,11 @@ export const diseaseSchema = z.object({
   investigations: z.array(z.string()).default([]),
   investigationExplanations: z.array(z.string()).default([]),
   patientExplanation: z.string().min(1),
+  /** Fully supported language line for the authored patient explanation. */
+  patientExplanationSupport: clinicalLineSchema.optional(),
   causeExplanation: z.string().optional(),
+  /** Fully supported language line for the authored cause explanation. */
+  causeExplanationSupport: clinicalLineSchema.optional(),
   treatmentPhrases: z.array(z.string()).default([]),
   redFlagPhrases: z.array(z.string()).default([]),
   admissionWording: z.array(z.string()).default([]),

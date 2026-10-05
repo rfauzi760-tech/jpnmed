@@ -192,8 +192,11 @@ export function relatedForTerm(term: MedicalTerm) {
 }
 
 export function relatedForDisease(disease: Disease) {
+  const explicitlyLinkedTerms = resolveTermRefs([...disease.relatedTerms, ...disease.keySymptoms, ...disease.investigations]);
+  const termsLinkedBackToDisease = MEDICAL_TERMS.filter((term) => term.relatedIds.includes(disease.japanese));
+  const termsById = new Map([...explicitlyLinkedTerms, ...termsLinkedBackToDisease].map((term) => [term.id, term]));
   return {
-    terms: resolveTermRefs([...disease.relatedTerms, ...disease.keySymptoms, ...disease.investigations]),
+    terms: [...termsById.values()],
     diseases: resolveDiseaseRefs(disease.relatedDiseases),
     medications: MEDICATIONS.filter((medication) => medication.relatedDiseases.some((name) => [disease.japanese, disease.english, disease.indonesian, ...disease.keySymptoms].includes(name))),
     investigations: INVESTIGATIONS.filter((investigation) => investigation.relatedDiseases.some((name) => [disease.japanese, disease.english, disease.indonesian].includes(name)) || investigation.relatedTerms.some((name) => disease.relatedTerms.includes(name))),

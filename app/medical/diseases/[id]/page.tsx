@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { DISEASES, getDisease, relatedForDisease, resolveTermRefs } from '@/lib/content';
-import { diseaseCauseLine, diseaseClinicalDetailLine, diseaseExaminationLines, diseaseExplanationLine, diseaseHistoryLines, diseaseInvestigationLines, diseaseKeySymptomLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
+import { diseaseCauseLine, diseaseClinicalDetailLine, diseaseDialoguePhrases, diseaseDispositionLines, diseaseExaminationLines, diseaseExplanationLine, diseaseHistoryGroups, diseaseHistoryLines, diseaseInvestigationLines, diseaseKeySymptomLines, diseaseSafetyLines, diseaseTreatmentLines } from '@/lib/content/disease-language';
 import { specialtyLabel } from '@/lib/content/taxonomy';
 import { PageBody } from '@/components/shell/app-shell';
 import {
@@ -18,8 +18,8 @@ import {
   VerificationBadge,
 } from '@/components/ui/primitives';
 import { CopyButton } from '@/components/ui/interactive';
-import { RegisterBlock } from '@/components/japanese';
 import { MedicalLine } from '@/components/medical/medical-line';
+import { ClinicalHpi } from '@/components/medical/clinical-hpi';
 import { AddToReviewButton, BookmarkButton, NoteButton, ReviewStateLine } from '@/components/study/review-controls';
 import { makeReviewKey } from '@/lib/store/types';
 
@@ -45,35 +45,6 @@ const SECTIONS = [
   { id: 'safety', label: 'Safety-netting' },
   { id: 'dialogue', label: 'Dialogue' },
 ];
-
-function PhraseList({
-  title,
-  items,
-  hint,
-  tone,
-}: {
-  title: string;
-  items: string[];
-  hint?: string;
-  tone?: 'danger';
-}) {
-  if (items.length === 0) return null;
-  return (
-    <section>
-      <SectionHeading title={title} hint={hint} />
-      <ul className="divide-y divide-border pt-1">
-        {items.map((item) => (
-          <li key={item} className="flex items-start gap-3 py-2">
-            <span lang="ja" className={tone === 'danger' ? 'min-w-0 flex-1 text-[14.5px] leading-relaxed text-danger' : 'min-w-0 flex-1 text-[14.5px] leading-relaxed text-foreground'}>
-              {item}
-            </span>
-            <CopyButton text={item} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 function ClinicalLineList({
   title,
@@ -107,10 +78,14 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
   const clinicalDetailLine = diseaseClinicalDetailLine(disease);
   const causeLine = diseaseCauseLine(disease);
   const keySymptomLines = diseaseKeySymptomLines(disease);
+  const historyGroups = diseaseHistoryGroups(disease);
   const historyLines = diseaseHistoryLines(disease);
   const examinationLines = diseaseExaminationLines(disease);
   const investigationLines = diseaseInvestigationLines(disease);
   const treatmentLines = diseaseTreatmentLines(disease);
+  const dispositionLines = diseaseDispositionLines(disease);
+  const safetyLines = diseaseSafetyLines(disease);
+  const dialoguePhrases = diseaseDialoguePhrases(disease);
 
   return (
     <PageBody>
@@ -140,11 +115,6 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                 {specialtyLabel(specialty)}
               </Badge>
             ))}
-            {disease.layJapanese ? (
-              <span lang="ja" className="text-muted">
-                patients may say {disease.layJapanese}
-              </span>
-            ) : null}
             <VerificationBadge status={disease.verificationStatus} />
             <ReviewStateLine contentType="disease" contentId={disease.id} />
           </>
@@ -178,12 +148,8 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
             <div className="space-y-3 pt-3">
               <MedicalLine label="How to explain it · やさしい説明" line={explanationLine} />
               <MedicalLine label="Clinical detail · 医療者向け" line={clinicalDetailLine} />
-              <RegisterBlock label="Japanese clinical source · 原文" text={disease.patientExplanation} tone="neutral" />
               {disease.causeExplanation ? (
-                <>
-                  <MedicalLine label="Why it happens · 原因" line={causeLine} />
-                  <RegisterBlock label="Japanese cause source · 原文" text={disease.causeExplanation} tone="neutral" />
-                </>
+                <MedicalLine label="Why it happens · 原因" line={causeLine} />
               ) : null}
               <div className="flex gap-2">
                 <CopyButton text={disease.patientExplanation} label="Copy explanation" />
@@ -198,7 +164,7 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                       <div className="space-y-2">
                         {keySymptomLines.map((line, index) => <MedicalLine key={`${line.japanese}-${index}`} label="Symptom" line={line} />)}
                       </div>
-                    ) : <span lang="ja">{disease.keySymptoms.join('、')}</span>,
+                    ) : 'Belum ada istilah gejala terhubung.',
                   },
                   { label: 'Specialty', value: disease.specialties.map(specialtyLabel).join(', ') },
                 ]}
@@ -209,14 +175,12 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
 
           <section id="history" className="scroll-mt-24">
             <SectionHeading title="History" hint="questions, in the order they matter" />
-            <ClinicalLineList title="Questions to ask" lines={historyLines} />
-            {related.patients.length > 0 ? (
-              <PhraseList
-                title="Wording the patient may use back"
-                hint="from the phrasebook"
-                items={related.patients.map((phrase) => phrase.japanese)}
-              />
-            ) : null}
+            <ClinicalHpi
+              groups={historyGroups}
+              title="Anamnesis terarah · Complaint-specific questions"
+              hint="Dipilih dari gejala utama penyakit ini; bukan daftar umum yang ditempel ke semua diagnosis."
+            />
+            <ClinicalLineList title="Pertanyaan spesifik penyakit · Disease-linked questions" lines={historyLines} />
           </section>
 
           <section id="examination" className="scroll-mt-24">
@@ -233,27 +197,27 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
           <section id="treatment" className="scroll-mt-24">
             <SectionHeading title="Treatment" />
             <ClinicalLineList title="Treatment vocabulary" lines={treatmentLines} />
-            <PhraseList title="Admission and discharge wording" items={disease.admissionWording} />
+            <ClinicalLineList title="Referral, admission & discharge language" lines={dispositionLines} />
           </section>
 
-          {disease.redFlagPhrases.length > 0 ? (
+              {safetyLines.length > 0 ? (
             <section id="safety" className="scroll-mt-24">
               <SectionHeading title="Safety-netting" hint="the sentence that prevents a missed diagnosis" />
               <div className="space-y-2 pt-3">
-                {disease.redFlagPhrases.map((phrase) => (
-                  <Callout key={phrase} tone="danger">
-                    <span lang="ja">{phrase}</span>
+                {safetyLines.map((line, index) => (
+                  <Callout key={`${line.japanese}-${index}`} tone="danger">
+                    <MedicalLine label="Red flag" line={line} />
                   </Callout>
                 ))}
               </div>
             </section>
           ) : null}
 
-          {disease.dialogue.length > 0 ? (
+          {dialoguePhrases.length > 0 ? (
             <section id="dialogue" className="scroll-mt-24">
               <SectionHeading
                 title="Example dialogue"
-                hint={`${disease.dialogue.length} turns`}
+                hint={`${dialoguePhrases.length} supported lines`}
                 action={
                   <span className="inline-flex items-center gap-1 text-[11px] text-muted">
                     <MessageSquare className="h-3.5 w-3.5" />
@@ -262,13 +226,16 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                 }
               />
               <ol className="space-y-3 pt-3">
-                {disease.dialogue.map((turn, index) => (
-                  <li key={`${turn.speaker}-${index}`} className={turn.speaker === 'doctor' ? 'border-l-2 border-l-primary pl-3' : 'border-l-2 border-l-border-strong pl-3'}>
-                    <div className="meta-label">{turn.speaker === 'doctor' ? 'Doctor · 医師' : 'Patient · 患者'}</div>
-                    <p lang="ja" className="mt-0.5 text-[14.5px] leading-relaxed text-foreground">
-                      {turn.japanese}
-                    </p>
-                    <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">{turn.english}</p>
+                {dialoguePhrases.map((phrase, index) => (
+                  <li key={phrase.id} className={phrase.speaker === 'doctor' || phrase.speaker === 'nurse' ? 'border-l-2 border-l-primary pl-3' : 'border-l-2 border-l-border-strong pl-3'}>
+                    <div className="meta-label">{phrase.speaker} · {phrase.clinicalContext}</div>
+                    <MedicalLine label={phrase.intent} line={{
+                      japanese: phrase.japanese,
+                      kana: phrase.kana,
+                      romaji: phrase.romaji,
+                      indonesian: phrase.indonesian,
+                      english: phrase.english,
+                    }} />
                   </li>
                 ))}
               </ol>
@@ -293,7 +260,7 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                       </div>
                     ) : <span lang="ja">{disease.keySymptoms.join('、')}</span>,
                   },
-                  { label: 'Investigations', value: <span lang="ja">{disease.investigations.join('、') || '—'}</span> },
+                  { label: 'Linked investigations', value: `${investigationLines.length} terms and phrases` },
                 ]}
               />
             </div>
@@ -309,8 +276,11 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                       href={`/medical/terms/${encodeURIComponent(term.id)}`}
                       className="group flex items-baseline justify-between gap-3 py-1.5"
                     >
-                      <span lang="ja" className="min-w-0 truncate text-[13.5px] group-hover:text-primary">
-                        {term.japanese}
+                      <span className="min-w-0 truncate text-[13.5px] group-hover:text-primary">
+                        <span lang="ja">{term.japanese}</span>
+                        <span className="ml-2 text-[11px] text-muted">{term.kana}</span>
+                        <span className="ml-2 text-[11px] text-info">{term.romaji}</span>
+                        <span className="ml-2 text-[11px] text-muted">{term.indonesian}</span>
                       </span>
                       <span className="shrink-0 text-[10.5px] text-muted">{term.english}</span>
                     </Link>
@@ -330,8 +300,11 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
                       href={`/medical/diseases/${encodeURIComponent(item.id)}`}
                       className="group flex items-baseline justify-between gap-3 py-1.5 text-[13.5px] hover:text-primary"
                     >
-                      <span lang="ja" className="min-w-0 truncate">
-                        {item.japanese}
+                      <span className="min-w-0 truncate">
+                        <span lang="ja">{item.japanese}</span>
+                        <span className="ml-2 text-[11px] text-muted">{item.kana}</span>
+                        <span className="ml-2 text-[11px] text-info">{item.romaji}</span>
+                        <span className="ml-2 text-[11px] text-muted">{item.indonesian}</span>
                       </span>
                       <span className="shrink-0 text-[10.5px] text-muted">{item.english}</span>
                     </Link>

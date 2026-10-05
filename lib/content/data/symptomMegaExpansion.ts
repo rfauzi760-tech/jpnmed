@@ -25,15 +25,9 @@ function symptom(seed: Seed): Symptom {
     pe: [...seed.pe],
     q: [...seed.q],
     desc: seed.desc,
-    sev: ['軽いですが気になります。', '症状が強く、普段の生活ができません。'],
-    tim: ['今日から始まりました。', '数週間かけて悪化しています。'],
     assoc: seed.assoc,
     red: seed.red,
     pf: seed.pf,
-    ex: [
-      [seed.pe[0], `${seed.ja}の程度と経過を確認します。`, `I will ask about the severity and course of the ${seed.en}.`],
-      [seed.pe[1], `ほかの症状や危険な兆候がないか確認します。`, 'I will check for associated symptoms and red flags.'],
-    ],
     terms: seed.terms,
     v: 'reviewed',
   });

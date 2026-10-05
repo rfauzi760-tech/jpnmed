@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { PHRASE_STAGES, REGISTER_LABELS, STAGE_GROUP_LABELS } from '@/lib/content/taxonomy';
+import type { Symptom } from '@/lib/content/schema';
 import { masteryOf } from '@/lib/srs/queue';
 import { useStudy } from '@/lib/store/provider';
 import { makeReviewKey } from '@/lib/store/types';
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils/cn';
 import { Badge, Button, EmptyState, Input, PageHeader, SectionHeading } from '@/components/ui/primitives';
 import { CopyButton } from '@/components/ui/interactive';
 import { AddToReviewButton, BookmarkButton, NoteButton } from '@/components/study/review-controls';
+import { ClinicalHpi } from '@/components/medical/clinical-hpi';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook.
@@ -42,14 +44,18 @@ export type PhraseRow = {
   notes?: string;
 };
 
+export type PhrasebookHpiSymptom = Pick<Symptom, 'id' | 'english' | 'indonesian' | 'historyTaking'>;
+
 export function Phrasebook({
   rows,
   initialStage,
   highlight,
+  hpiSymptoms,
 }: {
   rows: PhraseRow[];
   initialStage?: string;
   highlight?: string;
+  hpiSymptoms: PhrasebookHpiSymptom[];
 }) {
   const { state, actions, ready } = useStudy();
   const display = state.settings.medicalDisplay;
@@ -58,7 +64,11 @@ export function Phrasebook({
   const [speaker, setSpeaker] = useState<'all' | PhraseRow['speaker']>('all');
   const [query, setQuery] = useState('');
   const [searchAllStages, setSearchAllStages] = useState(false);
+  const [showGeneralHpi, setShowGeneralHpi] = useState(false);
+  const [selectedHpiSymptomId, setSelectedHpiSymptomId] = useState('');
   const deferred = useDeferredValue(query);
+  const selectedHpiSymptom = hpiSymptoms.find((symptom) => symptom.id === selectedHpiSymptomId);
+  const focusedHpi = stage === 'hpi' && !showGeneralHpi;
 
   const stageCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -70,7 +80,7 @@ export function Phrasebook({
 
   const visible = useMemo(() => {
     const needle = deferred.trim().toLowerCase();
-    const scoped = rows.filter((row) => searchAllStages || row.stage === stage);
+    const scoped = focusedHpi ? [] : rows.filter((row) => searchAllStages || row.stage === stage);
     return scoped.filter((row) => {
       if (register !== 'all' && row.register !== register) return false;
       if (speaker !== 'all' && row.speaker !== speaker) return false;
@@ -80,7 +90,7 @@ export function Phrasebook({
         .toLowerCase()
         .includes(needle);
     });
-  }, [deferred, register, rows, searchAllStages, speaker, stage]);
+  }, [deferred, focusedHpi, register, rows, searchAllStages, speaker, stage]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, PhraseRow[]>();
@@ -109,7 +119,7 @@ export function Phrasebook({
             </span>
           </>
         }
-        actions={
+        actions={focusedHpi ? undefined : (
           <Button
             variant="secondary"
             size="sm"
@@ -124,7 +134,7 @@ export function Phrasebook({
           >
             Add {visible.length} shown to review
           </Button>
-        }
+        )}
       />
 
       <div className="grid gap-6 lg:grid-cols-[190px_minmax(0,1fr)]">
@@ -144,6 +154,8 @@ export function Phrasebook({
                           onClick={() => {
                             setStage(item.id);
                             setSearchAllStages(false);
+                            setShowGeneralHpi(false);
+                            setSelectedHpiSymptomId('');
                           }}
                           aria-current={active ? 'true' : undefined}
                           className={cn(
@@ -170,7 +182,14 @@ export function Phrasebook({
 
         {/* Phrases */}
         <div className="min-w-0 space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
+          {stage === 'hpi' && showGeneralHpi ? (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-surface p-3">
+              <p className="text-[12px] text-muted-foreground">Sedang melihat kumpulan frasa HPI umum. Untuk pertanyaan yang sesuai keluhan, pilih skrip terarah.</p>
+              <Button size="sm" variant="secondary" onClick={() => setShowGeneralHpi(false)}>Pilih keluhan</Button>
+            </div>
+          ) : null}
+
+          {!focusedHpi ? <div className="flex flex-wrap items-center gap-2">
             <div className="relative min-w-[200px] flex-1">
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
               <Input
@@ -220,7 +239,7 @@ export function Phrasebook({
                 </button>
               ))}
             </div>
-          </div>
+          </div> : null}
 
           <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-2">
             <div>
@@ -231,10 +250,46 @@ export function Phrasebook({
                 {searchAllStages ? 'すべて' : stageInfo.label.ja}
               </p>
             </div>
-            <span className="text-[11.5px] text-muted">{visible.length} phrases</span>
+            <span className="text-[11.5px] text-muted">{focusedHpi ? (selectedHpiSymptom?.historyTaking.length ?? 0) : visible.length} {focusedHpi ? 'focused questions' : 'phrases'}</span>
           </div>
 
-          {grouped.length === 0 ? (
+          {focusedHpi ? (
+            <div className="space-y-4">
+              <label className="block max-w-xl">
+                <span className="mb-1.5 block text-[12px] font-medium text-foreground">Pilih keluhan utama</span>
+                <select
+                  value={selectedHpiSymptomId}
+                  onChange={(event) => setSelectedHpiSymptomId(event.target.value)}
+                  className="h-10 w-full rounded-md border border-border bg-surface px-3 text-[13px] text-foreground"
+                >
+                  <option value="">Pilih gejala untuk melihat pertanyaan terarah…</option>
+                  {hpiSymptoms.map((symptom) => (
+                    <option key={symptom.id} value={symptom.id}>
+                      {symptom.indonesian} · {symptom.english} ({symptom.historyTaking.length})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {selectedHpiSymptom ? (
+                <ClinicalHpi
+                  groups={[{
+                    id: selectedHpiSymptom.id,
+                    titleIndonesian: selectedHpiSymptom.indonesian,
+                    titleEnglish: selectedHpiSymptom.english,
+                    prompts: selectedHpiSymptom.historyTaking,
+                    href: `/medical/symptoms/${encodeURIComponent(selectedHpiSymptom.id)}`,
+                  }]}
+                  title="Pertanyaan sesuai keluhan · Tailored HPI"
+                  hint="Alur menampilkan pertanyaan yang relevan, respons pasien yang natural, dan alasan klinisnya."
+                />
+              ) : (
+                <EmptyState title="Pilih keluhan untuk memulai" description="Batuk, nyeri dada, sesak, demam, nyeri perut, diare, sakit kepala, pusing, nyeri berkemih, perdarahan, ruam, dan keluhan penting lainnya memiliki alur khusus." />
+              )}
+              <button type="button" onClick={() => setShowGeneralHpi(true)} className="text-[12px] text-muted-foreground hover:text-foreground">
+                Tampilkan kumpulan frasa HPI umum ({stageCounts.get('hpi') ?? 0})
+              </button>
+            </div>
+          ) : grouped.length === 0 ? (
             <EmptyState title="No phrases match" description="Clear the register filter or search across all stages." />
           ) : (
             <div className="space-y-5">

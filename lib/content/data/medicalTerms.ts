@@ -5,6 +5,7 @@ import { MEDICAL_PATIENT_LANGUAGE } from './medicalPatientLanguage';
 import { MEDICAL_LEXICON_EXPANSION } from './medicalLexiconExpansion';
 import { MEDICAL_RELATION_SUPPORT } from './medicalRelationSupport';
 import { MEDICAL_LEXICON_MEGA_EXPANSION } from './medicalLexiconMegaExpansion';
+import { ALL_DEPARTMENTS_TERMS } from './allDepartmentsExpansion';
 
 /* ------------------------------------------------------------------
    Medical Japanese term database.
@@ -417,4 +418,5 @@ export const MEDICAL_TERMS: MedicalTerm[] = [
   ...MEDICAL_LEXICON_EXPANSION,
   ...MEDICAL_RELATION_SUPPORT,
   ...MEDICAL_LEXICON_MEGA_EXPANSION,
+  ...ALL_DEPARTMENTS_TERMS,
 ];

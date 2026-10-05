@@ -2,6 +2,7 @@ import { S } from '../builders';
 import type { Symptom } from '../schema';
 import { SYMPTOMS_EXPANSION } from './symptomExpansion';
 import { SYMPTOMS_MEGA_EXPANSION } from './symptomMegaExpansion';
+import { symptomHistoryFor } from './symptomHpi';
 
 /* ------------------------------------------------------------------
    Symptom pages.
@@ -473,8 +474,13 @@ const SYMPTOMS_CORE: Symptom[] = [
 const symptomRows = [...SYMPTOMS_CORE, ...SYMPTOMS_EXPANSION, ...SYMPTOMS_MEGA_EXPANSION];
 const seenSymptomIds = new Set<string>();
 
-export const SYMPTOMS: Symptom[] = symptomRows.filter((item) => {
+const uniqueSymptoms = symptomRows.filter((item) => {
   if (seenSymptomIds.has(item.id)) return false;
   seenSymptomIds.add(item.id);
   return true;
 });
+
+export const SYMPTOMS: Symptom[] = uniqueSymptoms.map((item) => ({
+  ...item,
+  historyTaking: symptomHistoryFor(item.english),
+}));

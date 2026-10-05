@@ -1,4 +1,4 @@
-import type { ClinicalLine, ClinicalPhrase, Disease, Investigation, MedicalTerm, Symptom } from './schema';
+import type { ClinicalLine, ClinicalPhrase, Disease, Investigation, MedicalTerm, Symptom, SymptomHistoryPrompt } from './schema';
 import { kanaToRomajiFull } from '@/lib/utils/romaji';
 import { INVESTIGATIONS } from './data/investigations';
 import { MEDICAL_TERMS } from './data/medicalTerms';
@@ -173,6 +173,7 @@ const KEY_SYMPTOM_LINES: Record<string, ClinicalLine> = {
 };
 
 export function diseaseClinicalDetailLine(disease: Disease): ClinicalLine {
+  if (disease.patientExplanationSupport) return disease.patientExplanationSupport;
   const curated = CURATED_DETAIL_LINES[disease.japanese];
   if (curated) return curated;
 
@@ -183,6 +184,7 @@ export function diseaseClinicalDetailLine(disease: Disease): ClinicalLine {
 }
 
 export function diseaseCauseLine(disease: Disease): ClinicalLine {
+  if (disease.causeExplanationSupport) return disease.causeExplanationSupport;
   const curated = CURATED_CAUSE_LINES[disease.japanese];
   if (curated) return curated;
 
@@ -228,7 +230,100 @@ export function diseaseHistoryLines(disease: Disease) {
     .map((text) => PHRASES.find((phrase) => phrase.japanese === text))
     .filter((phrase): phrase is ClinicalPhrase => Boolean(phrase))
     .map(lineFromPhrase);
-  return unique([...exact, ...phraseLinesFor(disease, HISTORY_STAGES, 14)], 14);
+  const relevantTerms = new Set([...disease.relatedTerms, ...disease.keySymptoms]);
+  const relevant = PHRASES
+    .filter((phrase) => HISTORY_STAGES.has(phrase.stage))
+    .filter((phrase) => phrase.relatedDiseaseIds.includes(disease.japanese)
+      || phrase.relatedTermIds.some((term) => relevantTerms.has(term)))
+    .map(lineFromPhrase);
+  return unique([...exact, ...relevant], 14);
+}
+
+const symptomKeyAliases: Record<string, string[]> = {
+  cough: ['咳', 'せき', '咳嗽', '慢性咳嗽'],
+  hemoptysis: ['喀血', '血痰', '咳血'],
+  wheezing: ['喘鳴', 'ゼーゼー', 'ヒューヒュー'],
+  hoarseness: ['嗄声', '声がかすれる', '声が出にくい'],
+  'fatigue; malaise': ['倦怠感', 'だるさ', '疲れやすい'],
+  'loss of appetite': ['食欲不振', '食欲低下'],
+  'weight loss': ['体重減少', '体重が減る'],
+  jaundice: ['黄疸', '皮膚や白目が黄色い'],
+  'abdominal distension': ['腹部膨満', 'お腹の張り'],
+  dysphagia: ['嚥下障害', '飲み込みにくい'],
+  epistaxis: ['鼻出血', '鼻血'],
+  'urinary incontinence': ['尿失禁', '尿漏れ'],
+  'gait disturbance': ['歩行障害', '歩きにくい'],
+  'speech disturbance': ['構音障害', '失語', 'ろれつが回らない', '言葉が出ない'],
+  'altered mental status': ['意識障害', '意識変容', '混乱'],
+  'mucous bloody stool': ['血便', '粘血便', '血液や粘液が混じる便'],
+  'poor feeding': ['哺乳不良', '飲めない', '食べられない'],
+  'sputum production': ['痰', '喀痰', '膿性の痰', '血痰', '咳', '咳嗽'],
+  fever: ['発熱', '高熱', '微熱', '熱'],
+  'chest pain': ['胸痛', '胸の痛み', '胸部不快感'],
+  'shortness of breath': ['息切れ', '呼吸困難', '息苦しさ', '呼吸苦'],
+  'abdominal pain': ['腹痛', '上腹部痛', '下腹部痛', '腹部不快感'],
+  diarrhea: ['下痢', '水様便', '血便', '便通異常'],
+  headache: ['頭痛'],
+  dizziness: ['めまい', '眩暈', 'ふらつき'],
+  'dizziness; vertigo': ['めまい', '眩暈', 'ふらつき'],
+  'painful urination': ['排尿痛', '排尿時痛', '頻尿', '尿意切迫'],
+  'urinary frequency': ['頻尿', '夜間頻尿', '尿意切迫'],
+  'joint pain': ['関節痛', '関節の痛み', '関節腫脹'],
+  dysuria: ['排尿痛', '排尿時痛'],
+  hematuria: ['血尿', '尿潜血'],
+  'difficulty urinating': ['排尿困難', '尿閉', '残尿感'],
+  'abnormal uterine bleeding': ['不正出血', '性器出血', '月経異常'],
+  'back pain': ['腰痛', '背部痛'],
+  'lower back pain': ['腰痛', '腰部痛'],
+  orthopnea: ['起坐呼吸', '横になると息苦しい'],
+  palpitations: ['動悸'],
+  'syncope; fainting': ['失神', '意識消失'],
+  rash: ['発疹', '皮疹', 'じんましん'],
+  'nausea; vomiting': ['吐き気', '悪心', '嘔吐'],
+  vomiting: ['吐き気', '悪心', '嘔吐'],
+  weakness: ['脱力', '筋力低下', '片麻痺'],
+  numbness: ['しびれ', '感覚障害'],
+  seizure: ['けいれん', '痙攣'],
+  'pediatric fever': ['発熱', '高熱'],
+  'allergic reaction': ['発疹', 'じんましん', 'アレルギー'],
+};
+
+export type DiseaseHistoryGroup = {
+  id: string;
+  titleIndonesian: string;
+  titleEnglish: string;
+  prompts: SymptomHistoryPrompt[];
+  href: string;
+};
+
+/** Only surface focused history scripts when a disease's listed symptoms support them. */
+export function diseaseHistoryGroups(disease: Disease): DiseaseHistoryGroup[] {
+  const isPediatric = disease.specialties.includes('pediatrics');
+  const matched = SYMPTOMS.filter((symptom) => {
+    if (symptom.historyTaking.length === 0) return false;
+    const aliases = symptomKeyAliases[symptom.english.toLowerCase()] ?? [];
+    return disease.keySymptoms.some((key) =>
+      key === symptom.japanese
+      || key.includes(symptom.japanese)
+      || aliases.some((alias) => key.includes(alias) || alias.includes(key)),
+    );
+  });
+  const preferred = isPediatric
+    ? [...matched].sort((a, b) => Number(b.english === 'fever in child') - Number(a.english === 'fever in child'))
+    : matched;
+  const seen = new Set<string>();
+  return preferred.flatMap((symptom) => {
+    const firstQuestion = symptom.historyTaking[0]?.question.japanese;
+    if (!firstQuestion || seen.has(firstQuestion)) return [];
+    seen.add(firstQuestion);
+    return [{
+      id: symptom.id,
+      titleIndonesian: symptom.indonesian,
+      titleEnglish: symptom.english,
+      prompts: symptom.historyTaking,
+      href: `/medical/symptoms/${encodeURIComponent(symptom.id)}`,
+    }];
+  }).slice(0, 4);
 }
 
 export function diseaseInvestigationLines(disease: Disease) {
@@ -256,10 +351,52 @@ export function diseaseTreatmentLines(disease: Disease) {
   return unique([...exact, ...phraseLinesFor(disease, TREATMENT_STAGES, 14)], 14);
 }
 
+export function diseaseDispositionLines(disease: Disease) {
+  const exact = disease.admissionWording
+    .map((text) => PHRASES.find((phrase) => phrase.japanese === text))
+    .filter((phrase): phrase is ClinicalPhrase => Boolean(phrase))
+    .map(lineFromPhrase);
+  const relevant = PHRASES
+    .filter((phrase) => ['referral', 'admission', 'discharge', 'follow-up'].includes(phrase.stage))
+    .filter((phrase) => relevance(disease, phrase))
+    .map(lineFromPhrase);
+  return unique([...exact, ...relevant], 10);
+}
+
 export function diseaseExaminationLines(disease: Disease) {
   const exact = disease.examinationPhrases
     .map((text) => PHRASES.find((phrase) => phrase.japanese === text))
     .filter((phrase): phrase is ClinicalPhrase => Boolean(phrase))
     .map(lineFromPhrase);
   return unique([...exact, ...phraseLinesFor(disease, new Set(['examination']), 10)], 10);
+}
+
+export function diseaseSafetyLines(disease: Disease) {
+  const exact = disease.redFlagPhrases
+    .map((text) => PHRASES.find((phrase) => phrase.japanese === text))
+    .filter((phrase): phrase is ClinicalPhrase => Boolean(phrase))
+    .map(lineFromPhrase);
+  const related = PHRASES
+    .filter((phrase) => phrase.stage === 'safety-netting' || phrase.stage === 'emergency')
+    .filter((phrase) => phrase.relatedDiseaseIds.includes(disease.japanese))
+    .map(lineFromPhrase);
+  return unique([...exact, ...related], 8);
+}
+
+export function diseaseDialoguePhrases(disease: Disease) {
+  const linked = PHRASES.filter((phrase) =>
+    phrase.relatedDiseaseIds.includes(disease.japanese)
+    && ['chief-complaint', 'diagnosis'].includes(phrase.stage),
+  );
+  const exact = disease.dialogue.flatMap((turn) => {
+    const phrase = PHRASES.find((item) => item.japanese === turn.japanese);
+    return phrase ? [phrase] : [];
+  });
+  return [...new Map([...exact, ...linked].map((phrase) => [phrase.id, phrase])).values()]
+    .filter((phrase) => ['patient', 'family', 'doctor', 'nurse'].includes(phrase.speaker))
+    .sort((a, b) => {
+      const order = { patient: 0, family: 1, doctor: 2, nurse: 3, staff: 4 };
+      return order[a.speaker] - order[b.speaker];
+    })
+    .slice(0, 8);
 }

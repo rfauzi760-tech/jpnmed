@@ -366,6 +366,7 @@ export function S(row: SymptomRow): Symptom {
     indonesian: row.idn,
     patientExpressions: row.pe,
     doctorQuestions: row.q,
+    historyTaking: [],
     descriptors: row.desc ?? [],
     severityPhrases: row.sev ?? [],
     timingPhrases: row.tim ?? [],
@@ -400,7 +401,9 @@ export type DiseaseRow = {
   tests?: string[];
   testExplain?: string[];
   explain: string;
+  explanationSupport?: ClinicalLine;
   cause?: string;
+  causeSupport?: ClinicalLine;
   tx?: string[];
   red?: string[];
   admit?: string[];
@@ -429,7 +432,9 @@ export function D(row: DiseaseRow): Disease {
     investigations: row.tests ?? [],
     investigationExplanations: row.testExplain ?? [],
     patientExplanation: row.explain,
+    patientExplanationSupport: row.explanationSupport,
     causeExplanation: row.cause,
+    causeExplanationSupport: row.causeSupport,
     treatmentPhrases: row.tx ?? [],
     redFlagPhrases: row.red ?? [],
     admissionWording: row.admit ?? [],

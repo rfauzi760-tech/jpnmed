@@ -3,6 +3,9 @@ import type { ClinicalPhrase } from '../schema';
 import { PHRASES_EXPANSION_ROWS } from './clinicalPhraseExpansion';
 import { PHRASES_SCENARIO_EXPANSION, PHRASES_SCENARIO_EXAMINATION } from './clinicalPhraseScenarioExpansion';
 import { CLINICAL_PHRASES_ENCOUNTER_EXPANSION } from './clinicalPhraseEncounterExpansion';
+import { ALL_DEPARTMENTS_PHRASES } from './allDepartmentsExpansion';
+import { DISEASE_HPI_EXPANSION } from './diseaseHpiExpansion';
+import { CLINICAL_WORKFLOW_EXPANSION } from './clinicalWorkflowExpansion';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook, organised by encounter flow.
@@ -425,7 +428,7 @@ export const PHRASES: ClinicalPhrase[] = [
     ja: '今すぐ検査が必要です。', kana: 'いますぐけんさがひつようです。',
     en: 'Tests are needed right now.', idn: 'Pemeriksaan diperlukan sekarang juga.' }),
   P({ intent: 'State instability', stage: 'emergency', reg: 'formal',
-    ja: '状態が不安定です。集中治療が必要になります。', kana: 'じょうたいがふあんていです。しうちゅうちりょうがひつようになります。',
+    ja: '状態が不安定です。集中治療が必要になります。', kana: 'じょうたいがふあんていです。しゅうちゅうちりょうがひつようになります。',
     en: 'The patient is unstable and will require intensive care.', idn: 'Kondisi tidak stabil dan memerlukan perawatan intensif.' }),
   P({ intent: 'Announce emergency start of treatment', stage: 'emergency', reg: 'formal',
     ja: '緊急で治療を開始します。', kana: 'きんきゅうでちりょうをかいしします。',
@@ -434,4 +437,7 @@ export const PHRASES: ClinicalPhrase[] = [
   ...PHRASES_SCENARIO_EXPANSION,
   ...PHRASES_SCENARIO_EXAMINATION,
   ...CLINICAL_PHRASES_ENCOUNTER_EXPANSION,
+  ...ALL_DEPARTMENTS_PHRASES,
+  ...DISEASE_HPI_EXPANSION,
+  ...CLINICAL_WORKFLOW_EXPANSION,
 ];

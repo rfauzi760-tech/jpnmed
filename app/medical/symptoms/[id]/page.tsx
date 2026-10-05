@@ -17,6 +17,8 @@ import {
 } from '@/components/ui/primitives';
 import { CopyButton } from '@/components/ui/interactive';
 import { RegisterBlock } from '@/components/japanese';
+import { ClinicalHpi } from '@/components/medical/clinical-hpi';
+import { MedicalLine } from '@/components/medical/medical-line';
 import { AddToReviewButton, BookmarkButton, NoteButton, ReviewStateLine } from '@/components/study/review-controls';
 import { makeReviewKey } from '@/lib/store/types';
 
@@ -100,6 +102,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ id: st
       symptom.patientExpressions.some((expression) => phrase.japanese.includes(expression)) ||
       (symptom.termId ? phrase.relatedTermIds.includes(symptom.termId) : false),
   ).slice(0, 10);
+  const hasFocusedHistory = symptom.historyTaking.length > 0;
 
   return (
     <PageBody>
@@ -119,7 +122,7 @@ export default async function SymptomPage({ params }: { params: Promise<{ id: st
             <span lang="ja" className="text-muted-foreground">
               {symptom.kana}
             </span>
-            <Badge tone="neutral">{symptom.doctorQuestions.length} questions</Badge>
+            <Badge tone="neutral">{symptom.historyTaking.length || symptom.doctorQuestions.length} history questions</Badge>
             {symptom.redFlags.length > 0 ? <Badge tone="danger">{symptom.redFlags.length} red flags</Badge> : null}
             <VerificationBadge status={symptom.verificationStatus} />
             <ReviewStateLine contentType="symptom" contentId={symptom.id} />
@@ -149,22 +152,32 @@ export default async function SymptomPage({ params }: { params: Promise<{ id: st
             </section>
           ) : null}
 
-          <ExchangeList exchanges={symptom.exchanges} />
-
-          <PhraseList
-            title="How the patient says it"
-            hint="register C — this is what you must be able to parse"
-            items={symptom.patientExpressions}
-          />
-
-          <PhraseList title="Questions to ask" hint="in the order a Japanese consultation tends to run" items={symptom.doctorQuestions} />
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <PhraseList title="Descriptors" hint="character of the symptom" items={symptom.descriptors} />
-            <PhraseList title="Severity" items={symptom.severityPhrases} />
-            <PhraseList title="Timing" items={symptom.timingPhrases} />
-            <PhraseList title="Associated questions" items={symptom.associatedQuestions} />
-          </div>
+          {hasFocusedHistory ? (
+            <ClinicalHpi
+              groups={[{
+                id: symptom.id,
+                titleIndonesian: symptom.indonesian,
+                titleEnglish: symptom.english,
+                prompts: symptom.historyTaking,
+              }]}
+            />
+          ) : (
+            <>
+              <ExchangeList exchanges={symptom.exchanges} />
+              <PhraseList
+                title="How the patient says it"
+                hint="register C — this is what you must be able to parse"
+                items={symptom.patientExpressions}
+              />
+              <PhraseList title="Questions to ask" hint="in the order a Japanese consultation tends to run" items={symptom.doctorQuestions} />
+              <div className="grid gap-6 sm:grid-cols-2">
+                <PhraseList title="Descriptors" hint="character of the symptom" items={symptom.descriptors} />
+                <PhraseList title="Severity" items={symptom.severityPhrases} />
+                <PhraseList title="Timing" items={symptom.timingPhrases} />
+                <PhraseList title="Associated questions" items={symptom.associatedQuestions} />
+              </div>
+            </>
+          )}
 
           {symptom.redFlags.length > 0 ? (
             <section>
@@ -186,11 +199,13 @@ export default async function SymptomPage({ params }: { params: Promise<{ id: st
                 {relatedPhrases.map((phrase) => (
                   <li key={phrase.id} className="flex items-start gap-3 py-2">
                     <span className="min-w-0 flex-1">
-                      <span lang="ja" className="block text-[14px] leading-relaxed text-foreground">
-                        {phrase.japanese}
-                      </span>
-                      <span className="block text-[11.5px] text-muted-foreground">{phrase.english}</span>
-                      <span className="mt-0.5 block text-[10.5px] text-muted">{stageLabel(phrase.stage)}</span>
+                      <MedicalLine label={`${stageLabel(phrase.stage)} · ${phrase.speaker}`} line={{
+                        japanese: phrase.japanese,
+                        kana: phrase.kana,
+                        romaji: phrase.romaji,
+                        indonesian: phrase.indonesian,
+                        english: phrase.english,
+                      }} />
                     </span>
                     <CopyButton text={phrase.japanese} />
                     <AddToReviewButton contentType="clinical-phrase" contentId={phrase.id} />

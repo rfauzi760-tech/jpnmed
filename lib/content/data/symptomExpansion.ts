@@ -3,12 +3,7 @@ import type { Symptom } from '../schema';
 
 const symptom = (row: SymptomRow): Symptom => S({
   ...row,
-  ex: row.ex && row.ex.length >= 2
-    ? row.ex
-    : [
-        ...(row.ex ?? []),
-        [row.pe[1] ?? row.pe[0], '症状の程度と経過をもう少し教えてください。', 'Please tell me more about the severity and course of the symptom.'],
-      ],
+  ex: row.ex ?? [],
 });
 
 export const SYMPTOMS_EXPANSION: Symptom[] = [

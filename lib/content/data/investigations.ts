@@ -1,6 +1,7 @@
 import { I } from '../builders';
 import type { Investigation } from '../schema';
 import { INVESTIGATIONS_EXPANSION } from './investigationExpansion';
+import { ALL_DEPARTMENTS_INVESTIGATIONS } from './allDepartmentsExpansion';
 
 const INVESTIGATIONS_CORE: Investigation[] = [
   I({
@@ -23,4 +24,8 @@ const INVESTIGATIONS_CORE: Investigation[] = [
   }),
 ];
 
-export const INVESTIGATIONS: Investigation[] = [...INVESTIGATIONS_CORE, ...INVESTIGATIONS_EXPANSION];
+export const INVESTIGATIONS: Investigation[] = [
+  ...INVESTIGATIONS_CORE,
+  ...INVESTIGATIONS_EXPANSION,
+  ...ALL_DEPARTMENTS_INVESTIGATIONS,
+];

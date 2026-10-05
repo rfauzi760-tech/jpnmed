@@ -2,6 +2,7 @@ import { D } from '../builders';
 import type { Disease } from '../schema';
 import { DISEASES_EXPANSION } from './diseaseExpansion';
 import { DISEASES_MEGA_EXPANSION } from './diseaseMegaExpansion';
+import { ALL_DEPARTMENTS_DISEASES } from './allDepartmentsExpansion';
 
 /* ------------------------------------------------------------------
    Disease pages (MEDICAL_JAPANESE_SPEC §9, PRD §7.9).
@@ -501,7 +502,12 @@ const DISEASES_CORE: Disease[] = [
   }),
 ];
 
-const diseaseRows = [...DISEASES_CORE, ...DISEASES_EXPANSION, ...DISEASES_MEGA_EXPANSION];
+const diseaseRows = [
+  ...DISEASES_CORE,
+  ...DISEASES_EXPANSION,
+  ...DISEASES_MEGA_EXPANSION,
+  ...ALL_DEPARTMENTS_DISEASES,
+];
 const seenDiseaseIds = new Set<string>();
 
 export const DISEASES: Disease[] = diseaseRows.filter((item) => {

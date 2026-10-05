@@ -204,6 +204,18 @@ export function buildSearchIndex(): SearchDoc[] {
   }
 
   for (const symptom of SYMPTOMS) {
+    const hpiQuestions = symptom.historyTaking.flatMap((item) => [
+      item.focusIndonesian,
+      item.focusEnglish,
+      item.clinicalReasonIndonesian,
+      item.clinicalReasonEnglish,
+      item.question.japanese,
+      item.question.kana,
+      item.question.romaji,
+      item.question.indonesian,
+      item.question.english,
+      ...item.patientAnswers.flatMap((answer) => [answer.japanese, answer.kana, answer.romaji, answer.indonesian, answer.english]),
+    ]);
     docs.push({
       id: symptom.id,
       type: 'symptom',
@@ -212,9 +224,9 @@ export function buildSearchIndex(): SearchDoc[] {
       romaji: symptom.romaji,
       en: symptom.english,
       idn: symptom.indonesian,
-      context: trimmed(symptom.doctorQuestions[0], 120),
+      context: trimmed(hpiQuestions.join(' · ') || symptom.doctorQuestions[0], 200),
       badge: 'symptom',
-      hidden: [...symptom.patientExpressions, ...symptom.descriptors].join(' '),
+      hidden: [...symptom.patientExpressions, ...symptom.descriptors, ...hpiQuestions].join(' '),
       url: `/medical/symptoms/${encodeURIComponent(symptom.id)}`,
     });
   }

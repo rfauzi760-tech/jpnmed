@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { PHRASES } from '@/lib/content';
+import { PHRASES, SYMPTOMS } from '@/lib/content';
 import { PageBody } from '@/components/shell/app-shell';
-import { Phrasebook, type PhraseRow } from '@/components/medical/phrasebook';
+import { Phrasebook, type PhraseRow, type PhrasebookHpiSymptom } from '@/components/medical/phrasebook';
 import { SafetyNote } from '@/components/ui/primitives';
 
 export const metadata: Metadata = {
@@ -36,10 +36,13 @@ export default async function PhrasebookPage({
     relatedDiseaseIds: phrase.relatedDiseaseIds,
     notes: phrase.notes,
   }));
+  const hpiSymptoms: PhrasebookHpiSymptom[] = SYMPTOMS
+    .filter((symptom) => symptom.historyTaking.length > 0)
+    .map(({ id, english, indonesian, historyTaking }) => ({ id, english, indonesian, historyTaking }));
 
   return (
     <PageBody wide>
-      <Phrasebook rows={rows} initialStage={params.stage} highlight={params.p} />
+      <Phrasebook rows={rows} initialStage={params.stage} highlight={params.p} hpiSymptoms={hpiSymptoms} />
       <div className="mt-6">
         <SafetyNote />
       </div>
