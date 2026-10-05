@@ -238,6 +238,7 @@ export type PhraseRow = {
   reg: ClinicalPhrase['register'];
   speaker?: ClinicalPhrase['speaker'];
   stage: ClinicalPhrase['stage'];
+  junitStages?: ClinicalPhrase['junitStages'];
   context?: string;
   nuance?: string;
   spec?: string[];
@@ -265,6 +266,7 @@ export function P(row: PhraseRow): ClinicalPhrase {
     register: row.reg,
     speaker: row.speaker ?? (row.reg === 'staff' ? 'staff' : 'doctor'),
     stage: row.stage,
+    junitStages: row.junitStages ?? [],
     clinicalContext: row.context ?? row.intent,
     nuance: row.nuance,
     specialtyTags: row.spec ?? [],

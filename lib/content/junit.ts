@@ -1,5 +1,5 @@
 import { PHRASES } from './index';
-import type { ClinicalPhrase } from './schema';
+import type { ClinicalPhrase, JUnitStageTag } from './schema';
 
 export const JUNIT_STAGES = [
   ['greeting', 'Greeting', '挨拶'],
@@ -24,16 +24,16 @@ export const JUNIT_STAGES = [
   ['discharge', 'Discharge & follow-up', '退院・再診'],
   ['safety-netting', 'Safety-netting', '注意事項'],
   ['closing', 'Closing', '終了'],
-] as const;
+] as const satisfies readonly (readonly [JUnitStageTag, string, string])[];
 
-export type JUnitStageId = (typeof JUNIT_STAGES)[number][0];
+export type JUnitStageId = JUnitStageTag;
 
 const aliases: Record<JUnitStageId, ClinicalPhrase['stage'][]> = {
-  greeting: ['greeting'],
-  'patient-identification': ['greeting'],
+  greeting: [],
+  'patient-identification': [],
   'chief-complaint': ['chief-complaint'],
   hpi: ['hpi'],
-  'associated-symptoms': ['hpi'],
+  'associated-symptoms': [],
   'red-flags': ['emergency', 'safety-netting'],
   pmh: ['pmh'],
   medication: ['medication'],
@@ -44,16 +44,33 @@ const aliases: Record<JUnitStageId, ClinicalPhrase['stage'][]> = {
   diagnosis: ['diagnosis'],
   investigation: ['investigation'],
   treatment: ['treatment'],
-  'medication-instructions': ['medication'],
+  'medication-instructions': [],
   consent: ['consent'],
-  referral: ['admission', 'follow-up'],
+  referral: ['referral'],
   admission: ['admission'],
   discharge: ['discharge', 'follow-up'],
   'safety-netting': ['safety-netting'],
-  closing: ['discharge', 'follow-up'],
+  closing: [],
 };
 
 export function phrasesForJUnitStage(stage: JUnitStageId): ClinicalPhrase[] {
-  return PHRASES.filter((phrase) => aliases[stage].includes(phrase.stage)).slice(0, stage === 'red-flags' ? 8 : 6);
-}
+  const tagged = PHRASES.filter((phrase) => phrase.junitStages.includes(stage));
 
+  if (['greeting', 'patient-identification', 'associated-symptoms', 'medication-instructions', 'closing'].includes(stage)) {
+    return tagged;
+  }
+
+  if (stage === 'hpi') {
+    return PHRASES.filter((phrase) => phrase.stage === 'hpi');
+  }
+
+  if (stage === 'red-flags') {
+    const urgent = PHRASES.filter((phrase) =>
+      ['emergency', 'safety-netting'].includes(phrase.stage) || phrase.junitStages.includes('red-flags'),
+    );
+    return Array.from(new Map([...tagged, ...urgent].map((phrase) => [phrase.id, phrase])).values());
+  }
+
+  const matching = PHRASES.filter((phrase) => aliases[stage].includes(phrase.stage));
+  return matching.filter((phrase) => !phrase.junitStages.includes('medication-instructions'));
+}

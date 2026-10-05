@@ -414,6 +414,31 @@ export const phraseStageSchema = z.enum([
   'emergency',
 ]);
 
+export const junitStageSchema = z.enum([
+  'greeting',
+  'patient-identification',
+  'chief-complaint',
+  'hpi',
+  'associated-symptoms',
+  'red-flags',
+  'pmh',
+  'medication',
+  'allergy',
+  'family',
+  'social',
+  'examination',
+  'diagnosis',
+  'investigation',
+  'treatment',
+  'medication-instructions',
+  'consent',
+  'referral',
+  'admission',
+  'discharge',
+  'safety-netting',
+  'closing',
+]);
+
 export const clinicalPhraseSchema = z.object({
   id: z.string(),
   intent: z.string().min(1),
@@ -425,6 +450,8 @@ export const clinicalPhraseSchema = z.object({
   register: z.enum(['patient-friendly', 'polite', 'formal', 'staff']),
   speaker: z.enum(['doctor', 'nurse', 'patient', 'family', 'staff']).default('doctor'),
   stage: phraseStageSchema,
+  /** Encounter-flow screens can be narrower than the phrase's broad clinical stage. */
+  junitStages: z.array(junitStageSchema).default([]),
   /** The real encounter setting, separate from the broad consultation stage. */
   clinicalContext: z.string().min(1),
   nuance: z.string().optional(),
@@ -442,6 +469,7 @@ export const clinicalPhraseSchema = z.object({
 
 export type ClinicalPhrase = z.infer<typeof clinicalPhraseSchema>;
 export type PhraseStage = z.infer<typeof phraseStageSchema>;
+export type JUnitStageTag = z.infer<typeof junitStageSchema>;
 
 const clinicalLineSchema = z.object({
   japanese: z.string().min(1),

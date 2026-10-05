@@ -2,6 +2,7 @@ import { P } from '../builders';
 import type { ClinicalPhrase } from '../schema';
 import { PHRASES_EXPANSION_ROWS } from './clinicalPhraseExpansion';
 import { PHRASES_SCENARIO_EXPANSION, PHRASES_SCENARIO_EXAMINATION } from './clinicalPhraseScenarioExpansion';
+import { JUNIT_PHRASE_EXPANSION } from './junitPhraseExpansion';
 import { CLINICAL_PHRASES_ENCOUNTER_EXPANSION } from './clinicalPhraseEncounterExpansion';
 import { ALL_DEPARTMENTS_PHRASES } from './allDepartmentsExpansion';
 import { DISEASE_HPI_EXPANSION } from './diseaseHpiExpansion';
@@ -71,51 +72,7 @@ export const PHRASES: ClinicalPhrase[] = [
     ja: 'まずはその症状から伺いますね。', kana: 'まずはそのしょうじょうからうかがいますね。',
     en: 'Let us start with that symptom.', idn: 'Mari kita mulai dari gejala itu.' }),
 
-  /* ================= HPI ================= */
-  P({ intent: 'Ask about onset', stage: 'hpi', reg: 'polite',
-    ja: 'いつ頃から症状が始まりましたか。', kana: 'いつごろからしょうじょうがはじまりましたか。',
-    en: 'When did the symptoms start?', idn: 'Kapan gejalanya mulai?',
-    var_: ['いつからですか。', '症状が出始めたのはいつですか。'] }),
-  P({ intent: 'Ask sudden or gradual', stage: 'hpi', reg: 'polite',
-    ja: '急に始まりましたか、それとも徐々にですか。', kana: 'きゅうにはじまりましたか、それともじょじょにですか。',
-    en: 'Did it start suddenly or gradually?', idn: 'Mulainya tiba-tiba atau bertahap?' }),
-  P({ intent: 'Ask about location', stage: 'hpi', reg: 'polite',
-    ja: 'どこが痛みますか。', kana: 'どこがいたみますか。',
-    en: 'Where does it hurt?', idn: 'Di mana yang sakit?' }),
-  P({ intent: 'Ask the patient to point', stage: 'hpi', reg: 'polite',
-    ja: '指で一番痛い場所を示していただけますか。', kana: 'ゆびでいちばんいたいばしょをししていただけますか。',
-    en: 'Could you point with your finger to the most painful area?', idn: 'Bisakah Anda menunjuk dengan jari bagian yang paling nyeri?' }),
-  P({ intent: 'Ask about radiation', stage: 'hpi', reg: 'polite',
-    ja: '痛みは他の場所に広がりますか。', kana: 'いたみはほかのばしょにひろがりますか。',
-    en: 'Does the pain spread to other areas?', idn: 'Apakah nyerinya menyebar ke tempat lain?' }),
-  P({ intent: 'Ask about character', stage: 'hpi', reg: 'polite',
-    ja: 'どのような痛みですか。', kana: 'どのようないたみですか。',
-    en: 'What kind of pain is it?', idn: 'Nyerinya seperti apa?',
-    var_: ['どんな痛みですか。'] }),
-  P({ intent: 'Offer descriptors', stage: 'hpi', reg: 'polite',
-    ja: 'ズキズキしますか、それとも締め付けられる感じですか。', kana: 'ずきずきしますか、それともしめつけられるかんじですか。',
-    en: 'Is it throbbing, or more of a squeezing sensation?', idn: 'Berdenyut, atau seperti diperas?' }),
-  P({ intent: 'Ask about severity', stage: 'hpi', reg: 'polite',
-    ja: '痛みを0から10で表すと、今はいくつくらいですか。', kana: 'いたみをぜろからじゅうであらわすと、いまはいくつくらいですか。',
-    en: 'If you rate the pain from 0 to 10, roughly where is it now?', idn: 'Jika nyeri dinilai 0 sampai 10, sekarang berapa?' }),
-  P({ intent: 'Ask about worst level', stage: 'hpi', reg: 'polite',
-    ja: '一番ひどいときはどのくらいですか。', kana: 'いちばんひどいときはどのくらいですか。',
-    en: 'How bad is it at its worst?', idn: 'Saat paling parah, seberapa berat?' }),
-  P({ intent: 'Ask about timing', stage: 'hpi', reg: 'polite',
-    ja: '症状はずっと続いていますか。', kana: 'しょうじょうはずっとつづいていますか。',
-    en: 'Is the symptom continuous?', idn: 'Apakah gejalanya terus-menerus?' }),
-  P({ intent: 'Ask about fluctuation', stage: 'hpi', reg: 'polite',
-    ja: '良くなったり悪くなったりしますか。', kana: 'よくなったりわるくなったりしますか。',
-    en: 'Does it get better and worse?', idn: 'Apakah membaik dan memburuk bergantian?' }),
-  P({ intent: 'Ask about duration of an episode', stage: 'hpi', reg: 'polite',
-    ja: '一回の症状はどのくらい続きますか。', kana: 'いっかいのしょうじょうはどのくらいつづきますか。',
-    en: 'How long does one episode last?', idn: 'Berapa lama satu episode berlangsung?' }),
-  P({ intent: 'Ask about aggravating factors', stage: 'hpi', reg: 'polite',
-    ja: '何をすると悪化しますか。', kana: 'なにをするとあっかしますか。',
-    en: 'What makes it worse?', idn: 'Apa yang memperburuk?' }),
-  P({ intent: 'Ask about relieving factors', stage: 'hpi', reg: 'polite',
-    ja: '何をすると楽になりますか。', kana: 'なにをするとらくになりますか。',
-    en: 'What makes it better?', idn: 'Apa yang membuat lebih nyaman?' }),
+  /* Complaint-specific HPI is generated from symptomHistoryFor; avoid a generic OPQRST checklist here. */
 
   /* ================= Past medical history ================= */
   P({ intent: 'Ask about past illness', stage: 'pmh', reg: 'polite',
@@ -435,6 +392,7 @@ export const PHRASES: ClinicalPhrase[] = [
     en: 'We are starting emergency treatment.', idn: 'Kami memulai penanganan darurat.' }),
   ...PHRASES_EXPANSION_ROWS.map(P),
   ...PHRASES_SCENARIO_EXPANSION,
+  ...JUNIT_PHRASE_EXPANSION,
   ...PHRASES_SCENARIO_EXAMINATION,
   ...CLINICAL_PHRASES_ENCOUNTER_EXPANSION,
   ...ALL_DEPARTMENTS_PHRASES,

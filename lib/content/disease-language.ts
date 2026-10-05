@@ -236,7 +236,21 @@ export function diseaseHistoryLines(disease: Disease) {
     .filter((phrase) => phrase.relatedDiseaseIds.includes(disease.japanese)
       || phrase.relatedTermIds.some((term) => relevantTerms.has(term)))
     .map(lineFromPhrase);
-  return unique([...exact, ...relevant], 14);
+  const symptomHistory = disease.keySymptoms.flatMap((key) => {
+    const symptom = SYMPTOMS
+      .filter((item) => key.includes(item.japanese) || item.japanese.includes(key))
+      .sort((a, b) => b.japanese.length - a.japanese.length)[0]
+      ?? SYMPTOMS.find((item) => [
+        ...item.patientExpressions,
+        ...item.descriptors,
+        ...item.severityPhrases,
+        ...item.timingPhrases,
+        ...item.associatedQuestions,
+        ...item.redFlags,
+      ].some((text) => text.includes(key) || key.includes(text)));
+    return symptom?.historyTaking.map((prompt) => prompt.question) ?? [];
+  });
+  return unique([...exact, ...relevant, ...symptomHistory], 14);
 }
 
 const symptomKeyAliases: Record<string, string[]> = {
