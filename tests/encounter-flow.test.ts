@@ -10,6 +10,34 @@ const subjectFor = (kind: EncounterSubject['kind'], id: string) => {
 };
 
 describe('subject-linked encounter flow', () => {
+  it('maps explicit result-discussion utterances without importing the diagnosis stage', () => {
+    const cough = SYMPTOMS.find((s) => s.english === 'cough')!;
+    const flow = buildEncounterFlow(subjectFor('symptom', cough.id));
+    const results = flow.find((s) => s.id === 'results')!;
+    const normal = PHRASES.find((p) => p.japanese === '今回の検査では大きな異常は見つかりませんでした。')!;
+    const pending = PHRASES.find((p) => p.intent === 'Explain a result is pending')!;
+    expect(results.general.find((item) => item.source.id === normal.id)?.line).toEqual(normal);
+    expect(results.general.find((item) => item.source.id === pending.id)?.line).toEqual(pending);
+    expect(results.coverage.status).toBe('missing');
+    expect([...results.specific, ...results.general].some((item) => item.line.japanese === '今のところ重症な所見はありません。')).toBe(true);
+    expect(results.general.some((item) => item.source.id === PHRASES.find((p) => p.intent === 'State the working diagnosis')!.id)).toBe(false);
+    expect(results.general.some((item) => item.source.id === PHRASES.find((p) => p.intent === 'Explain the cause in plain language')!.id)).toBe(false);
+    expect(results.general.every((item) => item.relation === 'general')).toBe(true);
+  });
+
+  it.each([
+    ['肺炎', ['膿性の痰']],
+    ['糖尿病', ['のどの渇き', '視力のぼやけ']],
+  ])('counts unresolved %s key symptoms as HPI coverage gaps', (name, misses) => {
+    const disease = DISEASES.find((d) => d.japanese === name)!;
+    const hpi = buildEncounterFlow(subjectFor('disease', disease.id)).find((s) => s.id === 'hpi')!;
+    const unsupportedQuestions = disease.historyQuestions.filter((text) => !PHRASES.some((p) => p.japanese === text)).length;
+    expect(hpi.coverage.unresolvedKeySymptoms).toEqual(expect.arrayContaining(misses));
+    expect(hpi.coverage.unsupportedCount).toBe(unsupportedQuestions + hpi.coverage.unresolvedKeySymptoms.length);
+    expect(hpi.coverage.status).toBe('partial');
+    expect(hpi.specific.some((item) => item.source.kind === 'symptom-history')).toBe(true);
+    expect(hpi.coverage.messageIndonesian).toMatch(/gejala kunci/);
+  });
   it('finds every catalogued symptom and disease in all five languages without a result cap', () => {
     expect(findEncounterSubjects('')).toHaveLength(SYMPTOMS.length + DISEASES.length);
     for (const [kind, catalog] of [['symptom', SYMPTOMS], ['disease', DISEASES]] as const) {
@@ -117,7 +145,8 @@ describe('subject-linked encounter flow', () => {
           const phrase = PHRASES.find((p) => p.id === item.source.id)!;
           expect(phrase.relatedDiseaseIds).toEqual([]);
           expect(phrase.relatedTermIds).toEqual([]);
-          expect(phrase.specialtyTags).toEqual([]);
+          if (step.id !== 'results') expect(phrase.specialtyTags).toEqual([]);
+          else expect(['Explain normal result with uncertainty', 'Explain a result is pending', 'State that nothing serious was found']).toContain(phrase.intent);
         }
       }
     }

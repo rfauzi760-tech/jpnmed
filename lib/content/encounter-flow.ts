@@ -62,6 +62,8 @@ export type EncounterFlowStep = {
     specificCount: number;
     generalCount: number;
     unsupportedCount: number;
+    /** Audit references only, not displayable language lines. */
+    unresolvedKeySymptoms: string[];
     messageIndonesian: string;
   };
 };
@@ -107,7 +109,20 @@ const stages: Record<EncounterStepId, readonly PhraseStage[]> = {
   'follow-up': ['follow-up'], 'safety-netting': ['safety-netting', 'emergency'], closing: [],
 };
 
+// Explicit result-utterance mapping. Neither diagnosis stage membership nor
+// a specialty tag is evidence that a phrase discusses an actual test result.
+const resultUtterances = new Map([
+  ['Explain normal result with uncertainty', '今回の検査では大きな異常は見つかりませんでした。'],
+  ['Explain a result is pending', '一部の結果はまだ出ていません。結果がそろってからご説明します。'],
+  ['State that nothing serious was found', '今のところ重症な所見はありません。'],
+]);
+
+function isResultDiscussion(phrase: ClinicalPhrase) {
+  return resultUtterances.get(phrase.intent) === phrase.japanese && complete(phrase);
+}
+
 function belongsToStep(phrase: ClinicalPhrase, step: EncounterStepId) {
+  if (step === 'results') return isResultDiscussion(phrase);
   if (step === 'closing') return phrase.junitStages.includes('closing');
   if (phrase.junitStages.includes('closing')) return false;
   return stages[step].includes(phrase.stage);
@@ -125,12 +140,19 @@ function phraseItem(phrase: ClinicalPhrase, relation: EncounterFlowItem['relatio
 }
 
 /** Exact key-symptom/curated alias matches only; no substring or specialty inference. */
-function keySymptoms(disease: Disease): Symptom[] {
-  return SYMPTOMS.filter((symptom) => {
-    const term = MEDICAL_TERMS.find((t) => t.id === symptom.termId || t.japanese === symptom.japanese);
-    const names = [symptom.id, symptom.japanese, ...(term?.alternativeNames ?? [])];
-    return disease.keySymptoms.some((key) => names.includes(key));
-  });
+function keySymptoms(disease: Disease): { symptoms: Symptom[]; unresolved: string[] } {
+  const symptoms = new Set<Symptom>();
+  const unresolved: string[] = [];
+  for (const key of new Set(disease.keySymptoms)) {
+    const matches = SYMPTOMS.filter((symptom) => {
+      const term = MEDICAL_TERMS.find((t) => t.id === symptom.termId || t.japanese === symptom.japanese);
+      const names = [symptom.id, symptom.japanese, ...(term?.alternativeNames ?? [])];
+      return names.includes(key) && symptom.historyTaking.some((prompt) => complete(prompt.question));
+    });
+    if (matches.length === 0) unresolved.push(key);
+    for (const match of matches) symptoms.add(match);
+  }
+  return { symptoms: [...symptoms], unresolved };
 }
 
 /** Unsupported Japanese-only fields are counted, never translated at runtime. */
@@ -138,7 +160,8 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
   const symptom = subject.kind === 'symptom' ? SYMPTOMS.find((s) => s.id === subject.id) : undefined;
   const disease = subject.kind === 'disease' ? DISEASES.find((d) => d.id === subject.id) : undefined;
   if (!symptom && !disease) throw new Error(`Unknown encounter subject: ${subject.kind}:${subject.id}`);
-  const linkedSymptoms = symptom ? [symptom] : keySymptoms(disease!);
+  const diseaseSymptoms = disease ? keySymptoms(disease) : { symptoms: [], unresolved: [] };
+  const linkedSymptoms = symptom ? [symptom] : diseaseSymptoms.symptoms;
   const linkedTests = disease ? INVESTIGATIONS.filter((test) =>
     test.relatedDiseases.some((ref) => ref === disease.id || ref === disease.japanese)
     || disease.investigations.some((ref) => ref === test.id || ref === test.japanese)) : [];
@@ -146,7 +169,8 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
   return ENCOUNTER_STEPS.map((definition): EncounterFlowStep => {
     const step = definition.id;
     const specific: EncounterFlowItem[] = [];
-    let unsupportedCount = 0;
+    const unresolvedKeySymptoms = step === 'hpi' ? diseaseSymptoms.unresolved : [];
+    let unsupportedCount = unresolvedKeySymptoms.length;
     const add = (item: EncounterFlowItem) => {
       if (!complete(item.line)) { unsupportedCount++; return; }
       if (!specific.some((existing) => existing.line.japanese === item.line.japanese)) specific.push(item);
@@ -216,18 +240,22 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
       if (disease && step === 'investigation') unsupportedCount += disease.investigations.filter((ref) => !linkedTests.some((test) => test.id === ref || test.japanese === ref)).length;
     }
 
-    // Only unscoped phrases qualify as general encounter language. A phrase tied
-    // to another condition or specialty must not become a fallback for this one.
+    // General phrases have no condition/term relation. The explicit result map
+    // additionally permits setting-neutral result wording tagged by specialty,
+    // always labelled general, never condition-specific through that tag.
     const specificText = new Set(specific.map((item) => item.line.japanese));
     const general = PHRASES.filter((p) => belongsToStep(p, step) && complete(p)
-      && p.relatedDiseaseIds.length === 0 && p.relatedTermIds.length === 0 && p.specialtyTags.length === 0
+      && p.relatedDiseaseIds.length === 0 && p.relatedTermIds.length === 0
+      && (p.specialtyTags.length === 0 || (step === 'results' && isResultDiscussion(p)))
       && !specificText.has(p.japanese)).map((p) => phraseItem(p, 'general'));
     const status = specific.length === 0 ? 'missing' : unsupportedCount ? 'partial' : 'available';
     return { ...definition, subjectId: subject.id, contexts: ENCOUNTER_CONTEXTS.map((context) => context.id), specific, general,
       requiresClinicianChoice: ['referral', 'admission', 'discharge'].includes(step),
-      coverage: { status, specificCount: specific.length, generalCount: general.length, unsupportedCount,
+      coverage: { status, specificCount: specific.length, generalCount: general.length, unsupportedCount, unresolvedKeySymptoms,
         messageIndonesian: status === 'missing' ? 'Materi spesifik belum tersedia.'
-          : status === 'partial' ? 'Sebagian materi tertaut belum memiliki dukungan bahasa lengkap.'
+          : status === 'partial' ? unresolvedKeySymptoms.length
+            ? 'Sebagian gejala kunci belum tertaut ke riwayat dengan dukungan bahasa lengkap.'
+            : 'Sebagian materi tertaut belum memiliki dukungan bahasa lengkap.'
             : 'Materi tertaut tersedia; cakupan klinis belum dinyatakan lengkap.' } };
   });
 }
