@@ -1,4 +1,5 @@
 import { DISEASES, INVESTIGATIONS, MEDICAL_TERMS, PHRASES, SYMPTOMS } from './index';
+import { COMMON_ENCOUNTER_DISEASE_JAPANESE_NAMES } from './data/commonEncounterDiseases';
 import type { ClinicalLine, ClinicalPhrase, Disease, PhraseStage, Symptom, VerificationStatus } from './schema';
 
 /** Order is communicative; disposition branches are selected by the clinician. */
@@ -19,13 +20,6 @@ export const ENCOUNTER_STEPS = [
 ] as const;
 
 export type EncounterStepId = typeof ENCOUNTER_STEPS[number]['id'];
-/** Settings for practicing communication, available independently of severity. */
-export const ENCOUNTER_CONTEXTS = [
-  { id: 'outpatient', labelIndonesian: 'Rawat jalan' },
-  { id: 'emergency', labelIndonesian: 'IGD' },
-  { id: 'inpatient', labelIndonesian: 'Rawat inap' },
-] as const;
-export type EncounterContextId = typeof ENCOUNTER_CONTEXTS[number]['id'];
 export type EncounterSubject = Pick<ClinicalLine, 'japanese' | 'kana' | 'romaji' | 'indonesian' | 'english'> & {
   id: string;
   kind: 'symptom' | 'disease';
@@ -52,7 +46,6 @@ export type EncounterFlowStep = {
   id: EncounterStepId;
   labelIndonesian: string;
   subjectId: string;
-  contexts: EncounterContextId[];
   specific: EncounterFlowItem[];
   general: EncounterFlowItem[];
   requiresClinicianChoice: boolean;
@@ -95,6 +88,19 @@ export function findEncounterSubjects(query: string): EncounterSubject[] {
   const romanNeedle = normalizeRomaji(query);
   return searchableSubjects.filter((entry) => entry.texts.some((text) => text.includes(needle))
     || entry.romaji.includes(romanNeedle)).map((entry) => ({ ...entry.subject }));
+}
+
+const diseaseSubjectsByJapanese = new Map(subjects
+  .filter((subject) => subject.kind === 'disease')
+  .map((subject) => [subject.japanese, subject]));
+
+/** Common browse choices resolve to existing disease records and their stable IDs. */
+export function getCommonEncounterDiseases(): EncounterSubject[] {
+  return COMMON_ENCOUNTER_DISEASE_JAPANESE_NAMES.map((japanese) => {
+    const disease = diseaseSubjectsByJapanese.get(japanese);
+    if (!disease) throw new Error(`Common encounter disease is missing from the catalog: ${japanese}`);
+    return { ...disease };
+  });
 }
 
 function complete(line: ClinicalLine | undefined): line is ClinicalLine {
@@ -249,7 +255,7 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
       && (p.specialtyTags.length === 0 || (step === 'results' && isResultDiscussion(p)))
       && !specificText.has(p.japanese)).map((p) => phraseItem(p, 'general'));
     const status = specific.length === 0 ? 'missing' : unsupportedCount ? 'partial' : 'available';
-    return { ...definition, subjectId: subject.id, contexts: ENCOUNTER_CONTEXTS.map((context) => context.id), specific, general,
+    return { ...definition, subjectId: subject.id, specific, general,
       requiresClinicianChoice: ['referral', 'admission', 'discharge'].includes(step),
       coverage: { status, specificCount: specific.length, generalCount: general.length, unsupportedCount, unresolvedKeySymptoms,
         messageIndonesian: status === 'missing' ? 'Materi spesifik belum tersedia.'

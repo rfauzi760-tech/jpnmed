@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DISEASES, INVESTIGATIONS, MEDICAL_TERMS, PHRASES } from '@/lib/content';
-import { buildEncounterFlow, ENCOUNTER_CONTEXTS, ENCOUNTER_STEPS, findEncounterSubjects } from '@/lib/content/encounter-flow';
-import type { EncounterContextId, EncounterFlowItem, EncounterStepId, EncounterSubject } from '@/lib/content/encounter-flow';
+import { buildEncounterFlow, ENCOUNTER_STEPS, findEncounterSubjects, getCommonEncounterDiseases } from '@/lib/content/encounter-flow';
+import type { EncounterFlowItem, EncounterStepId, EncounterSubject } from '@/lib/content/encounter-flow';
 import { MedicalLine } from './medical-line';
 import { VerificationBadge } from '@/components/ui/primitives';
 
@@ -27,12 +27,12 @@ export function readEncounterLocation(params: Pick<URLSearchParams, 'get'>) {
     subject: subjects.find((entry) => entry.id === params.get('subject')),
     step,
     branch: isBranch(branch) ? branch : undefined,
-    context: ENCOUNTER_CONTEXTS.find((entry) => entry.id === params.get('context'))?.id ?? 'outpatient',
   };
 }
 
-export function encounterHref(params: { toString(): string }, patch: { subject?: string; step?: UIStepId; branch?: Branch | null; context?: EncounterContextId }) {
+export function encounterHref(params: { toString(): string }, patch: { subject?: string; step?: UIStepId; branch?: Branch | null }) {
   const next = new URLSearchParams(params.toString());
+  next.delete('context');
   if (patch.subject !== undefined && patch.subject !== next.get('subject')) next.delete('branch');
   for (const [key, value] of Object.entries(patch)) {
     if (value === null) next.delete(key);
@@ -54,6 +54,7 @@ export function filterEncounterItems(items: EncounterFlowItem[], query: string) 
 }
 
 const speakers = { doctor: 'Dokter', nurse: 'Perawat', patient: 'Pasien', family: 'Keluarga', staff: 'Staf' };
+const commonDiseases = getCommonEncounterDiseases();
 
 function EncounterItem({ item }: { item: EncounterFlowItem }) {
   const phrase = item.source.kind === 'phrase' ? PHRASES.find((entry) => entry.id === item.source.id) : undefined;
@@ -76,7 +77,7 @@ function SubjectSearch({ subject }: { subject?: EncounterSubject }) {
   const results = useMemo(() => query.trim() ? findEncounterSubjects(query) : [], [query]);
   const contents = <div className="space-y-3">
     <form action="/medical/encounter" method="get" className="space-y-2">
-      {['subject', 'step', 'branch', 'context'].map((key) => params.get(key) ? <input key={key} type="hidden" name={key} value={params.get(key)!} /> : null)}
+      {['subject', 'step', 'branch'].map((key) => params.get(key) ? <input key={key} type="hidden" name={key} value={params.get(key)!} /> : null)}
       <label htmlFor="encounter-search" className="block text-sm font-medium">Cari gejala atau penyakit</label>
       <div className="flex gap-2"><input id="encounter-search" name="q" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Contoh: batuk, sesak, diabetes" className="min-h-12 min-w-0 flex-1 rounded-md border border-border bg-surface px-3 text-base" /><button type="submit" className={touchLink}>Cari</button></div>
       <p className="text-xs text-muted">Jepang, kana, romaji, Indonesia, atau Inggris.</p>
@@ -88,7 +89,20 @@ function SubjectSearch({ subject }: { subject?: EncounterSubject }) {
           <MedicalLine label={`${result.kind === 'symptom' ? 'Gejala' : 'Penyakit'} · pilih untuk membuka alur`} line={result} />
         </Link>
       </li>)}</ul> : <p className="text-sm">Tidak ditemukan. Coba istilah lain atau nama dalam bahasa berbeda.</p>}
-    </section> : null}
+    </section> : <section aria-label="50 penyakit umum" className="space-y-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-medium">50 penyakit umum</h2>
+        <span className="text-xs text-muted">Daftar praktis lintas spesialisasi</span>
+      </div>
+      <p className="text-xs text-muted">Pilih penyakit untuk membuka HPI terarah. Gejala dan penyakit lain tetap bisa dicari di atas.</p>
+      <ul className="max-h-[65vh] divide-y divide-border overflow-y-auto rounded-md border border-border px-3">
+        {commonDiseases.map((disease) => <li key={disease.id}>
+          <Link href={encounterHref(params, { subject: disease.id, step: 'hpi' })} className="block py-2 focus-visible:outline focus-visible:outline-primary">
+            <MedicalLine label="Penyakit umum · pilih untuk membuka alur" line={disease} />
+          </Link>
+        </li>)}
+      </ul>
+    </section>}
   </div>;
   return subject ? <details className="rounded-md border border-border p-3"><summary className="min-h-12 cursor-pointer text-sm">Ganti gejala atau penyakit</summary>{contents}</details> : contents;
 }
@@ -136,12 +150,11 @@ export function EncounterFlow() {
   const params = useSearchParams();
   const router = useRouter();
   const location = readEncounterLocation(params);
-  const { subject, step: stepId, branch, context } = location;
+  const { subject, step: stepId, branch } = location;
   const flow = useMemo(() => subject ? buildEncounterFlow(subject) : [], [subject]);
   const step = flow.find((entry) => entry.id === (stepId === 'disposition' ? branch : stepId));
   const definition = ENCOUNTER_UI_STEPS.find((entry) => entry.id === stepId)!;
   const position = ENCOUNTER_UI_STEPS.findIndex((entry) => entry.id === stepId);
-  const contexts = step?.contexts ?? [...new Set(flow.flatMap((entry) => entry.contexts))];
   const previous = adjacentEncounterStep(stepId, -1);
   const next = adjacentEncounterStep(stepId, 1);
   const chooseStep = (id: UIStepId) => encounterHref(params, { step: id });
@@ -151,19 +164,8 @@ export function EncounterFlow() {
       <p className="text-sm text-muted">Pilih gejala atau penyakit, lalu ikuti bahasa konsultasi dari riwayat hingga kontrol dan pulang.</p>
     </header>
     <SubjectSearch key={subject?.id ?? 'search'} subject={subject} />
-    {!subject ? <section role="status" className="rounded-md border border-border bg-surface p-4">
-      <h2 className="font-medium">{params.get('subject') ? 'Subjek tidak ditemukan' : 'Mulai dari keluhan pasien'}</h2>
-      <p className="mt-2 text-sm text-muted">Cari gejala atau penyakit untuk membuka pertanyaan terarah, pemeriksaan, penjelasan tes, terapi, dan pilihan disposisi.</p>
-      <div className="mt-3 flex flex-wrap gap-2">{['batuk', 'chest pain', 'diabetes mellitus'].map((example) => {
-        const entry = findEncounterSubjects(example)[0];
-        return entry ? <Link key={example} href={encounterHref(params, { subject: entry.id, step: 'hpi' })} className={touchLink}>{entry.indonesian}</Link> : null;
-      })}</div>
-    </section> : <>
+    {!subject ? (params.get('subject') ? <p role="status" className="rounded-md border border-border bg-surface p-3 text-sm">Subjek tidak ditemukan. Pilih dari 50 penyakit umum atau cari nama lain.</p> : null) : <>
       <MedicalLine label={subject.kind === 'symptom' ? 'Gejala terpilih' : 'Penyakit terpilih'} line={subject} />
-      <section className="space-y-2"><h2 className="text-sm font-medium">Konteks latihan</h2>
-        <div className="flex flex-wrap gap-2">{ENCOUNTER_CONTEXTS.filter((entry) => contexts.includes(entry.id)).map((entry) => <Link key={entry.id} href={encounterHref(params, { context: entry.id })} aria-current={context === entry.id ? 'true' : undefined} className={`${touchLink} ${context === entry.id ? 'bg-primary-muted text-primary' : ''}`}>{entry.labelIndonesian}</Link>)}</div>
-        <p className="text-xs text-muted">Label situasi latihan; tidak menyaring materi atau menentukan keputusan klinis. Konteks asli tiap frasa ditampilkan di bawahnya.</p>
-      </section>
       <nav aria-label="Tahap konsultasi"><details className="rounded-md border border-border p-3">
         <summary className="min-h-12 cursor-pointer text-sm">Sekarang {position + 1} / {ENCOUNTER_UI_STEPS.length}: {definition.labelIndonesian} · lihat semua tahap</summary>
         <ol className="mt-2 grid gap-2 sm:grid-cols-2">{ENCOUNTER_UI_STEPS.map((entry, index) => <li key={entry.id}><Link href={chooseStep(entry.id)} aria-current={entry.id === stepId ? 'step' : undefined} className={`${touchLink} justify-start ${entry.id === stepId ? 'bg-primary-muted text-primary' : ''}`}>{index + 1}. {entry.labelIndonesian}</Link></li>)}</ol>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DISEASES, INVESTIGATIONS, PHRASES, SYMPTOMS } from '@/lib/content';
-import { buildEncounterFlow, ENCOUNTER_CONTEXTS, ENCOUNTER_STEPS, findEncounterSubjects } from '@/lib/content/encounter-flow';
+import { buildEncounterFlow, ENCOUNTER_STEPS, findEncounterSubjects } from '@/lib/content/encounter-flow';
 import type { EncounterSubject } from '@/lib/content/encounter-flow';
 
 const subjectFor = (kind: EncounterSubject['kind'], id: string) => {
@@ -99,17 +99,12 @@ describe('subject-linked encounter flow', () => {
     expect(failures).toEqual([]);
   });
 
-  it('makes all three content contexts available for every subject without triage or urgency changes', () => {
-    expect(ENCOUNTER_CONTEXTS.map((context) => context.id)).toEqual(['outpatient', 'emergency', 'inpatient']);
-    const severityBefore = DISEASES.map((d) => d.severity);
-    const failures: string[] = [];
+  it('does not expose non-functional outpatient, emergency, or inpatient mode controls', () => {
     for (const subject of findEncounterSubjects('')) for (const step of buildEncounterFlow(subject)) {
-      if (step.contexts.join(',') !== 'outpatient,emergency,inpatient') failures.push(`${subject.id}/${step.id}`);
+      expect(step).not.toHaveProperty('contexts');
       expect(step).not.toHaveProperty('recommendedContext');
       expect(step).not.toHaveProperty('urgency');
     }
-    expect(failures).toEqual([]);
-    expect(DISEASES.map((d) => d.severity)).toEqual(severityBefore);
   });
 
   it('never treats specialty overlap, related differentials, or a broad related term as a subject relation', () => {

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { findEncounterSubjects } from '@/lib/content/encounter-flow';
 import { EncounterFlow, encounterHref, readEncounterLocation, adjacentEncounterStep, ENCOUNTER_UI_STEPS, filterEncounterItems } from '@/components/medical/encounter-flow';
-import { buildEncounterFlow } from '@/lib/content/encounter-flow';
+import { buildEncounterFlow, getCommonEncounterDiseases } from '@/lib/content/encounter-flow';
 
 // The existing Vitest setup uses classic JSX; Next uses automatic JSX.
 vi.stubGlobal('React', React);
@@ -27,19 +27,38 @@ describe('encounter pathway navigation and presentation', () => {
     expect(readEncounterLocation(new URLSearchParams(state.query)).subject).toBeUndefined();
   });
 
-  it('round-trips subject, step, branch, and context, preserving unrelated URL parameters', () => {
-    const href = encounterHref(new URLSearchParams('q=batuk'), { subject: cough.id, step: 'disposition', branch: 'admission', context: 'inpatient' });
+  it('shows 50 common diseases by default and provides a direct HPI link for each', () => {
+    const diseases = getCommonEncounterDiseases();
+    expect(diseases).toHaveLength(50);
+    expect(new Set(diseases.map((disease) => disease.id)).size).toBe(50);
+    expect(diseases.every((disease) => disease.kind === 'disease')).toBe(true);
+    expect(diseases.every((disease) => [disease.japanese, disease.kana, disease.romaji, disease.indonesian, disease.english].every((value) => value.trim()))).toBe(true);
+
+    const html = render();
+    expect(html).toContain('50 penyakit umum');
+    for (const disease of diseases) {
+      expect(html).toContain(`/medical/encounter?subject=${disease.id}&amp;step=hpi`);
+    }
+    expect(html).not.toContain('Konteks latihan');
+  });
+
+  it('removes the context toggle and drops legacy context from encounter URLs', () => {
+    const href = encounterHref(new URLSearchParams('q=batuk&context=inpatient'), { subject: cough.id, step: 'disposition', branch: 'admission' });
     const params = new URLSearchParams(href.split('?')[1]);
     expect(params.get('q')).toBe('batuk');
-    expect(readEncounterLocation(params)).toMatchObject({ subject: cough, step: 'disposition', branch: 'admission', context: 'inpatient' });
+    expect(params.has('context')).toBe(false);
+    expect(readEncounterLocation(params)).toMatchObject({ subject: cough, step: 'disposition', branch: 'admission' });
+    expect(readEncounterLocation(params)).not.toHaveProperty('context');
     const next = encounterHref(params, { step: 'follow-up' });
     expect(readEncounterLocation(new URLSearchParams(next.split('?')[1]))).toMatchObject({ subject: cough, step: 'follow-up', branch: 'admission' });
     // Re-reading earlier/later URL states uses no stale local selection.
     expect(readEncounterLocation(params).step).toBe('disposition');
   });
 
-  it('normalizes malformed steps/settings and never infers a branch from a context', () => {
-    expect(readEncounterLocation(new URLSearchParams(`subject=${cough.id}&step=bad&branch=bad&context=emergency`))).toMatchObject({ step: 'hpi', branch: undefined, context: 'emergency' });
+  it('normalizes malformed steps and branches and ignores legacy context parameters', () => {
+    const location = readEncounterLocation(new URLSearchParams(`subject=${cough.id}&step=bad&branch=bad&context=emergency`));
+    expect(location).toMatchObject({ step: 'hpi', branch: undefined });
+    expect(location).not.toHaveProperty('context');
     expect(adjacentEncounterStep('consent', 1)).toBe('disposition');
     expect(adjacentEncounterStep('disposition', 1)).toBe('follow-up');
     expect(adjacentEncounterStep('follow-up', -1)).toBe('disposition');
@@ -73,15 +92,14 @@ describe('encounter pathway navigation and presentation', () => {
     expect(render()).toContain('cough');
   });
 
-  it('shows missing coverage beside general content, links the subject, and retains descriptive context', () => {
-    state.query = `subject=${cough.id}&step=results&context=emergency`;
+  it('shows missing coverage beside general content, links the subject, and has no redundant context controls', () => {
+    state.query = `subject=${cough.id}&step=results`;
     const html = render();
     expect(html).toContain('Materi spesifik belum tersedia');
     expect(html).toContain('Kalimat umum');
     expect(html).toContain(`/medical/symptoms/${cough.id}`);
     expect(html).toContain('href="/medical/phrases"');
-    expect(html).toContain('Konteks latihan');
-    expect(html).toContain('tidak menyaring materi');
+    expect(html).not.toContain('Konteks latihan');
     expect(html).toContain('hasil');
   });
 
