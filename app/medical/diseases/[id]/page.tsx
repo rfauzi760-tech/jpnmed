@@ -22,6 +22,7 @@ import { MedicalLine } from '@/components/medical/medical-line';
 import { ClinicalHpi } from '@/components/medical/clinical-hpi';
 import { AddToReviewButton, BookmarkButton, NoteButton, ReviewStateLine } from '@/components/study/review-controls';
 import { makeReviewKey } from '@/lib/store/types';
+import { encounterSubjectHref } from '@/lib/content/encounter-route';
 
 export function generateStaticParams() {
   return DISEASES.map((disease) => ({ id: disease.id }));
@@ -121,6 +122,9 @@ export default async function DiseasePage({ params }: { params: Promise<{ id: st
         }
         actions={
           <>
+            <LinkButton href={encounterSubjectHref(disease.id)} variant="primary" size="md">
+              Buka Alur Klinis
+            </LinkButton>
             <AddToReviewButton contentType="disease" contentId={disease.id} size="md" />
             <NoteButton contentType="disease" contentId={disease.id} defaultTitle={disease.japanese} />
             <BookmarkButton contentKey={makeReviewKey('disease', disease.id)} />

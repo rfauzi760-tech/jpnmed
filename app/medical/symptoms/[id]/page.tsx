@@ -10,6 +10,7 @@ import {
   Badge,
   Callout,
   Divider,
+  LinkButton,
   PageHeader,
   SafetyNote,
   SectionHeading,
@@ -21,6 +22,7 @@ import { ClinicalHpi } from '@/components/medical/clinical-hpi';
 import { MedicalLine } from '@/components/medical/medical-line';
 import { AddToReviewButton, BookmarkButton, NoteButton, ReviewStateLine } from '@/components/study/review-controls';
 import { makeReviewKey } from '@/lib/store/types';
+import { encounterSubjectHref } from '@/lib/content/encounter-route';
 
 export function generateStaticParams() {
   return SYMPTOMS.map((symptom) => ({ id: symptom.id }));
@@ -130,6 +132,9 @@ export default async function SymptomPage({ params }: { params: Promise<{ id: st
         }
         actions={
           <>
+            <LinkButton href={encounterSubjectHref(symptom.id)} variant="primary" size="md">
+              Buka Alur Klinis
+            </LinkButton>
             <AddToReviewButton contentType="symptom" contentId={symptom.id} size="md" />
             <NoteButton contentType="symptom" contentId={symptom.id} defaultTitle={symptom.japanese} />
             <BookmarkButton contentKey={makeReviewKey('symptom', symptom.id)} />

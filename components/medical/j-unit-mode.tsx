@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { ArrowLeft, ArrowRight, BookOpen, Check, Search, Stethoscope } from 'lucide-react';
 import { phrasesForJUnitStage, JUNIT_STAGES, type JUnitStageId } from '@/lib/content/junit';
 import { SYMPTOMS } from '@/lib/content';
+import { encounterSubjectHref } from '@/lib/content/encounter-route';
 import { useStudy } from '@/lib/store/provider';
 import { AddToReviewButton } from '@/components/study/review-controls';
 import { Badge, Button, PageHeader } from '@/components/ui/primitives';
@@ -92,6 +94,10 @@ export function JUnitMode() {
   return (
     <div className="space-y-5">
       <PageHeader eyebrow="J-Unit · 実戦モード" title="Alur konsultasi, satu tahap per layar" description="Kalimat Jepang siap digunakan saat bertemu pasien. Pilih tahap untuk melihat pertanyaan dan ungkapan yang khusus untuk situasi tersebut." meta={<><span>{index + 1} / {JUNIT_STAGES.length} tahap</span><span>{done.size} selesai</span></>} actions={<BookOpen className="h-5 w-5 text-primary" />} />
+      <Link href={encounterSubjectHref(selectedSymptom?.id)} className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary-muted/20 px-4 py-3 text-sm font-medium text-foreground hover:border-primary/60 hover:bg-primary-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+        <span>{selectedSymptom ? `Alur klinis lengkap · ${selectedSymptom.indonesian}` : 'Buka Alur Klinis Lengkap'}</span>
+        <ArrowRight className="h-4 w-4 shrink-0 text-primary" />
+      </Link>
       <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
         {JUNIT_STAGES.map(([id, label], position) => <button key={id} type="button" onClick={() => setIndex(position)} className={cn('shrink-0 rounded-md border px-2.5 py-2 text-left text-[11px]', position === index ? 'border-primary bg-primary-muted text-primary' : 'border-border text-muted hover:text-foreground')}><span className="block">{position + 1}. {label}</span>{done.has(id) ? <span className="mt-0.5 flex items-center gap-1 text-[10px] text-success"><Check className="h-3 w-3" />done</span> : null}</button>)}
       </div>

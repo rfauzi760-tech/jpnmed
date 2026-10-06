@@ -74,6 +74,22 @@ export default function MedicalHubPage() {
         <MedicalSearchBox />
       </div>
 
+      <section className="mt-4 rounded-xl border border-primary/30 bg-primary-muted/30 p-4 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-5">
+        <div className="min-w-0">
+          <p className="meta-label text-primary">Dari keluhan sampai rencana pulang</p>
+          <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">Alur Klinis Lengkap</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+            Ikuti satu gejala atau penyakit melalui anamnesis terarah, pemeriksaan, penjelasan, terapi, rujukan atau rawat inap, hingga tindak lanjut.
+          </p>
+        </div>
+        <Link
+          href="/medical/encounter"
+          className="mt-3 inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:mt-0"
+        >
+          Buka alur klinis <ArrowRight className="h-4 w-4" />
+        </Link>
+      </section>
+
       <section className="mt-5 rounded-lg border border-border bg-surface-secondary/40 p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div><SectionHeading title="RFSmed coverage dashboard" hint="Japanese learning coverage, not clinical decision support" /></div>

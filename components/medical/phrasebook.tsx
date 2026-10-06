@@ -13,6 +13,7 @@ import { Badge, Button, EmptyState, Input, PageHeader, SectionHeading } from '@/
 import { CopyButton } from '@/components/ui/interactive';
 import { AddToReviewButton, BookmarkButton, NoteButton } from '@/components/study/review-controls';
 import { ClinicalHpi } from '@/components/medical/clinical-hpi';
+import { encounterSubjectHref } from '@/lib/content/encounter-route';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook.
@@ -136,6 +137,21 @@ export function Phrasebook({
           </Button>
         )}
       />
+
+      <Link
+        href={encounterSubjectHref(selectedHpiSymptom?.id)}
+        className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary-muted/20 px-4 py-3 text-foreground transition-colors hover:border-primary/60 hover:bg-primary-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        <span className="min-w-0">
+          <span className="block text-sm font-semibold">Alur klinis lengkap</span>
+          <span className="mt-0.5 block text-xs text-muted-foreground">
+            {selectedHpiSymptom
+              ? `Lanjutkan dari keluhan ${selectedHpiSymptom.indonesian} · mulai dari HPI terarah.`
+              : 'Dari HPI terarah sampai pemeriksaan, rencana, disposisi, dan tindak lanjut.'}
+          </span>
+        </span>
+        <span className="shrink-0 text-sm font-medium text-primary">Buka alur →</span>
+      </Link>
 
       <div className="grid gap-6 lg:grid-cols-[190px_minmax(0,1fr)]">
         {/* Stage rail */}
