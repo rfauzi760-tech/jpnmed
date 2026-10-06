@@ -27,15 +27,15 @@ describe('encounter pathway navigation and presentation', () => {
     expect(readEncounterLocation(new URLSearchParams(state.query)).subject).toBeUndefined();
   });
 
-  it('shows 50 common diseases by default and provides a direct HPI link for each', () => {
+  it('shows 100 common diseases by default and provides a direct HPI link for each', () => {
     const diseases = getCommonEncounterDiseases();
-    expect(diseases).toHaveLength(50);
-    expect(new Set(diseases.map((disease) => disease.id)).size).toBe(50);
+    expect(diseases).toHaveLength(100);
+    expect(new Set(diseases.map((disease) => disease.id)).size).toBe(100);
     expect(diseases.every((disease) => disease.kind === 'disease')).toBe(true);
     expect(diseases.every((disease) => [disease.japanese, disease.kana, disease.romaji, disease.indonesian, disease.english].every((value) => value.trim()))).toBe(true);
 
     const html = render();
-    expect(html).toContain('50 penyakit umum');
+    expect(html).toContain('100 penyakit umum');
     for (const disease of diseases) {
       expect(html).toContain(`/medical/encounter?subject=${disease.id}&amp;step=hpi`);
     }
