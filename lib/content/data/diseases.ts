@@ -3,6 +3,7 @@ import type { Disease } from '../schema';
 import { DISEASES_EXPANSION } from './diseaseExpansion';
 import { DISEASES_MEGA_EXPANSION } from './diseaseMegaExpansion';
 import { ALL_DEPARTMENTS_DISEASES } from './allDepartmentsExpansion';
+import { PRIMARY_CARE_DISEASES } from './primaryCareExpansion';
 
 /* ------------------------------------------------------------------
    Disease pages (MEDICAL_JAPANESE_SPEC §9, PRD §7.9).
@@ -507,6 +508,7 @@ const diseaseRows = [
   ...DISEASES_EXPANSION,
   ...DISEASES_MEGA_EXPANSION,
   ...ALL_DEPARTMENTS_DISEASES,
+  ...PRIMARY_CARE_DISEASES,
 ];
 const seenDiseaseIds = new Set<string>();
 

@@ -11,6 +11,7 @@ import {
   VOCABULARY,
 } from '@/lib/content';
 import { kanaToRomaji } from '@/lib/utils/romaji';
+import { clinicalSearchAliasesFor } from '@/lib/content/data/clinicalSearchAliases';
 
 /* ------------------------------------------------------------------
    Global search (PRD §8, AGENTS §6).
@@ -198,7 +199,7 @@ export function buildSearchIndex(): SearchDoc[] {
       idn: disease.indonesian,
       context: trimmed(disease.patientExplanation, 200),
       badge: disease.specialties[0],
-      hidden: [disease.layJapanese ?? '', ...disease.specialties, ...disease.keySymptoms].join(' '),
+      hidden: [disease.layJapanese ?? '', ...disease.specialties, ...disease.keySymptoms, ...clinicalSearchAliasesFor(disease.id)].join(' '),
       url: `/medical/diseases/${encodeURIComponent(disease.id)}`,
     });
   }
@@ -226,7 +227,7 @@ export function buildSearchIndex(): SearchDoc[] {
       idn: symptom.indonesian,
       context: trimmed(hpiQuestions.join(' · ') || symptom.doctorQuestions[0], 200),
       badge: 'symptom',
-      hidden: [...symptom.patientExpressions, ...symptom.descriptors, ...hpiQuestions].join(' '),
+      hidden: [...symptom.patientExpressions, ...symptom.descriptors, ...hpiQuestions, ...clinicalSearchAliasesFor(symptom.id)].join(' '),
       url: `/medical/symptoms/${encodeURIComponent(symptom.id)}`,
     });
   }

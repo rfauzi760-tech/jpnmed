@@ -1,5 +1,6 @@
 import { DISEASES, INVESTIGATIONS, MEDICAL_TERMS, PHRASES, SYMPTOMS } from './index';
 import { COMMON_ENCOUNTER_DISEASE_JAPANESE_NAMES } from './data/commonEncounterDiseases';
+import { clinicalSearchAliasesFor } from './data/clinicalSearchAliases';
 import type { ClinicalLine, ClinicalPhrase, Disease, PhraseStage, Symptom, VerificationStatus } from './schema';
 
 /** Order is communicative; disposition branches are selected by the clinician. */
@@ -79,6 +80,7 @@ const searchableSubjects = subjects.map((subject) => {
   const symptom = subject.kind === 'symptom' ? SYMPTOMS.find((s) => s.id === subject.id) : undefined;
   return { subject, romaji: normalizeRomaji(subject.romaji), texts: [subject.id, subject.japanese, subject.kana,
     subject.romaji, subject.indonesian, subject.english, disease?.layJapanese ?? '',
+    ...clinicalSearchAliasesFor(subject.id),
     ...(symptom?.patientExpressions ?? [])].map(normalize) };
 });
 
@@ -134,6 +136,13 @@ function belongsToStep(phrase: ClinicalPhrase, step: EncounterStepId) {
   return stages[step].includes(phrase.stage);
 }
 
+// Phrase membership is static content. Index once instead of rescanning the
+// entire phrase catalog for every subject and every encounter stage.
+const phrasesByStep = Object.fromEntries(ENCOUNTER_STEPS.map(({ id }) => [
+  id,
+  PHRASES.filter((phrase) => belongsToStep(phrase, id)),
+])) as Record<EncounterStepId, ClinicalPhrase[]>;
+
 function phraseItem(phrase: ClinicalPhrase, relation: EncounterFlowItem['relation'], subjectId?: string): EncounterFlowItem {
   return {
     line: phrase,
@@ -174,6 +183,7 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
 
   return ENCOUNTER_STEPS.map((definition): EncounterFlowStep => {
     const step = definition.id;
+    const stepPhrases = phrasesByStep[step];
     const specific: EncounterFlowItem[] = [];
     const unresolvedKeySymptoms = step === 'hpi' ? diseaseSymptoms.unresolved : [];
     let unsupportedCount = unresolvedKeySymptoms.length;
@@ -194,7 +204,7 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
       }
     }
 
-    for (const phrase of PHRASES.filter((p) => belongsToStep(p, step))) {
+    for (const phrase of stepPhrases) {
       if (disease && phrase.relatedDiseaseIds.some((ref) => ref === disease.id || ref === disease.japanese)) {
         add(phraseItem(phrase, 'disease-relation', disease.id));
       } else if (symptom && phrase.relatedTermIds.some((ref) =>
@@ -214,6 +224,10 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
         for (const text of texts) {
           const phrase = PHRASES.find((p) => p.japanese === text);
           if (phrase) add({ ...phraseItem(phrase, 'disease-field', disease.id), source: { kind: 'phrase', id: phrase.id, subjectId: disease.id, field } });
+          // Disease checklists may intentionally point to a complete, structured
+          // symptom-HPI question already added above. Reuse that item instead of
+          // flagging its Japanese text-only cross-reference as unsupported.
+          else if (linkedSymptoms.some((linked) => linked.historyTaking.some((prompt) => prompt.question.japanese === text))) continue;
           else unsupportedCount++;
         }
       }
@@ -250,7 +264,7 @@ export function buildEncounterFlow(subject: EncounterSubject): EncounterFlowStep
     // additionally permits setting-neutral result wording tagged by specialty,
     // always labelled general, never condition-specific through that tag.
     const specificText = new Set(specific.map((item) => item.line.japanese));
-    const general = PHRASES.filter((p) => belongsToStep(p, step) && complete(p)
+    const general = stepPhrases.filter((p) => complete(p)
       && p.relatedDiseaseIds.length === 0 && p.relatedTermIds.length === 0
       && (p.specialtyTags.length === 0 || (step === 'results' && isResultDiscussion(p)))
       && !specificText.has(p.japanese)).map((p) => phraseItem(p, 'general'));

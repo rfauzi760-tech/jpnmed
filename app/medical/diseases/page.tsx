@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DISEASES, diseasesBySpecialty } from '@/lib/content';
 import { diseaseClinicalDetailLine } from '@/lib/content/disease-language';
+import { clinicalSearchAliasesFor } from '@/lib/content/data/clinicalSearchAliases';
 import { SPECIALTIES, specialtyLabel } from '@/lib/content/taxonomy';
 import { PageBody } from '@/components/shell/app-shell';
 import { MedicalLine } from '@/components/medical/medical-line';
@@ -27,7 +28,7 @@ export default async function DiseasesPage({
     if (params.specialty && !disease.specialties.includes(params.specialty)) return false;
     if (severity !== 'all' && disease.severity !== severity) return false;
     if (!query) return true;
-    return [disease.japanese, disease.kana, disease.english, disease.indonesian, disease.layJapanese ?? '', ...disease.keySymptoms]
+    return [disease.japanese, disease.kana, disease.english, disease.indonesian, disease.layJapanese ?? '', ...disease.keySymptoms, ...clinicalSearchAliasesFor(disease.id)]
       .join(' ')
       .toLowerCase()
       .includes(query);

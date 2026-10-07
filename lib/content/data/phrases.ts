@@ -6,6 +6,7 @@ import { JUNIT_PHRASE_EXPANSION } from './junitPhraseExpansion';
 import { CLINICAL_PHRASES_ENCOUNTER_EXPANSION } from './clinicalPhraseEncounterExpansion';
 import { ALL_DEPARTMENTS_PHRASES } from './allDepartmentsExpansion';
 import { DISEASE_HPI_EXPANSION } from './diseaseHpiExpansion';
+import { PRIMARY_CARE_HPI_EXPANSION } from './primaryCareHpiExpansion';
 import { CLINICAL_WORKFLOW_EXPANSION } from './clinicalWorkflowExpansion';
 
 /* ------------------------------------------------------------------
@@ -397,5 +398,6 @@ export const PHRASES: ClinicalPhrase[] = [
   ...CLINICAL_PHRASES_ENCOUNTER_EXPANSION,
   ...ALL_DEPARTMENTS_PHRASES,
   ...DISEASE_HPI_EXPANSION,
+  ...PRIMARY_CARE_HPI_EXPANSION,
   ...CLINICAL_WORKFLOW_EXPANSION,
 ];

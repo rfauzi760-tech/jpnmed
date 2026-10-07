@@ -2,6 +2,7 @@ import { S } from '../builders';
 import type { Symptom } from '../schema';
 import { SYMPTOMS_EXPANSION } from './symptomExpansion';
 import { SYMPTOMS_MEGA_EXPANSION } from './symptomMegaExpansion';
+import { PRIMARY_CARE_SYMPTOMS } from './primaryCareSymptoms';
 import { symptomHistoryFor } from './symptomHpi';
 
 /* ------------------------------------------------------------------
@@ -469,9 +470,54 @@ const SYMPTOMS_CORE: Symptom[] = [
     ],
     terms: ['浮腫', '心不全', '腎臓'],
   }),
+  S({
+    ja: '坐骨神経痛', kana: 'ざこつしんけいつう', en: 'sciatica', idn: 'nyeri skiatika; nyeri menjalar dari bokong ke tungkai',
+    pe: ['お尻から足にかけて痛みます。', '足がしびれて、長く歩けません。'],
+    q: ['痛みはお尻から足まで広がりますか。', '足のどこがしびれますか。', '足に力が入りにくいですか。', '尿や便の変化はありますか。'],
+    desc: ['腰から臀部・下肢へ走る痛み', '片側性', 'しびれを伴う'],
+    sev: ['足に急に力が入らなくなりました。', '股の間の感覚が鈍くなりました。'],
+    tim: ['腰痛の後から足に広がりました。', '長く座ると悪化します。'],
+    assoc: ['腰痛はありますか。', '足のしびれや脱力はありますか。'],
+    red: ['新しい排尿・排便障害', '会陰部の感覚低下', '進行する足の筋力低下'],
+    pf: '腰やお尻から足にかけて、神経の通り道に沿って痛みやしびれが出る症状です。原因の確認が必要です。',
+    ex: [
+      ['腰から右のお尻を通って、ふくらはぎまで痛みが走ります。', 'しびれや足の力の入りにくさ、尿や便の変化はありますか。', 'Do you have numbness, leg weakness, or bladder or bowel changes?'],
+    ],
+    terms: ['椎間板ヘルニア', '脊柱管狭窄症', '腰痛'],
+  }),
+  S({
+    ja: '筋肉痛', kana: 'きんにくつう', en: 'muscle pain; myalgia', idn: 'nyeri otot; mialgia',
+    pe: ['体のあちこちが痛みます。', '運動した後から筋肉が痛いです。'],
+    q: ['どの筋肉が、いつから痛みますか。', '運動や力仕事の後に始まりましたか。', '筋力低下、腫れ、発熱はありますか。', '尿が赤褐色になったり、量が減ったりしましたか。'],
+    desc: ['局所性', '全身性', '圧痛を伴う'],
+    sev: ['体を動かすのもつらいです。', '力が入りにくくなりました。'],
+    tim: ['運動の翌日からです。', '発熱と同時に始まりました。'],
+    assoc: ['発熱や発疹はありますか。', '新しい薬を始めましたか。'],
+    red: ['筋力が急に低下', '尿が赤褐色', '呼吸や飲み込みにくさ'],
+    pf: '筋肉に痛みや圧痛がある状態です。運動、感染症、薬など原因はさまざまです。',
+    ex: [
+      ['熱が出てから、体のあちこちの筋肉が痛みます。', 'いつからですか。尿の色や量、力の入りにくさも確認させてください。', 'When did this start? I would also like to ask about your urine colour, urine amount, and muscle strength.'],
+    ],
+    terms: ['発熱', '脱水', '筋力低下'],
+  }),
+  S({
+    ja: 'かゆみ', kana: 'かゆみ', en: 'pruritus; itching', idn: 'gatal; pruritus',
+    pe: ['体がかゆいです。', '夜になるとかゆくて眠れません。'],
+    q: ['いつから、どの場所がかゆいですか。', '発疹や水ぶくれ、皮むけはありますか。', '新しい薬、食べ物、化粧品、洗剤を使いましたか。', '唇や舌の腫れ、息苦しさはありますか。'],
+    desc: ['局所性', '全身性', '夜間に悪化'],
+    sev: ['全身に急に広がりました。', '唇が腫れて息苦しいです。'],
+    tim: ['新しい薬を飲んだ後からです。', '夜に特に強くなります。'],
+    assoc: ['発疹はありますか。', '家族にも同じかゆみがありますか。'],
+    red: ['舌や喉の腫れ', '息苦しさを伴う', '急速に広がる発疹'],
+    pf: '皮膚をかきたくなる不快な感覚です。皮膚の病気だけでなく、薬や全身の病気が関係する場合もあります。',
+    ex: [
+      ['新しい薬を飲んだ後から、全身がかゆくなりました。', 'いつ飲みましたか。唇や舌の腫れ、息苦しさはありませんか。', 'When did you take it? Any swelling of your lips or tongue, or difficulty breathing?'],
+    ],
+    terms: ['発疹', '薬剤アレルギー', '蕁麻疹'],
+  }),
 ];
 
-const symptomRows = [...SYMPTOMS_CORE, ...SYMPTOMS_EXPANSION, ...SYMPTOMS_MEGA_EXPANSION];
+const symptomRows = [...SYMPTOMS_CORE, ...SYMPTOMS_EXPANSION, ...SYMPTOMS_MEGA_EXPANSION, ...PRIMARY_CARE_SYMPTOMS];
 const seenSymptomIds = new Set<string>();
 
 const uniqueSymptoms = symptomRows.filter((item) => {

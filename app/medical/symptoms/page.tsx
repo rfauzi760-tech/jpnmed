@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SYMPTOMS } from '@/lib/content';
+import { clinicalSearchAliasesFor } from '@/lib/content/data/clinicalSearchAliases';
 import { PageBody } from '@/components/shell/app-shell';
 import { Badge, EmptyState, Input, LinkButton, PageHeader, SafetyNote } from '@/components/ui/primitives';
 
@@ -21,7 +22,7 @@ export default async function SymptomsPage({
   const filtered = SYMPTOMS.filter((symptom) => {
     if (onlyRedFlags && symptom.redFlags.length === 0) return false;
     if (!query) return true;
-    return [symptom.japanese, symptom.kana, symptom.english, symptom.indonesian, ...symptom.patientExpressions, ...symptom.doctorQuestions]
+    return [symptom.japanese, symptom.kana, symptom.english, symptom.indonesian, ...symptom.patientExpressions, ...symptom.doctorQuestions, ...clinicalSearchAliasesFor(symptom.id)]
       .join(' ')
       .toLowerCase()
       .includes(query);

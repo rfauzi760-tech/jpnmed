@@ -89,9 +89,9 @@ function SubjectSearch({ subject }: { subject?: EncounterSubject }) {
           <MedicalLine label={`${result.kind === 'symptom' ? 'Gejala' : 'Penyakit'} · pilih untuk membuka alur`} line={result} />
         </Link>
       </li>)}</ul> : <p className="text-sm">Tidak ditemukan. Coba istilah lain atau nama dalam bahasa berbeda.</p>}
-    </section> : <section aria-label="100 penyakit umum" className="space-y-2">
+    </section> : <section aria-label={`Penyakit umum dan penting (${commonDiseases.length})`} className="space-y-2">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-medium">100 penyakit umum</h2>
+        <h2 className="font-medium">Penyakit umum &amp; penting ({commonDiseases.length})</h2>
         <span className="text-xs text-muted">Daftar praktis lintas spesialisasi</span>
       </div>
       <p className="text-xs text-muted">Pilih penyakit untuk membuka HPI terarah. Gejala dan penyakit lain tetap bisa dicari di atas.</p>
@@ -164,7 +164,7 @@ export function EncounterFlow() {
       <p className="text-sm text-muted">Pilih gejala atau penyakit, lalu ikuti bahasa konsultasi dari riwayat hingga kontrol dan pulang.</p>
     </header>
     <SubjectSearch key={subject?.id ?? 'search'} subject={subject} />
-    {!subject ? (params.get('subject') ? <p role="status" className="rounded-md border border-border bg-surface p-3 text-sm">Subjek tidak ditemukan. Pilih dari 100 penyakit umum atau cari nama lain.</p> : null) : <>
+    {!subject ? (params.get('subject') ? <p role="status" className="rounded-md border border-border bg-surface p-3 text-sm">Subjek tidak ditemukan. Pilih dari penyakit umum dan penting atau cari nama lain.</p> : null) : <>
       <MedicalLine label={subject.kind === 'symptom' ? 'Gejala terpilih' : 'Penyakit terpilih'} line={subject} />
       <nav aria-label="Tahap konsultasi"><details className="rounded-md border border-border p-3">
         <summary className="min-h-12 cursor-pointer text-sm">Sekarang {position + 1} / {ENCOUNTER_UI_STEPS.length}: {definition.labelIndonesian} · lihat semua tahap</summary>
