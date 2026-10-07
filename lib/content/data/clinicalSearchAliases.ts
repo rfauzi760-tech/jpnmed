@@ -27,6 +27,16 @@ export const CLINICAL_SEARCH_ALIASES: Readonly<Record<string, readonly string[]>
   'dis-mararia': ['malaria', 'demam malaria'],
   'dis-chouchifusu': ['tifoid', 'demam tifoid', 'tipes', 'typhoid'],
   'dis-kaisen': ['kudis', 'skabies', 'scabies'],
+  'dis-bakuryuushu': ['bintitan', 'stye', 'hordeolum', 'ものもらい', 'めばちこ'],
+  'dis-kannyuusou': ['cantengan', 'kuku tumbuh ke dalam', 'ingrown nail', 'ingrown toenail', '陥入爪', '嵌頓爪', '凍甲'],
+  'dis-soushuuien': ['cantengan', 'radang sekitar kuku', 'infeksi sekitar kuku', 'paronychia', '爪囲炎', '甲周炎', '甲溝炎', '凍甲'],
+  'dis-ketsumakuen': ['konjungtivitis', 'radang selaput mata', 'mata merah', 'belekan', 'conjunctivitis', 'pink eye'],
+  'dis-toosou': ['しもやけ', 'chilblains', 'pernio', 'kulit bengkak karena dingin'],
+  'dis-ashihakusen': ['水虫', 'みずむし', 'kutu air', 'kurap kaki', 'athlete’s foot', 'tinea pedis'],
+  'dis-taibuhakusen': ['たむし', 'kurap badan', 'tinea corporis', 'ringworm of the body'],
+  'dis-toubuhakusen': ['しらくも', 'しらくもの', 'kurap kepala', 'tinea capitis', 'scalp ringworm'],
+  'dis-suitou': ['cacar air', 'chickenpox', 'varicella', 'cacar'],
+  'dis-emupokkusu': ['cacar monyet', 'monkeypox', 'mpox', 'cacar'],
   'dis-ishokudougyakuryuushou': ['GERD', 'asam lambung naik', 'refluks asam', 'heartburn', 'acid reflux'],
 };
 

@@ -15,6 +15,16 @@ import { SYMPTOMS } from './data/symptoms';
 const HISTORY_STAGES = new Set<ClinicalPhrase['stage']>(['chief-complaint', 'hpi', 'pmh', 'medication', 'allergy', 'family', 'social']);
 const TREATMENT_STAGES = new Set<ClinicalPhrase['stage']>(['treatment', 'consent', 'admission', 'discharge', 'follow-up', 'safety-netting']);
 
+const DISEASE_HPI_BY_ID = new Map<string, ClinicalPhrase[]>();
+for (const phrase of PHRASES) {
+  if (phrase.stage !== 'hpi') continue;
+  for (const diseaseId of phrase.relatedDiseaseIds) {
+    const linked = DISEASE_HPI_BY_ID.get(diseaseId) ?? [];
+    linked.push(phrase);
+    DISEASE_HPI_BY_ID.set(diseaseId, linked);
+  }
+}
+
 const TEST_ALIASES: Record<string, { japanese: string; kana: string; indonesian: string; english: string }> = {
   '胸部レントゲン': { japanese: '胸部エックス線検査', kana: 'きょうぶえっくすせんけんさ', indonesian: 'rontgen dada', english: 'chest X-ray' },
   '胸部CT': { japanese: '胸部CT検査', kana: 'きょうぶしーてぃーけんさ', indonesian: 'CT dada', english: 'chest CT' },
@@ -230,10 +240,14 @@ export function diseaseHistoryLines(disease: Disease) {
     .map((text) => PHRASES.find((phrase) => phrase.japanese === text))
     .filter((phrase): phrase is ClinicalPhrase => Boolean(phrase))
     .map(lineFromPhrase);
+  // Disease-specific prompts must lead the list.  Otherwise related-term and
+  // specialty phrases can fill the display limit with generic questions and
+  // hide the symptom details authored for this diagnosis.
+  const diseaseSpecific = (DISEASE_HPI_BY_ID.get(disease.japanese) ?? []).map(lineFromPhrase);
   const relevantTerms = new Set([...disease.relatedTerms, ...disease.keySymptoms]);
   const relevant = PHRASES
     .filter((phrase) => HISTORY_STAGES.has(phrase.stage))
-    .filter((phrase) => phrase.relatedDiseaseIds.includes(disease.japanese)
+    .filter((phrase) => (phrase.stage !== 'hpi' && phrase.relatedDiseaseIds.includes(disease.japanese))
       || phrase.relatedTermIds.some((term) => relevantTerms.has(term)))
     .map(lineFromPhrase);
   const symptomHistory = disease.keySymptoms.flatMap((key) => {
@@ -250,7 +264,7 @@ export function diseaseHistoryLines(disease: Disease) {
       ].some((text) => text.includes(key) || key.includes(text)));
     return symptom?.historyTaking.map((prompt) => prompt.question) ?? [];
   });
-  return unique([...exact, ...relevant, ...symptomHistory], 14);
+  return unique([...exact, ...diseaseSpecific, ...relevant, ...symptomHistory], 14);
 }
 
 const symptomKeyAliases: Record<string, string[]> = {
