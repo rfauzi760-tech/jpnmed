@@ -7,6 +7,7 @@ import { phrasesForJUnitStage } from '@/lib/content/junit';
 import { phraseCard } from '@/lib/content/study';
 import { buildSearchIndex, searchDocs } from '@/lib/search';
 import { JUnitPhraseLine } from '@/components/medical/j-unit-mode';
+import { EssentialCommunication } from '@/components/medical/essential-communication';
 
 vi.stubGlobal('React', React);
 const display = vi.hoisted(() => ({ romaji: 'always', furigana: 'always', indonesian: true, english: false }));
@@ -56,5 +57,42 @@ describe('essential clinical communication', () => {
     expect(render()).toContain(phrase.english);
     display.romaji = 'always';
     display.english = false;
+  });
+
+  it('provides full scripts and detailed language lessons for every topic instead of only short phrase cards', () => {
+    for (const group of ESSENTIAL_GROUPS) {
+      const full = group.phrases.find((phrase) => phrase.id === `ph-essential-${group.id}-full`);
+      expect(full, group.id).toBeDefined();
+      expect(full!.japanese.split('。').filter(Boolean).length, group.id).toBeGreaterThanOrEqual(4);
+      expect(group.guide.words.length, group.id).toBeGreaterThan(0);
+      expect(group.guide.grammar.length, group.id).toBeGreaterThan(0);
+      for (const entry of group.guide.words) {
+        expect([entry.japanese, entry.kana, entry.romaji, entry.indonesian, entry.english, entry.explanation, entry.kanji].every(Boolean), entry.japanese).toBe(true);
+      }
+      for (const entry of group.guide.grammar) {
+        expect([entry.japanese, entry.kana, entry.romaji, entry.meaning, entry.explanation].every(Boolean), entry.japanese).toBe(true);
+      }
+      for (const key of group.guide.sequence) {
+        expect(group.phrases.some((phrase) => phrase.id === `ph-essential-${group.id}-${key}`), `${group.id}: ${key}`).toBe(true);
+      }
+    }
+    const html = renderToStaticMarkup(React.createElement(EssentialCommunication));
+    expect(html).toContain('Naskah lengkap siap diucapkan');
+    expect(html).toContain('Bedah kosakata &amp; kanji');
+    expect(html).toContain('Tata bahasa &amp; nuansa klinis');
+    expect(html).toContain('保証申請');
+  });
+
+  it('keeps the doctor as speaker when introducing the nurse beside them as interpreter', () => {
+    const nurseIntroduction = PHRASES.find((phrase) => phrase.id === 'ph-essential-introduction-nurse')!;
+    expect(nurseIntroduction.speaker).toBe('doctor');
+    expect(nurseIntroduction.japanese).toContain('通訳');
+    const full = PHRASES.find((phrase) => phrase.id === 'ph-essential-introduction-full')!;
+    expect(full.speaker).toBe('doctor');
+    expect(full.japanese).toContain('こちらは、一緒に担当する看護師です');
+    expect(full.indonesian).toContain('perawat yang mendampingi saya');
+    expect(filterEssentialGroups('all', 'hosho shinsei').some((group) => group.id === 'devices')).toBe(true);
+    expect(searchDocs(buildSearchIndex(), '保証申請', 20).some((hit) => hit.id === 'ph-essential-devices-full')).toBe(true);
+    expect(ESSENTIAL_GROUPS.find((group) => group.id === 'devices')!.guide.words.find((entry) => entry.japanese === '保証申請')!.kanji).toContain('保（ほ / ho）');
   });
 });

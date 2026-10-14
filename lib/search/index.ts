@@ -151,7 +151,7 @@ export function buildSearchIndex(): SearchDoc[] {
       idn: phrase.indonesian,
       context: trimmed(`${phrase.intent} · ${phrase.clinicalContext}`, 160),
       badge: phrase.stage,
-      hidden: [phrase.register, phrase.speaker, phrase.nuance ?? '', ...phrase.variants, ...phrase.alternativeExpressions, ...phrase.specialtyTags, ...phrase.relatedDiseaseIds, phrase.intent].join(' '),
+      hidden: [phrase.register, phrase.speaker, phrase.nuance ?? '', phrase.notes ?? '', ...phrase.variants, ...phrase.alternativeExpressions, ...phrase.specialtyTags, ...phrase.relatedDiseaseIds, phrase.intent].join(' '),
       url: `/medical/phrases?stage=${phrase.stage}&p=${phrase.id}`,
     });
   }

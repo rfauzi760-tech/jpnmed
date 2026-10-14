@@ -107,6 +107,8 @@ RFSmed inventory counts are stored as a coverage target in `lib/content/rfsmed.t
 
 `/medical/essential` groups practical J-Unit communication into searchable topics, with explicit kana, spaced Hepburn romaji, Indonesian explanations, and per-phrase or group review actions. The same stable-ID phrases also appear in J-Unit stages, the phrasebook, and universal search. Authored additions retain their review status. Content inspiration: [the user's shared consultation examples](https://chatgpt.com/share/6aceddfa-3158-83ec-a42a-9edbdc6b0745); interpreter workflow terminology: [MHLW medical interpreting resources](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000056944.html).
 
+Each essential topic also has an extended script, an ordered conversation, vocabulary and kanji explanations, and grammar notes in `essentialGuides.ts`. Device complaints and appointment messages adapt [the user's second shared conversation](https://chatgpt.com/share/6acef43a-d264-83ec-aceb-7082d385bdc0), with reported facts distinguished from confirmed findings and corrections to source readings. Doctor introductions explicitly introduce the accompanying nurse as interpreting support. Shared messages are teaching references, not clinical verification sources.
+
 ---
 
 ## High-level success criteria
