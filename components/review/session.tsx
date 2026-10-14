@@ -333,7 +333,7 @@ export function ReviewSession({
                       {card.kana}
                     </p>
                   ) : null}
-                  {card?.kana ? <RomajiLine kana={card.kana} /> : null}
+                  {card?.kana ? <RomajiLine kana={card.kana} romaji={card.romaji} /> : null}
                 </div>
                 <div>
                   <p className="text-[17px] leading-relaxed text-foreground">{card?.primary}</p>

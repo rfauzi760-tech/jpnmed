@@ -230,6 +230,8 @@ export function termIdFor(japanese: string): string | undefined {
 /* ----------------------------- Clinical phrases ---------------------------- */
 
 export type PhraseRow = {
+  id?: string;
+  romaji?: string;
   intent: string;
   ja: string;
   kana: string;
@@ -256,11 +258,11 @@ export function P(row: PhraseRow): ClinicalPhrase {
   const n = (phraseCounter.get(row.stage) ?? 0) + 1;
   phraseCounter.set(row.stage, n);
   return {
-    id: `ph-${row.stage}-${String(n).padStart(2, '0')}`,
+    id: row.id ?? `ph-${row.stage}-${String(n).padStart(2, '0')}`,
     intent: row.intent,
     japanese: row.ja,
     kana: row.kana,
-    romaji: kanaToRomajiFull(row.kana),
+    romaji: row.romaji ?? kanaToRomajiFull(row.kana),
     english: row.en,
     indonesian: row.idn,
     register: row.reg,

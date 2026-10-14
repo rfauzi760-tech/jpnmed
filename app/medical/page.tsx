@@ -57,6 +57,9 @@ export default function MedicalHubPage() {
             <LinkButton href="/medical/j-unit" variant="secondary" size="md">
               J-Unit Mode
             </LinkButton>
+            <LinkButton href="/medical/essential" variant="secondary" size="md">
+              Essential J-Unit
+            </LinkButton>
             <LinkButton href="/medical/phrases" variant="secondary" size="md">
               Phrasebook
             </LinkButton>

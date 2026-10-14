@@ -11,7 +11,7 @@ import { AddToReviewButton } from '@/components/study/review-controls';
 import { Badge, Button, PageHeader } from '@/components/ui/primitives';
 import { cn } from '@/lib/utils/cn';
 
-function Line({ phrase }: { phrase: ReturnType<typeof phrasesForJUnitStage>[number] }) {
+export function JUnitPhraseLine({ phrase }: { phrase: ReturnType<typeof phrasesForJUnitStage>[number] }) {
   const { state } = useStudy();
   const display = state.settings.medicalDisplay;
   const showKana = display.furigana === 'always' || (display.furigana === 'difficult' && /[\u3400-\u9fff]/.test(phrase.japanese));
@@ -29,6 +29,7 @@ function Line({ phrase }: { phrase: ReturnType<typeof phrasesForJUnitStage>[numb
       </div>
       {display.indonesian ? <p className="mt-3 border-t border-border pt-3 text-[14px] leading-relaxed text-foreground">{phrase.indonesian}</p> : null}
       {display.english ? <p className="mt-1 text-[12px] leading-relaxed text-muted">{phrase.english}</p> : null}
+      {phrase.notes ? <p className="mt-3 text-sm leading-relaxed text-muted">{phrase.notes}</p> : null}
       <div className="mt-3 flex flex-wrap gap-1.5">
         <Badge tone="outline">{phrase.register}</Badge>
         {phrase.specialtyTags.slice(0, 3).map((tag) => <Badge key={tag} tone="neutral">{tag}</Badge>)}
@@ -94,6 +95,7 @@ export function JUnitMode() {
   return (
     <div className="space-y-5">
       <PageHeader eyebrow="J-Unit · 実戦モード" title="Alur konsultasi, satu tahap per layar" description="Kalimat Jepang siap digunakan saat bertemu pasien. Pilih tahap untuk melihat pertanyaan dan ungkapan yang khusus untuk situasi tersebut." meta={<><span>{index + 1} / {JUNIT_STAGES.length} tahap</span><span>{done.size} selesai</span></>} actions={<BookOpen className="h-5 w-5 text-primary" />} />
+      <Link href="/medical/essential" className="block rounded-lg border border-primary/30 bg-primary-muted/20 px-4 py-3 text-sm font-medium text-foreground hover:border-primary">Essential J-Unit · perkenalan, penerjemah, pemeriksaan, rujukan, rawat & asuransi →</Link>
       <Link href={encounterSubjectHref(selectedSymptom?.id)} className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary-muted/20 px-4 py-3 text-sm font-medium text-foreground hover:border-primary/60 hover:bg-primary-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
         <span>{selectedSymptom ? `Alur klinis lengkap · ${selectedSymptom.indonesian}` : 'Buka Alur Klinis Lengkap'}</span>
         <ArrowRight className="h-4 w-4 shrink-0 text-primary" />
@@ -120,7 +122,7 @@ export function JUnitMode() {
           </button>)}
           {search.trim() && filteredSymptoms.length === 0 ? <p className="rounded-lg border border-dashed border-border p-3 text-sm text-muted">Tidak ada nama gejala yang cocok; hasil frasa terkait ditampilkan di bawah.</p> : null}
         </div> : null}
-        {pagePhrases.length > 0 ? <div className="mt-3 space-y-3">{pagePhrases.map((phrase) => <Line key={phrase.id} phrase={phrase} />)}</div> : isHpi && !selectedSymptom && !search.trim() ? null : <p role="status" className="mt-3 rounded-lg border border-dashed border-border p-4 text-sm text-muted">{phraseSource.length ? 'Tidak ada frasa yang cocok pada tahap ini.' : 'Belum ada frasa untuk tahap ini.'}</p>}
+        {pagePhrases.length > 0 ? <div className="mt-3 space-y-3">{pagePhrases.map((phrase) => <JUnitPhraseLine key={phrase.id} phrase={phrase} />)}</div> : isHpi && !selectedSymptom && !search.trim() ? null : <p role="status" className="mt-3 rounded-lg border border-dashed border-border p-4 text-sm text-muted">{phraseSource.length ? 'Tidak ada frasa yang cocok pada tahap ini.' : 'Belum ada frasa untuk tahap ini.'}</p>}
         {visiblePhrases.length > pagePhrases.length ? <Button variant="secondary" size="sm" className="mt-3 w-full" onClick={() => setVisibleCount((value) => value + 30)}>Tampilkan 30 frasa lagi ({visiblePhrases.length - pagePhrases.length} tersisa)</Button> : null}
       </section>
       <div className="flex items-center justify-between gap-2">

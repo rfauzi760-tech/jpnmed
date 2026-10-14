@@ -8,6 +8,7 @@ import { ALL_DEPARTMENTS_PHRASES } from './allDepartmentsExpansion';
 import { DISEASE_HPI_EXPANSION } from './diseaseHpiExpansion';
 import { PRIMARY_CARE_HPI_EXPANSION } from './primaryCareHpiExpansion';
 import { CLINICAL_WORKFLOW_EXPANSION } from './clinicalWorkflowExpansion';
+import { ESSENTIAL_PHRASE_ROWS } from './essentialCommunication';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook, organised by encounter flow.
@@ -400,4 +401,5 @@ export const PHRASES: ClinicalPhrase[] = [
   ...DISEASE_HPI_EXPANSION,
   ...PRIMARY_CARE_HPI_EXPANSION,
   ...CLINICAL_WORKFLOW_EXPANSION,
+  ...ESSENTIAL_PHRASE_ROWS.map(P),
 ];

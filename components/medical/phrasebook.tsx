@@ -86,7 +86,7 @@ export function Phrasebook({
       if (register !== 'all' && row.register !== register) return false;
       if (speaker !== 'all' && row.speaker !== speaker) return false;
       if (!needle) return true;
-      return [row.japanese, row.kana ?? '', row.english, row.indonesian, row.intent, row.clinicalContext, row.nuance ?? '', ...row.variants, ...row.alternativeExpressions]
+      return [row.japanese, row.kana ?? '', row.romaji, row.english, row.indonesian, row.intent, row.clinicalContext, row.nuance ?? '', ...row.variants, ...row.alternativeExpressions]
         .join(' ')
         .toLowerCase()
         .includes(needle);
@@ -138,6 +138,7 @@ export function Phrasebook({
         )}
       />
 
+      <Link href="/medical/essential" className="block text-sm text-primary underline">Essential J-Unit · kalimat penting untuk praktik sehari-hari</Link>
       <Link
         href={encounterSubjectHref(selectedHpiSymptom?.id)}
         className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary-muted/20 px-4 py-3 text-foreground transition-colors hover:border-primary/60 hover:bg-primary-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"

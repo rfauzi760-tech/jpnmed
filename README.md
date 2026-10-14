@@ -105,6 +105,8 @@ Medical content is Indonesian-first: Japanese → kana → romaji → Bahasa Ind
 
 RFSmed inventory counts are stored as a coverage target in `lib/content/rfsmed.ts`; the current mapped content is intentionally visible as incomplete. Optional `/api/medical/jisho?keyword=...` results are draft-only and are never promoted to verified medical Japanese automatically.
 
+`/medical/essential` groups practical J-Unit communication into searchable topics, with explicit kana, spaced Hepburn romaji, Indonesian explanations, and per-phrase or group review actions. The same stable-ID phrases also appear in J-Unit stages, the phrasebook, and universal search. Authored additions retain their review status. Content inspiration: [the user's shared consultation examples](https://chatgpt.com/share/6aceddfa-3158-83ec-a42a-9edbdc6b0745); interpreter workflow terminology: [MHLW medical interpreting resources](https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000056944.html).
+
 ---
 
 ## High-level success criteria

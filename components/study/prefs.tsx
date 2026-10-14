@@ -11,10 +11,10 @@ import { useStudy } from '@/lib/store/provider';
    that reads it, so romaji never leaks into a page by accident.
 ------------------------------------------------------------------ */
 
-export function RomajiLine({ kana, className }: { kana?: string; className?: string }) {
+export function RomajiLine({ kana, romaji, className }: { kana?: string; romaji?: string; className?: string }) {
   const { state } = useStudy();
   if (!state.settings.showRomaji || !kana) return null;
-  return <p className={`font-mono text-[11.5px] tracking-wide text-muted ${className ?? ''}`}>{kanaToRomaji(kana)}</p>;
+  return <p className={`font-mono text-[11.5px] tracking-wide text-muted ${className ?? ''}`}>{romaji ?? kanaToRomaji(kana)}</p>;
 }
 
 export function RomajiInline({ kana }: { kana?: string }) {

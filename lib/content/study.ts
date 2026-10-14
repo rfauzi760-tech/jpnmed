@@ -143,6 +143,7 @@ export function phraseCard(id: string): StudyCard | undefined {
     contentId: phrase.id,
     front: phrase.english,
     kana: phrase.kana,
+    romaji: phrase.romaji,
     primary: phrase.japanese,
     secondary: phrase.indonesian,
     detail: phrase.variants.length ? `Alternative: ${phrase.variants.join(' / ')}` : undefined,
