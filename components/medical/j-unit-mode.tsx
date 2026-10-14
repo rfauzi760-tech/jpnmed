@@ -21,14 +21,14 @@ export function JUnitPhraseLine({ phrase }: { phrase: ReturnType<typeof phrasesF
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-[11px] text-muted">{phrase.intent} · {phrase.speaker}</div>
-          <p lang="ja" className="mt-2 text-[20px] leading-relaxed text-foreground">{phrase.japanese}</p>
-          {showKana ? <p lang="ja" className="mt-1 text-[13px] text-muted">{phrase.kana}</p> : null}
-          {showRomaji ? <p className="mt-1 text-[13px] text-info">{phrase.romaji}</p> : display.romaji === 'hover' ? <p className="mt-1 text-[13px] text-info opacity-0 transition-opacity group-hover:opacity-100">{phrase.romaji}</p> : null}
+          <p lang="ja" className="whitespace-pre-line mt-2 text-[20px] leading-relaxed text-foreground">{phrase.japanese}</p>
+          {showKana ? <p lang="ja" className="whitespace-pre-line mt-1 text-[13px] text-muted">{phrase.kana}</p> : null}
+          {showRomaji ? <p className="whitespace-pre-line mt-1 text-[13px] text-info">{phrase.romaji}</p> : display.romaji === 'hover' ? <p className="whitespace-pre-line mt-1 text-[13px] text-info opacity-0 transition-opacity group-hover:opacity-100">{phrase.romaji}</p> : null}
         </div>
         <AddToReviewButton contentType="clinical-phrase" contentId={phrase.id} />
       </div>
-      {display.indonesian ? <p className="mt-3 border-t border-border pt-3 text-[14px] leading-relaxed text-foreground">{phrase.indonesian}</p> : null}
-      {display.english ? <p className="mt-1 text-[12px] leading-relaxed text-muted">{phrase.english}</p> : null}
+      {display.indonesian ? <p className="whitespace-pre-line mt-3 border-t border-border pt-3 text-[14px] leading-relaxed text-foreground">{phrase.indonesian}</p> : null}
+      {display.english ? <p className="whitespace-pre-line mt-1 text-[12px] leading-relaxed text-muted">{phrase.english}</p> : null}
       {phrase.notes ? <p className="mt-3 text-sm leading-relaxed text-muted">{phrase.notes}</p> : null}
       <div className="mt-3 flex flex-wrap gap-1.5">
         <Badge tone="outline">{phrase.register}</Badge>

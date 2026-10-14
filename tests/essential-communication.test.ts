@@ -89,8 +89,14 @@ describe('essential clinical communication', () => {
     expect(nurseIntroduction.japanese).toContain('通訳');
     const full = PHRASES.find((phrase) => phrase.id === 'ph-essential-introduction-full')!;
     expect(full.speaker).toBe('doctor');
-    expect(full.japanese).toContain('こちらは、一緒に担当する看護師です');
-    expect(full.indonesian).toContain('perawat yang mendampingi saya');
+    expect(full.japanese.split('\n')).toHaveLength(6);
+    expect(full.japanese).toContain('本日は、看護師の〇〇さんと一緒に診察を担当させていただきます。');
+    expect(full.japanese).toContain('もしよろしければ、少しゆっくりお話しいただけると助かります。');
+    expect(full.japanese).not.toContain('こちらは、一緒に担当する看護師です');
+    for (const text of [full.kana, full.romaji, full.indonesian, full.english]) {
+      expect(text.split('\n')).toHaveLength(6);
+    }
+    expect(full.indonesian).toContain('bersama perawat 〇〇');
     expect(filterEssentialGroups('all', 'hosho shinsei').some((group) => group.id === 'devices')).toBe(true);
     expect(searchDocs(buildSearchIndex(), '保証申請', 20).some((hit) => hit.id === 'ph-essential-devices-full')).toBe(true);
     expect(ESSENTIAL_GROUPS.find((group) => group.id === 'devices')!.guide.words.find((entry) => entry.japanese === '保証申請')!.kanji).toContain('保（ほ / ho）');
