@@ -109,6 +109,12 @@ RFSmed inventory counts are stored as a coverage target in `lib/content/rfsmed.t
 
 Each essential topic also has an extended script, an ordered conversation, vocabulary and kanji explanations, and grammar notes in `essentialGuides.ts`. Device complaints and appointment messages adapt [the user's second shared conversation](https://chatgpt.com/share/6acef43a-d264-83ec-aceb-7082d385bdc0), with reported facts distinguished from confirmed findings and corrections to source readings. Doctor introductions explicitly introduce the accompanying nurse as interpreting support. Shared messages are teaching references, not clinical verification sources.
 
+### User-supplied PDF vocabulary
+
+The `pdfGeneralAnatomy.ts`, `pdfGeneralSpecialties.ts`, `pdfGeneralEndoNeuro.ts`, `pdfGeneralCardioObgyn.ts`, `pdfDental.ts`, and `pdfObgyn.ts` datasets transcribe the supplied general medical, dental, and OBGYN handouts. The ten-page general handout is scanned; page metadata refers to PDF page order rather than printed page numbers. `pdfVocabulary.ts` integrates these rows into the existing dictionary using exact Japanese names or explicitly authored equivalents. Existing IDs, curated readings, translations, and verification are preserved; new entries remain draft. Full utterances enter the existing phrasebook rather than becoming vocabulary cards. `PDF_VOCABULARY_COVERAGE` accounts for every source row and its canonical content ID, including merged overlaps. Sources are recorded by title/page without publishing the user's local filesystem paths or PDF files.
+
+Source mistakes are explained rather than silently reproduced. Terminology cross-checks include the [Japan Dental Association's dental examination guide](https://www.jda.or.jp/go/check.html), [orthodontic terminology](https://www.jda.or.jp/consultation/vol-38.html), [Japan Medical Association NIPT explanation](https://jams-prenatal.jp/file/nipt_setsumei_a4.pdf?20240425=), and [Kyoto Medical Center's epidural/spinal explanation](https://kyoto.hosp.go.jp/html/guide/medicalinfo/anesthesiology/painless.html). These targeted checks do not constitute expert verification of the full imported corpus.
+
 ---
 
 ## High-level success criteria

@@ -10,6 +10,7 @@ import { PRIMARY_CARE_HPI_EXPANSION } from './primaryCareHpiExpansion';
 import { CLINICAL_WORKFLOW_EXPANSION } from './clinicalWorkflowExpansion';
 import { ESSENTIAL_PHRASE_ROWS } from './essentialCommunication';
 import { ESSENTIAL_GUIDE_PHRASE_ROWS } from './essentialGuides';
+import { PDF_VOCABULARY_PHRASE_ROWS } from './pdfVocabulary';
 
 /* ------------------------------------------------------------------
    Clinical phrasebook, organised by encounter flow.
@@ -404,4 +405,5 @@ export const PHRASES: ClinicalPhrase[] = [
   ...CLINICAL_WORKFLOW_EXPANSION,
   ...ESSENTIAL_PHRASE_ROWS.map(P),
   ...ESSENTIAL_GUIDE_PHRASE_ROWS.map(P),
+  ...PDF_VOCABULARY_PHRASE_ROWS.map(P),
 ];

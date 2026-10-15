@@ -108,6 +108,7 @@ export const SPECIALTIES: { id: string; label: Label }[] = [
   { id: 'thoracic-surgery', label: { en: 'Thoracic surgery', ja: '呼吸器外科' } },
   { id: 'cardiac-surgery', label: { en: 'Cardiac surgery', ja: '心臓血管外科' } },
   { id: 'oral-surgery', label: { en: 'Oral and maxillofacial surgery', ja: '歯科口腔外科' } },
+  { id: 'dentistry', label: { en: 'Dentistry', ja: '歯科' } },
   { id: 'hospital-administration', label: { en: 'Hospital administration', ja: '医療事務' } },
   { id: 'sleep-medicine', label: { en: 'Sleep medicine', ja: '睡眠医療' } },
   { id: 'allergy-immunology', label: { en: 'Allergy and immunology', ja: 'アレルギー・免疫科' } },

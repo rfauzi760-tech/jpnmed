@@ -78,6 +78,7 @@ export function TermBrowser({
       return [
         row.japanese,
         row.kana ?? '',
+        row.romaji,
         row.english,
         row.indonesian,
         row.patientFriendly ?? '',
@@ -125,7 +126,7 @@ export function TermBrowser({
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter by Japanese, kana, English or Indonesian"
+              placeholder="Cari kanji, kana, romaji, atau arti Indonesia / Inggris"
               className="pl-8"
               aria-label="Filter terminology"
             />

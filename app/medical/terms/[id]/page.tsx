@@ -150,7 +150,13 @@ export default async function MedicalTermPage({ params }: { params: Promise<{ id
                 <p className="mt-1.5 text-[12.5px] text-foreground">{term.example.indonesian}</p>
                 <p className="mt-0.5 text-[11.5px] text-muted">{term.example.english}</p>
               </div>
-              {term.usageNote ? <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">Usage note: {term.usageNote}</p> : null}
+            </section>
+          ) : null}
+
+          {term.usageNote ? (
+            <section>
+              <SectionHeading title="Penjelasan & penggunaan" />
+              <p className="whitespace-pre-line pt-2 text-[13px] leading-relaxed text-muted-foreground">{term.usageNote}</p>
             </section>
           ) : null}
 
@@ -287,7 +293,7 @@ export default async function MedicalTermPage({ params }: { params: Promise<{ id
             <p className="pt-3 text-[12px] leading-relaxed text-muted">
               {term.source?.title ?? 'Curated for this curriculum.'} {term.source?.url ? <span className="block break-all">{term.source.url}</span> : null}
             </p>
-            {term.notes ? <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{term.notes}</p> : null}
+            {term.notes ? <p className="mt-2 whitespace-pre-line text-[12px] leading-relaxed text-muted-foreground">{term.notes}</p> : null}
           </section>
 
           <section>

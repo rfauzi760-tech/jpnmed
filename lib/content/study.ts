@@ -117,7 +117,7 @@ export function termCard(id: string): StudyCard | undefined {
     contentId: term.id,
     front: term.japanese,
     kana: term.kana,
-    romaji: term.kana ? kanaToRomaji(term.kana) : undefined,
+    romaji: term.romaji,
     primary: term.english,
     secondary: term.indonesian,
     detail: term.patientFriendly ?? term.definitionJa,

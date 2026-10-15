@@ -6,6 +6,7 @@ import { MEDICAL_LEXICON_EXPANSION } from './medicalLexiconExpansion';
 import { MEDICAL_RELATION_SUPPORT } from './medicalRelationSupport';
 import { MEDICAL_LEXICON_MEGA_EXPANSION } from './medicalLexiconMegaExpansion';
 import { ALL_DEPARTMENTS_TERMS } from './allDepartmentsExpansion';
+import { integratePdfVocabulary } from './pdfVocabulary';
 
 /* ------------------------------------------------------------------
    Medical Japanese term database.
@@ -494,7 +495,7 @@ const MEDICAL_TERMS_CORE: MedicalTerm[] = [
     pe: '毎日リハビリを受けています' }),
 ];
 
-export const MEDICAL_TERMS: MedicalTerm[] = [
+const MEDICAL_TERMS_BASE: MedicalTerm[] = [
   ...MEDICAL_TERMS_CORE,
   ...MEDICAL_TERMS_EXPANSION,
   ...MEDICAL_PATIENT_LANGUAGE,
@@ -503,3 +504,7 @@ export const MEDICAL_TERMS: MedicalTerm[] = [
   ...MEDICAL_LEXICON_MEGA_EXPANSION,
   ...ALL_DEPARTMENTS_TERMS,
 ];
+
+const pdfImport = integratePdfVocabulary(MEDICAL_TERMS_BASE);
+export const MEDICAL_TERMS: MedicalTerm[] = pdfImport.terms;
+export const PDF_VOCABULARY_COVERAGE = pdfImport.mappings;
